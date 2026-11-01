@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - DeliveryYa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #FFF4EE 0%, #FFE5D9 100%);
+            padding: 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-header {
+            background: linear-gradient(to right, #F59B0F, #AC6C2A);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .email-header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .email-header p {
+            color: #FFF4EE;
+            font-size: 16px;
+        }
+
+        .email-body {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 20px;
+            color: #1A1F3A;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            color: #2C3E50;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .info-box {
+            background: #E0F7F4;
+            border-left: 4px solid #00BFA5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box p {
+            color: #00897B;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(to right, #F59B0F, #AC6C2A);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(245, 155, 15, 0.3);
+            margin: 20px 0;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .warning-box {
+            background: #FFF3E0;
+            border-left: 4px solid #FFA726;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .warning-box p {
+            color: #E65100;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #FFD4C4 50%, transparent 100%);
+            margin: 30px 0;
+        }
+
+        .footer {
+            background: #1A1F3A;
+            padding: 30px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .footer-links {
+            margin: 20px 0;
+        }
+
+        .footer-links a {
+            color: #F59B0F;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+
+        .footer-text {
+            color: #94A3B8;
+            font-size: 12px;
+            margin-top: 20px;
+            line-height: 1.8;
+        }
+
+        .brand-name {
+            color: #F59B0F;
+            font-weight: 700;
+        }
+
+        .link-text {
+            color: #00BFA5;
+            font-size: 13px;
+            word-break: break-all;
+            background: #E0F7F4;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            display: inline-block;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Verify Your Email</h1>
+            <p>Welcome to DeliveryYa!</p>
+        </div>
+
+        <div class="email-body">
+            <p class="greeting">Hello, ${userData.firstName}!</p>
+            
+            <p class="message">
+                Thank you for signing up with <strong class="brand-name">DeliveryYa</strong>! 
+                We're excited to have you on board. To complete your registration and start 
+                enjoying our fast and reliable delivery services, please verify your email address.
+            </p>
+
+            <div class="info-box">
+                <p><strong>Why verify?</strong> Email verification helps us ensure the security 
+                of your account and allows us to send you important updates about your deliveries.</p>
+            </div>
+
+            <div class="button-container">
+                <a href="{{verification_link}}" class="cta-button">
+                    Verify Email Address
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="message" style="font-size: 14px;">
+                If the button doesn't work, copy and paste this link into your browser:
+            </p>
+            <div class="link-text">
+                {{verification_link}}
+            </div>
+
+            <div class="warning-box">
+                <p><strong>⚠️ Security Notice:</strong> If you didn't create an account with 
+                DeliveryYa, please ignore this email or contact our support team immediately.</p>
+            </div>
+
+            <p class="message" style="margin-top: 30px; font-size: 14px;">
+                Need help? Our support team is always here to assist you.
+            </p>
+
+            <p class="message" style="font-size: 14px; margin-top: 20px;">
+                Best regards,<br>
+                <strong class="brand-name">The DeliveryYa Team</strong>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p class="footer-text">
+                © 2026 <span class="brand-name">DeliveryYa</span>. All rights reserved.
+            </p>
+            <p class="footer-text" style="margin-top: 15px; font-size: 11px;">
+                This is an automated email. Please do not reply to this message.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

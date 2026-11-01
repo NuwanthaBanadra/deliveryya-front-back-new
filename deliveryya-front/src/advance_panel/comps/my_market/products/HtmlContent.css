@@ -1,0 +1,229 @@
+/* Styles for displaying HTML content from rich text editor */
+.prose {
+  color: #374151;
+  max-width: 65ch;
+}
+
+.prose h1 {
+  font-size: 2em;
+  font-weight: 700;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+  color: #1f2937;
+}
+
+.prose h2 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+  color: #1f2937;
+}
+
+.prose h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 0.8em;
+  margin-bottom: 0.5em;
+  line-height: 1.4;
+  color: #1f2937;
+}
+
+.prose p {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  line-height: 1.75;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.625em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.625em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+
+.prose ul ul,
+.prose ul ol,
+.prose ol ul,
+.prose ol ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  font-size: 0.875em;
+  line-height: 1.7142857;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.prose thead {
+  border-bottom: 2px solid #d1d5db;
+}
+
+.prose thead th {
+  color: #111827;
+  font-weight: 600;
+  vertical-align: bottom;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  text-align: left;
+  border-right: 1px solid #e5e7eb;
+}
+
+.prose thead th:last-child {
+  border-right: none;
+}
+
+.prose tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.prose tbody tr:last-child {
+  border-bottom: none;
+}
+
+.prose tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.prose tbody td {
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+  border-right: 1px solid #e5e7eb;
+}
+
+.prose tbody td:last-child {
+  border-right: none;
+}
+
+.prose code {
+  color: #be185d;
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+}
+
+.prose pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  font-size: 0.875em;
+  line-height: 1.7142857;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  border-radius: 0;
+}
+
+.prose blockquote {
+  font-weight: 500;
+  font-style: italic;
+  color: #111827;
+  border-left: 0.25rem solid #F59B0F;
+  padding-left: 1em;
+  margin-top: 1.6em;
+  margin-bottom: 1.6em;
+  quotes: "\201C""\201D""\2018""\2019";
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 3em;
+  margin-bottom: 3em;
+}
+
+.prose a {
+  color: #F59B0F;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.prose a:hover {
+  color: #EA580C;
+}
+
+/* Ensure max-width doesn't apply when using max-w-none */
+.prose.max-w-none {
+  max-width: none;
+}
+
+/* Large prose variant */
+.prose-lg {
+  font-size: 1.125rem;
+  line-height: 1.7777778;
+}
+
+.prose-lg h1 {
+  font-size: 2.5em;
+  margin-top: 0;
+  margin-bottom: 0.8em;
+  line-height: 1.1111111;
+}
+
+.prose-lg h2 {
+  font-size: 1.6666667em;
+  margin-top: 1.4666667em;
+  margin-bottom: 0.8666667em;
+  line-height: 1.3333333;
+}
+
+.prose-lg h3 {
+  font-size: 1.3333333em;
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  line-height: 1.5;
+}
+
+.prose-lg table {
+  font-size: 1rem;
+}
+
+.prose-lg th,
+.prose-lg td {
+  padding: 0.875rem 1.125rem;
+}

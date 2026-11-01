@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settlement Report Header</title>
+</head>
+
+<body style="margin:0;padding:0;background:#ffffff;width:820px;font-family:Arial,Helvetica,sans-serif;color:#111827;">
+    <div id="settlement-report-header" style="width:820px;box-sizing:border-box;padding:0;background:#ffffff;">
+        <section id="sr-header" style="display:grid;grid-template-columns:180px 1fr 210px;align-items:center;gap:16px;padding:22px 24px 16px 24px;border:1px solid #e5e7eb;border-bottom:0;background:#ffffff;">
+            <div id="sr-brand" style="height:auto;border:1.5px solid #ffffff;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:8px 10px;box-sizing:border-box;overflow:hidden;">
+                <img id="sr-logo" alt="DeliveryYa.lk" style="width:160px;height:auto;object-fit:contain;display:block;" />
+            </div>
+
+            <div style="text-align:center;min-width:0;">
+                <div id="sr-brand-subtitle" style="font-size:34px;line-height:1;font-weight:900;color:#111827;letter-spacing:0;">Settlement Report</div>
+                <div id="sr-brand-date" style="margin-top:8px;font-size:12px;font-weight:700;color:#6b7280;">--</div>
+            </div>
+
+            <div id="sr-meta" style="font-size:11px;color:#111827;line-height:1.45;">
+                <div style="display:grid;grid-template-columns:64px 1fr;gap:4px 10px;margin-bottom:4px;">
+                    <div style="font-weight:800;">Scope:</div>
+                    <div id="sr-report-badge" style="font-weight:700;text-align:right;">--</div>
+                    <div style="font-weight:800;">Generated:</div>
+                    <div id="sr-meta-line" style="font-weight:700;text-align:right;">--</div>
+                </div>
+            </div>
+        </section>
+
+        <div id="sr-header-bar" style="height:3px;background:#f97316;margin:0 24px;"></div>
+
+        <section id="sr-info-grid" style="display:grid;grid-template-columns:1.15fr repeat(4,1fr);gap:10px;padding:16px 24px 12px 24px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
+            <div id="sr-subject-card" style="border-radius:8px;padding:12px;border:1px solid #e5e7eb;background:#fff7ed;box-shadow:0 4px 12px rgba(15,23,42,0.06);">
+                <div id="sr-subject-label" style="font-size:9px;text-transform:uppercase;font-weight:800;color:#f97316;">Scope</div>
+                <div id="sr-subject-name" style="margin-top:6px;font-size:13px;font-weight:900;color:#111827;line-height:1.2;">N/A</div>
+                <div id="sr-subject-note" style="margin-top:4px;font-size:9px;color:#6b7280;line-height:1.25;">N/A</div>
+            </div>
+            <div id="sr-orders-card" style="border-radius:8px;padding:12px;border:1px solid #e5e7eb;background:#ffffff;box-shadow:0 4px 12px rgba(15,23,42,0.06);">
+                <div style="font-size:9px;text-transform:uppercase;font-weight:800;color:#6b7280;">Total Orders</div>
+                <div id="sr-orders-count" style="margin-top:8px;font-size:18px;font-weight:900;color:#111827;">0</div>
+                <div style="margin-top:4px;font-size:9px;color:#6b7280;">Filtered orders</div>
+            </div>
+            <div id="sr-value-card" style="border-radius:8px;padding:12px;border:1px solid #e5e7eb;background:#ffffff;box-shadow:0 4px 12px rgba(15,23,42,0.06);">
+                <div id="sr-order-value-label" style="font-size:9px;text-transform:uppercase;font-weight:800;color:#6b7280;">Value</div>
+                <div id="sr-order-value" style="margin-top:8px;font-size:16px;font-weight:900;color:#f97316;line-height:1.1;">LKR 0.00</div>
+                <div id="sr-order-value-note" style="margin-top:4px;font-size:9px;color:#6b7280;">--</div>
+            </div>
+            <div id="sr-settlement-card" style="border-radius:8px;padding:12px;border:1px solid #e5e7eb;background:#ffffff;box-shadow:0 4px 12px rgba(15,23,42,0.06);">
+                <div id="sr-settlement-label" style="font-size:9px;text-transform:uppercase;font-weight:800;color:#6b7280;">Settlement</div>
+                <div id="sr-settlement" style="margin-top:8px;font-size:16px;font-weight:900;color:#111827;line-height:1.1;">LKR 0.00</div>
+                <div id="sr-settlement-note" style="margin-top:4px;font-size:9px;color:#6b7280;">--</div>
+            </div>
+            <div id="sr-extra-card" style="border-radius:8px;padding:12px;border:1px solid #e5e7eb;background:#ffffff;box-shadow:0 4px 12px rgba(15,23,42,0.06);">
+                <div id="sr-extra-label" style="font-size:9px;text-transform:uppercase;font-weight:800;color:#6b7280;">Gross Collectible</div>
+                <div id="sr-extra-value" style="margin-top:8px;font-size:16px;font-weight:900;color:#111827;line-height:1.1;">LKR 0.00</div>
+                <div id="sr-extra-note" style="margin-top:4px;font-size:9px;color:#6b7280;">--</div>
+            </div>
+        </section>
+
+        <section id="sr-subject-strip" style="display:grid;grid-template-columns:1fr;gap:10px;padding:0 24px 12px 24px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
+            <div id="sr-subject-main" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;">
+                <div id="sr-subject-section-title" style="font-size:9px;text-transform:uppercase;font-weight:800;color:#6b7280;margin-bottom:6px;">Scope</div>
+                <div style="display:grid;grid-template-columns:80px 1fr;gap:4px 10px;">
+                    <div style="font-size:10px;font-weight:800;color:#6b7280;">Name</div>
+                    <div id="sr-subject-name-full" style="font-size:10px;color:#111827;font-weight:700;line-height:1.3;">N/A</div>
+                    <div style="font-size:10px;font-weight:800;color:#6b7280;">Reference</div>
+                    <div id="sr-subject-address" style="font-size:10px;color:#111827;font-weight:700;line-height:1.3;">N/A</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sr-body" style="padding:0 24px 18px 24px;border:1px solid #e5e7eb;border-top:0;background:#ffffff;">
+            <div id="sr-pill-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;align-items:center;">
+                <div id="sr-pill-delivery" style="font-size:10px;color:#374151;padding:6px 14px;border-radius:999px;background:#f9fafb;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;line-height:1.2;text-align:center;min-height:30px;">Delivery status: --</div>
+                <div id="sr-pill-payment" style="font-size:10px;color:#374151;padding:6px 14px;border-radius:999px;background:#f9fafb;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;line-height:1.2;text-align:center;min-height:30px;">Payment status: --</div>
+                <div id="sr-pill-fallback" style="font-size:10px;color:#92400e;padding:6px 14px;border-radius:999px;background:#fff7ed;border:1px solid #fdba74;display:flex;align-items:center;justify-content:center;line-height:1.2;text-align:center;min-height:30px;">Report</div>
+            </div>
+            <div id="sr-applied-filters" style="font-size:8px;color:#6b7280;line-height:1.35;">Applied filters: --</div>
+            <!-- <div id="sr-footer-time" style="margin-top:4px;font-size:8px;color:#9ca3af;line-height:1.35;">--</div> -->
+        </section>
+    </div>
+</body>
+
+</html>

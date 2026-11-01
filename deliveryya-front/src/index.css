@@ -1,0 +1,464 @@
+@import 'tailwindcss';
+
+/* Custom animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.4s ease-out forwards;
+}
+
+/* Custom scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+.scrollbar-thumb-gray-300 {
+  scrollbar-color: #d1d5db transparent;
+}
+
+.scrollbar-thumb-gray-400:hover {
+  scrollbar-color: #9ca3af transparent;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Fallback that ensures hidden scrollbars while preserving scrolling interaction */
+.scrollbar-hide {
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollbar-hover-only {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hover-only::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.scrollbar-hover-only:hover {
+  scrollbar-width: thin;
+}
+
+.scrollbar-hover-only:hover::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-hover-only:hover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-hover-only:hover::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 999px;
+}
+
+.scrollbar-hover-only:hover::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* SweetAlert2 theme overrides */
+:root {
+  --dy-swal-confirm: #F59B0F;
+  --dy-swal-confirm-hover: #FFA500;
+  --dy-swal-cancel: #E5E7EB;
+  --dy-swal-cancel-hover: #D1D5DB;
+  --dy-swal-error: #F87171;
+  --dy-swal-success: #F59B0F;
+  --dy-swal-warning: #F59B0F;
+}
+
+.swal2-container .swal2-confirm {
+  background: linear-gradient(90deg, var(--dy-swal-confirm), var(--dy-swal-confirm-hover)) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 6px 16px rgba(245, 155, 15, 0.25) !important;
+}
+
+.swal2-container .swal2-confirm:hover {
+  background: linear-gradient(90deg, var(--dy-swal-confirm-hover), var(--dy-swal-confirm)) !important;
+}
+
+.swal2-container .swal2-confirm:focus {
+  box-shadow: 0 0 0 3px rgba(245, 155, 15, 0.35) !important;
+}
+
+.swal2-container .swal2-cancel {
+  background: var(--dy-swal-cancel) !important;
+  color: #374151 !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+}
+
+.swal2-container .swal2-cancel:hover {
+  background: var(--dy-swal-cancel-hover) !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: var(--dy-swal-error) !important;
+  color: var(--dy-swal-error) !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: var(--dy-swal-warning) !important;
+  color: var(--dy-swal-warning) !important;
+}
+
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: var(--dy-swal-success) !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: var(--dy-swal-success) !important;
+}
+
+.setup-job-datetime .rdt {
+  width: 100%;
+}
+
+.setup-job-datetime .rdt > input,
+.setup-job-datetime-input {
+  min-height: 3rem;
+}
+
+.setup-job-datetime .rdtPicker {
+  border: 1px solid #fed7aa;
+  border-radius: 0.85rem;
+  box-shadow: 0 14px 34px rgba(251, 146, 60, 0.2);
+  margin-top: 0.5rem;
+  overflow: hidden;
+  min-width: 260px;
+}
+
+.setup-job-datetime .rdtPicker th,
+.setup-job-datetime .rdtPicker td {
+  padding: 0.5rem;
+}
+
+.setup-job-datetime .rdtActive,
+.setup-job-datetime td.rdtActive:hover,
+.setup-job-datetime .rdtTimeToggle:hover,
+.setup-job-datetime .rdtBtn:hover {
+  background: #ff6347 !important;
+  color: #fff !important;
+}
+
+.setup-job-timepicker .react-time-picker {
+  width: 100%;
+}
+
+.setup-job-timepicker .react-time-picker__wrapper {
+  border: 0;
+  min-height: 3rem;
+  align-items: center;
+}
+
+.setup-job-timepicker .react-time-picker__inputGroup {
+  font-size: 0.9rem;
+  color: #374151;
+  min-height: 2.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.setup-job-timepicker .react-time-picker__inputGroup__input {
+  min-width: 0.95em;
+  padding: 0 2px;
+}
+
+.setup-job-timepicker .react-time-picker__inputGroup__divider {
+  color: #9ca3af;
+}
+
+.setup-job-timepicker .react-time-picker__button {
+  color: #f97316;
+  padding: 0.25rem;
+}
+
+.setup-job-timepicker .react-time-picker__button:enabled:hover,
+.setup-job-timepicker .react-time-picker__button:enabled:focus {
+  color: #ff4500;
+}
+
+/* Premium animation keyframes for page redesigns */
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideInDown {
+  animation: slideInDown 0.6s ease-out forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.7s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.7s ease-out forwards;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(245, 155, 15, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(245, 155, 15, 0.6);
+  }
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes rotateSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-rotateSlow {
+  animation: rotateSlow 8s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Organic/shep image shapes for hero/image boxes */
+.shape-1 {
+  border-radius: 1rem;
+  -webkit-clip-path: polygon(0% 8%, 100% 0%, 100% 85%, 76% 100%, 12% 96%, 0% 60%);
+  clip-path: polygon(0% 8%, 100% 0%, 100% 85%, 76% 100%, 12% 96%, 0% 60%);
+  transition: clip-path 0.6s ease, transform 0.35s ease;
+}
+
+.shape-2 {
+  -webkit-clip-path: polygon(6% 0%, 100% 6%, 96% 94%, 50% 100%, 4% 92%, 0% 12%);
+  clip-path: polygon(6% 0%, 100% 6%, 96% 94%, 50% 100%, 4% 92%, 0% 12%);
+  transition: clip-path 0.6s ease, transform 0.35s ease;
+}
+
+.shape-3 {
+  -webkit-clip-path: polygon(0% 0%, 100% 4%, 100% 72%, 85% 100%, 20% 90%, 0% 60%);
+  clip-path: polygon(0% 0%, 100% 4%, 100% 72%, 85% 100%, 20% 90%, 0% 60%);
+  transition: clip-path 0.6s ease, transform 0.35s ease;
+}
+
+.shape-4 {
+  -webkit-clip-path: polygon(8% 4%, 92% 0%, 100% 64%, 78% 100%, 10% 92%, 0% 24%);
+  clip-path: polygon(8% 4%, 92% 0%, 100% 64%, 78% 100%, 10% 92%, 0% 24%);
+  transition: clip-path 0.6s ease, transform 0.35s ease;
+}
+
+.shape-5 {
+  -webkit-clip-path: polygon(0% 12%, 88% 0%, 100% 78%, 68% 100%, 12% 92%, 0% 68%);
+  clip-path: polygon(0% 12%, 88% 0%, 100% 78%, 68% 100%, 12% 92%, 0% 68%);
+  transition: clip-path 0.6s ease, transform 0.35s ease;
+}
+
+.shape-6 {
+  -webkit-clip-path: polygon(6% 0%, 100% 6%, 96% 86%, 68% 100%, 10% 94%, 0% 26%);
+  clip-path: polygon(6% 0%, 100% 6%, 96% 86%, 68% 100%, 10% 94%, 0% 26%);
+  transition: clip-path 0.6s ease, transform 0.35s ease;
+}
+
+/* Slight hover lift */
+.shape-1:hover,
+.shape-2:hover,
+.shape-3:hover,
+.shape-4:hover,
+.shape-5:hover,
+.shape-6:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2.5s ease-in-out infinite;
+}
+
+/* Accessibility: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
