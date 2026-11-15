@@ -1,0 +1,157 @@
+<div id="order-slip-root" style="box-sizing:border-box;width:794px;background:#ffffff;font-family:'Segoe UI',Arial,sans-serif;font-size:0;color:#1a0f00;border:2px solid #1a0f00;margin:0 auto;display:block;">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- HEADER                                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <table style="width:100%;border-collapse:collapse;background:#F5A500;border-bottom:3px solid #1a0f00;" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="padding:10px 14px;vertical-align:middle;width:50%;">
+        <table cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="vertical-align:middle;padding-right:10px;">
+              <img id="slip-logo" src="" alt="Logo" style="width:70px;height:50px;object-fit:contain;border-radius:4px;border:2px solid #1a0f00;background:#fff;padding:2px;display:block;"/>
+            </td>
+            <td style="vertical-align:middle;">
+              <div style="font-size:22px;font-weight:900;color:#1a0f00;letter-spacing:1px;line-height:1.1;display:block;">DeliveryYa</div>
+              <div style="font-size:9px;font-weight:800;color:#4a2800;letter-spacing:3px;margin-top:3px;display:block;">ORDER SLIP</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td style="padding:10px 14px;vertical-align:middle;text-align:right;width:50%;">
+        <div style="font-size:8px;font-weight:800;color:#4a2800;letter-spacing:1px;text-transform:uppercase;display:block;">GENERATED</div>
+        <div id="slip-generated-date" style="font-size:10px;font-weight:700;color:#1a0f00;margin:2px 0 6px;display:block;"></div>
+        <div style="display:inline-block;background:#fff;border:2px solid #1a0f00;border-radius:2px;padding:3px 6px;">
+          <img id="slip-barcode" src="" alt="Barcode" style="width:150px;height:28px;display:block;"/>
+        </div>
+        <div id="slip-order-code" style="font-size:9px;font-weight:900;color:#1a0f00;letter-spacing:2px;margin-top:3px;display:block;"></div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SUMMARY BAR                                         -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <table style="width:100%;border-collapse:collapse;background:#FFF8E7;border-bottom:2px solid #1a0f00;" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="width:20%;padding:7px 6px;text-align:center;border-right:1px solid #e8c87a;">
+        <div style="font-size:8px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;display:block;">Order Price</div>
+        <div id="slip-order-price" style="font-size:13px;font-weight:900;color:#1a0f00;display:block;"></div>
+      </td>
+      <td style="width:20%;padding:7px 6px;text-align:center;border-right:1px solid #e8c87a;">
+        <div style="font-size:8px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;display:block;">Delivery Fee</div>
+        <div id="slip-delivery-fee" style="font-size:13px;font-weight:900;color:#1a0f00;display:block;"></div>
+      </td>
+      <td style="width:15%;padding:7px 6px;text-align:center;border-right:1px solid #e8c87a;">
+        <div style="font-size:8px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;display:block;">Qty</div>
+        <div id="slip-quantity" style="font-size:13px;font-weight:900;color:#1a0f00;display:block;"></div>
+      </td>
+      <td style="width:20%;padding:7px 6px;text-align:center;border-right:1px solid #e8c87a;">
+        <div style="font-size:8px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;display:block;">Weight</div>
+        <div id="slip-weight" style="font-size:13px;font-weight:900;color:#1a0f00;display:block;"></div>
+      </td>
+      <td style="width:25%;padding:7px 10px;text-align:center;background:#FFF0AA;">
+        <div style="font-size:8px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;display:block;">Collective Amount</div>
+        <div id="slip-collective-amount" style="font-size:16px;font-weight:900;color:#8a0000;display:block;"></div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- RECEIVER + SENDER                                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <table style="width:100%;border-collapse:collapse;border-bottom:2px solid #1a0f00;" cellpadding="0" cellspacing="0">
+    <tr>
+
+      <!-- RECEIVER -->
+      <td style="width:50%;vertical-align:top;border-right:2px solid #1a0f00;padding:0;">
+        <!-- Section Header -->
+        <div style="background:#1a0f00;color:#F5A500;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:4px 10px;text-transform:uppercase;display:block;">RECEIVER DETAILS</div>
+        <div style="padding:8px 10px;">
+          <div id="slip-receiver-name" style="font-size:15px;font-weight:900;color:#1a0f00;line-height:1.2;margin-bottom:3px;display:block;"></div>
+          <div id="slip-receiver-address" style="font-size:9px;color:#3a2000;line-height:1.5;margin-bottom:6px;display:block;"></div>
+          <!-- KV Table -->
+          <table style="width:100%;border-collapse:collapse;border-top:1px solid #e8c87a;" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="font-size:8px;font-weight:800;color:#7a4400;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">City</td>
+              <td id="slip-receiver-city" style="font-size:9px;font-weight:700;color:#1a0f00;padding:3px 0;"></td>
+            </tr>
+            <tr>
+              <td style="font-size:8px;font-weight:800;color:#7a4400;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">Mob 1</td>
+              <td id="slip-receiver-mobile1" style="font-size:9px;font-weight:700;color:#1a0f00;padding:3px 0;"></td>
+            </tr>
+            <tr>
+              <td style="font-size:8px;font-weight:800;color:#7a4400;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">Mob 2</td>
+              <td id="slip-receiver-mobile2" style="font-size:9px;font-weight:700;color:#1a0f00;padding:3px 0;"></td>
+            </tr>
+            <tr id="slip-receiver-whatsapp-row">
+              <td style="font-size:8px;font-weight:800;color:#2a7a2a;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">WA</td>
+              <td id="slip-receiver-whatsapp" style="font-size:9px;font-weight:700;color:#2a7a2a;padding:3px 0;"></td>
+            </tr>
+          </table>
+        </div>
+      </td>
+
+      <!-- SENDER -->
+      <td style="width:50%;vertical-align:top;padding:0;">
+        <!-- Section Header -->
+        <div style="background:#1a0f00;color:#F5A500;font-size:8px;font-weight:800;letter-spacing:1.5px;padding:4px 10px;text-transform:uppercase;display:block;">SENDER DETAILS</div>
+        <div style="padding:8px 10px;">
+          <div id="slip-sender-name" style="font-size:15px;font-weight:900;color:#1a0f00;line-height:1.2;margin-bottom:2px;display:block;"></div>
+          <div id="slip-sender-email" style="font-size:9px;color:#7a4400;margin-bottom:4px;display:block;"></div>
+          <div id="slip-sender-address" style="font-size:9px;color:#3a2000;line-height:1.5;margin-bottom:6px;display:block;"></div>
+          <!-- KV Table -->
+          <table style="width:100%;border-collapse:collapse;border-top:1px solid #e8c87a;" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="font-size:8px;font-weight:800;color:#7a4400;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">Phone 1</td>
+              <td id="slip-sender-phone1" style="font-size:9px;font-weight:700;color:#1a0f00;padding:3px 0;"></td>
+            </tr>
+            <tr>
+              <td style="font-size:8px;font-weight:800;color:#7a4400;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">Phone 2</td>
+              <td id="slip-sender-phone2" style="font-size:9px;font-weight:700;color:#1a0f00;padding:3px 0;"></td>
+            </tr>
+            <tr id="slip-sender-whatsapp-row">
+              <td style="font-size:8px;font-weight:800;color:#2a7a2a;text-transform:uppercase;padding:3px 6px 3px 0;white-space:nowrap;width:58px;">WA</td>
+              <td id="slip-sender-whatsapp" style="font-size:9px;font-weight:700;color:#2a7a2a;padding:3px 0;"></td>
+            </tr>
+          </table>
+        </div>
+      </td>
+
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PRODUCT DETAILS                                     -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div style="background:#F5A500;border-bottom:1px solid rgba(26,15,0,0.25);padding:4px 10px;font-size:8px;font-weight:800;color:#1a0f00;letter-spacing:1.5px;text-transform:uppercase;display:block;">PRODUCT DETAILS / NOTE</div>
+  <div id="slip-description" style="padding:8px 10px;min-height:60px;font-size:9px;color:#3a2000;line-height:1.6;border-bottom:2px solid #1a0f00;display:block;"></div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- FOOTER                                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <table style="width:100%;border-collapse:collapse;background:#FFF8E7;" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="width:70px;padding:8px 6px 8px 10px;vertical-align:middle;text-align:center;">
+        <div style="font-size:7px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;display:block;">WhatsApp</div>
+        <img id="slip-whatsapp-qr" src="" alt="WhatsApp QR" style="width:56px;height:56px;border:1.5px solid #1a0f00;border-radius:3px;background:#fff;padding:2px;display:block;"/>
+      </td>
+      <td style="width:1px;background:#e8c87a;padding:0;"></td>
+      <td style="width:70px;padding:8px 6px;vertical-align:middle;text-align:center;">
+        <div style="font-size:7px;font-weight:800;color:#7a4400;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;display:block;">Location</div>
+        <img id="slip-location-qr" src="" alt="Location QR" style="width:56px;height:56px;border:1.5px solid #1a0f00;border-radius:3px;background:#fff;padding:2px;display:block;"/>
+      </td>
+      <td style="width:1px;background:#e8c87a;padding:0;"></td>
+      <td style="padding:8px 12px;vertical-align:middle;text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:#1a0f00;margin-bottom:3px;display:block;">Thank you for using DeliveryYa!</div>
+        <div style="font-size:8px;color:#7a4400;line-height:1.5;display:block;">This order slip is generated electronically.<br/>Keep this document for dispatch confirmation.</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- BOTTOM BAR -->
+  <div style="background:#1a0f00;padding:4px 10px;text-align:center;font-size:8px;font-weight:800;color:#F5A500;letter-spacing:2px;display:block;">
+    DELIVERYYA.LK &nbsp;•&nbsp; FAST &nbsp;•&nbsp; RELIABLE &nbsp;•&nbsp; TRACEABLE
+  </div>
+
+</div>
