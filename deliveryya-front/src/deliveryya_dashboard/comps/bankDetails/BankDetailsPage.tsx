@@ -25,8 +25,8 @@ function BankDetailsPage() {
   const userId = useMemo(() => getLoggedInUserId(), []);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 via-white to-amber-100 px-4 py-6">
-      <div className="mx-auto w-full max-w-6xl space-y-5">
+    <div className="min-h-screen bg-gray-50 px-4 py-6">
+      <div className="w-full space-y-5">
         <button
           type="button"
           onClick={() => navigate('/deliverYya-cloud-console/dashboard')}

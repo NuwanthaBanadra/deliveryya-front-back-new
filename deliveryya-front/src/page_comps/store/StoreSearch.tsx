@@ -209,11 +209,11 @@ const StoreSearch = () => {
     const shouldShowDropdown = isDropdownOpen && hasQuery && (searchSuggestionsLoading || Boolean(searchSuggestionsError) || hasSearched)
 
     return (
-        <section className="relative bg-white px-4 py-4">
+        <section className="relative z-30 bg-linear-to-b from-white to-orange-50/70 px-4 py-8">
             <div className="max-w-7xl mx-auto">
-                <div className="max-w-4xl mx-auto relative">
+                <div className="mx-auto max-w-4xl rounded-3xl border border-orange-100 bg-white p-2 shadow-xl shadow-orange-900/5">
                     <div ref={searchBoxRef} className="relative">
-                        <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#F59B0F]" />
                         <input
                             type="text"
                             value={inputValue}
@@ -229,7 +229,7 @@ const StoreSearch = () => {
                                 void fetchStoreSuggestions(v)
                             }}
                             placeholder="Search products and markets..."
-                            className="w-full rounded-3xl border-2 border-gray-200 bg-white py-3 pl-14 pr-12 text-gray-800 shadow-md outline-none transition-all focus:border-[#F59B0F]"
+                            className="w-full rounded-2xl border-2 border-transparent bg-orange-50/50 py-3 pl-14 pr-12 text-gray-800 shadow-inner outline-none transition-all placeholder:text-gray-500 focus:border-[#F59B0F] focus:bg-white focus:ring-4 focus:ring-[#F59B0F]/10"
                         />
                         {inputValue && (
                             <button

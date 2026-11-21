@@ -48,25 +48,18 @@ const fetchProofBlob = async (url: string): Promise<Blob> => {
 function PaymentProofPreview({ proofUrl, compact = false }: Props) {
     const normalizedUrl = useMemo(() => normalizeProofUrl(proofUrl), [proofUrl]);
     const [pdfBlobUrl, setPdfBlobUrl] = useState<string>('');
-    const [isPdf, setIsPdf] = useState(false);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const isPdf = useMemo(() => isPdfUrl(normalizedUrl), [normalizedUrl]);
 
     useEffect(() => {
         if (!normalizedUrl) {
-            setPdfBlobUrl('');
-            setIsPdf(false);
-            setLoadError(null);
             return;
         }
 
         let objectUrl = '';
         let cancelled = false;
-        const looksLikePdf = isPdfUrl(normalizedUrl);
-        setIsPdf(looksLikePdf);
-        setLoadError(null);
-        setPdfBlobUrl('');
 
-        if (!looksLikePdf) return;
+        if (!isPdf) return;
 
         fetchProofBlob(normalizedUrl)
             .then((blob) => {
@@ -82,7 +75,7 @@ function PaymentProofPreview({ proofUrl, compact = false }: Props) {
             cancelled = true;
             if (objectUrl) URL.revokeObjectURL(objectUrl);
         };
-    }, [normalizedUrl]);
+    }, [isPdf, normalizedUrl]);
 
     const handleDownload = async () => {
         if (!normalizedUrl) return;
@@ -99,6 +92,15 @@ function PaymentProofPreview({ proofUrl, compact = false }: Props) {
             window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
         } catch {
             window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
+        }
+    };
+
+    const handleOpen = () => {
+        if (!normalizedUrl) return;
+
+        const previewWindow = window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
+        if (!previewWindow) {
+            setLoadError('Please allow pop-ups to open the payment proof.');
         }
     };
 
@@ -124,15 +126,14 @@ function PaymentProofPreview({ proofUrl, compact = false }: Props) {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    <a
-                        href={pdfBlobUrl || normalizedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        type="button"
+                        onClick={handleOpen}
                         className="inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-bold text-orange-800 transition hover:border-orange-300 hover:bg-orange-100"
                     >
                         <FiExternalLink className="h-4 w-4" />
                         Open
-                    </a>
+                    </button>
                     <button
                         type="button"
                         onClick={handleDownload}

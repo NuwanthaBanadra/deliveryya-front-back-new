@@ -22,8 +22,8 @@ public interface DeliveryRepo extends JpaRepository<Delivery, Integer> {
             LEFT JOIN d.deliveryStatus ds
             LEFT JOIN d.orders.paymentStatus ps
             WHERE d.employees.id = :employeeId
-              AND NOT (COALESCE(ds.id, 0) = 7 AND COALESCE(ps.id, 0) = 2)
-              AND COALESCE(ds.id, 0) <> 9
+              AND ps.id = 1
+              AND (ds IS NULL OR ds.id NOT IN (7, 9))
               AND d.id = (
                     SELECT MAX(d2.id)
                     FROM Delivery d2

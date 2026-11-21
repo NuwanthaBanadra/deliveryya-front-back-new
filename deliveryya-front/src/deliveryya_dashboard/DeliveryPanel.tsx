@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import TopBar from '../page_comps/shared/TopBar';
-import Sidebar from './comps/main_comps/SideBar';
+import Sidebar from '../advance_panel/comps/main_comps/SideBar';
 
 function DeliveryPanel() {
   // Initialize sidebar as open on desktop, closed on mobile

@@ -1,402 +1,151 @@
-import { ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon, CurrencyDollarIcon, EyeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, BanknotesIcon, ChevronLeftIcon, ChevronRightIcon, CurrencyDollarIcon, EyeIcon, FunnelIcon, MagnifyingGlassIcon, XMarkIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Select, { type SingleValue, type StylesConfig } from 'react-select';
+import axiosInstance from '../../../util/AxiosUtil';
+import JwtUtil from '../../../util/JwtUtil';
+import { debounce } from '../../../util/DebounceUtil';
 import { hasAccess } from '../../../util/AccessController';
 import { FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
-import JwtUtil from '../../../util/JwtUtil';
-import {
-  getAgentWalletBalance,
-  getAgentWalletHistoryPaginated,
-  getAgentWalletOperationDetail,
-} from '../../../util/WalletApi';
-import type {
-  WalletRecordDto,
-  PaginatedWalletHistoryDto,
-  WalletBalanceResponse,
-  WalletPaginatedHistoryResponse,
-  WalletOperationDetailResponse,
-} from '../../../types/WalletTypes';
-import WalletOperationDetailModal from './WalletOperationDetailModal';
+import { getAgentWalletBalance, getAgentWalletHistoryPaginated, getAgentWalletOperationDetail, getPaymentRecordById } from '../../../util/WalletApi';
+import type { PaginatedWalletHistoryDto, PaymentRecordSummaryDto, WalletRecordDto } from '../../../types/WalletTypes';
+import { WalletOperationDetailModal } from './WalletOperationDetailModal';
+import PaymentRecordDetailModal from './PaymentRecordDetailModal';
 
-const formatCurrency = (value: number | null): string => {
-  if (value === null || value === undefined) return 'N/A';
-  return value.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+type FilterOption = { value: number; label: string };
+type Option = { id: number; name: string };
+
+const EMPTY_QUERY: PaginatedWalletHistoryDto = { pageNumber: 0, countPerPage: 10, totalCount: 0, totalPages: 0, fromDate: null, toDate: null, minAmount: null, maxAmount: null, paymentCategoryId: null, paymentStatusId: null, branchId: null, isExpense: null, search: '', items: [] };
+
+const styles: StylesConfig<FilterOption, false> = {
+  control: (base, state) => ({ ...base, minHeight: 42, borderWidth: 2, borderColor: state.isFocused ? '#F59B0F' : '#E5E7EB', borderRadius: 12, boxShadow: state.isFocused ? '0 0 0 3px rgba(245,155,15,.15)' : 'none', '&:hover': { borderColor: '#FCD34D' } }),
+  option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#F59B0F' : state.isFocused ? '#FEF3C7' : 'white', color: state.isSelected ? 'white' : '#1F2937', cursor: 'pointer' }),
 };
 
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return 'N/A';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return dateString;
-  }
-};
-
-const INITIAL_QUERY: PaginatedWalletHistoryDto = {
-  pageNumber: 0,
-  countPerPage: 10,
-  totalCount: 0,
-  totalPages: 0,
-  fromDate: null,
-  toDate: null,
-  minAmount: null,
-  maxAmount: null,
-  search: '',
-  items: [],
-};
+const formatCurrency = (value: number | null) => value == null ? 'N/A' : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatDate = (value: string | null) => value ? new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : 'N/A';
 
 export default function AgentWallet() {
   const navigate = useNavigate();
-  const [balance, setBalance] = useState<number | null>(null);
-  const [transactions, setTransactions] = useState<WalletRecordDto[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [query, setQuery] = useState<PaginatedWalletHistoryDto>(INITIAL_QUERY);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [detailModalState, setDetailModalState] = useState<{
-    show: boolean;
-    operation: WalletRecordDto | null;
-  }>({ show: false, operation: null });
-
-  const canAccessAgentWallet = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.AGENT_WALLET), []);
-
+  const allowed = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.AGENT_WALLET), []);
   const agentId = useMemo(() => {
     const token = localStorage.getItem('jwtToken');
-    const decodedUser = token ? JwtUtil.decodeToken(token) : null;
-    const userId = decodedUser?.userId;
-    return userId !== undefined && Number.isFinite(userId) && userId > 0 ? Number(userId) : null;
+    const decoded = token ? JwtUtil.decodeToken(token) : null;
+    const id = Number(decoded?.userId);
+    return Number.isInteger(id) && id > 0 ? id : null;
+  }, []);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [rows, setRows] = useState<WalletRecordDto[]>([]);
+  const [query, setQuery] = useState(EMPTY_QUERY);
+  const [searchText, setSearchText] = useState('');
+  const [categories, setCategories] = useState<Option[]>([]);
+  const [statuses, setStatuses] = useState<Option[]>([]);
+  const [showFilters, setShowFilters] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [balanceLoading, setBalanceLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [detail, setDetail] = useState<WalletRecordDto | null>(null);
+  const [paymentRecord, setPaymentRecord] = useState<PaymentRecordSummaryDto | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => { if (!allowed) navigate('/403', { replace: true }); }, [allowed, navigate]);
+
+  const loadOptions = useCallback(async () => {
+    try {
+      const [categoryRes, statusRes] = await Promise.all([
+        axiosInstance.get<{ object?: Option[] }>('/payment/get-payment-categories'),
+        axiosInstance.get<{ object?: Option[] }>('/payment/get-payment-statuses'),
+      ]);
+      setCategories(categoryRes.data.object || []);
+      setStatuses(statusRes.data.object || []);
+    } catch (optionError) { console.error('Failed to load wallet filters:', optionError); }
   }, []);
 
-  useEffect(() => {
-    if (!canAccessAgentWallet) {
-      navigate('/403', { replace: true });
-    }
-  }, [canAccessAgentWallet, navigate]);
-
-  const fetchBalance = useCallback(async () => {
-    if (!agentId) {
-      setError('Unable to identify agent');
-      setBalance(null);
-      return;
-    }
-
-    setIsLoadingBalance(true);
-    setError(null);
-
-    try {
-      const response: WalletBalanceResponse = await getAgentWalletBalance(agentId);
-      if (response.message?.toLowerCase() === 'success') {
-        setBalance(response.object);
-      } else {
-        setError(response.desc || 'Failed to load wallet balance');
-        setBalance(null);
-      }
-    } catch (fetchError) {
-      console.error('Error loading wallet balance:', fetchError);
-      setError('Failed to connect to wallet service');
-      setBalance(null);
-    } finally {
-      setIsLoadingBalance(false);
-    }
+  const loadBalance = useCallback(async () => {
+    if (!agentId) return;
+    setBalanceLoading(true);
+    try { const response = await getAgentWalletBalance(agentId); setBalance(response.message?.toLowerCase() === 'success' ? response.object : null); }
+    catch (balanceError) { console.error('Failed to load agent wallet balance:', balanceError); setBalance(null); }
+    finally { setBalanceLoading(false); }
   }, [agentId]);
 
-  const fetchTransactions = useCallback(async () => {
-    if (!agentId) {
-      setError('Unable to identify agent');
-      setTransactions([]);
-      setTotalCount(0);
-      setTotalPages(1);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
+  const load = useCallback(async () => {
+    if (!agentId) return;
+    setLoading(true); setError(null);
     try {
-      const response: WalletPaginatedHistoryResponse = await getAgentWalletHistoryPaginated(agentId, query);
-      if (response.message?.toLowerCase() === 'success') {
-        const responseObject = response.object;
-        setTransactions(responseObject?.items || []);
-        setTotalCount(responseObject?.totalCount ?? 0);
-        setTotalPages(responseObject?.totalPages ?? 1);
-      } else {
-        setError(response.desc || 'Failed to load wallet history');
-        setTransactions([]);
-        setTotalCount(0);
-        setTotalPages(1);
-      }
-    } catch (fetchError) {
-      console.error('Error loading wallet history:', fetchError);
-      setError('Failed to connect to wallet service');
-      setTransactions([]);
-      setTotalCount(0);
-      setTotalPages(1);
-    } finally {
-      setIsLoading(false);
-    }
+      const response = await getAgentWalletHistoryPaginated(agentId, query);
+      if (response.message?.toLowerCase() !== 'success') throw new Error(response.desc || 'Failed to load wallet history');
+      setRows(response.object?.items || []); setTotalCount(response.object?.totalCount || 0); setTotalPages(response.object?.totalPages || 1);
+    } catch (loadError) { setError(loadError instanceof Error ? loadError.message : 'Failed to load wallet history'); setRows([]); }
+    finally { setLoading(false); }
   }, [agentId, query]);
 
-  useEffect(() => {
-    if (!canAccessAgentWallet || !agentId) return;
-    fetchBalance();
-    fetchTransactions();
-  }, [canAccessAgentWallet, agentId, fetchBalance, fetchTransactions]);
+  useEffect(() => { if (allowed && agentId) { void loadOptions(); void loadBalance(); } }, [allowed, agentId, loadOptions, loadBalance]);
+  useEffect(() => { if (allowed && agentId) void load(); }, [allowed, agentId, load]);
 
-  const handleRefresh = useCallback(async () => {
-    await Promise.all([fetchBalance(), fetchTransactions()]);
-  }, [fetchBalance, fetchTransactions]);
+  const update = useCallback((patch: Partial<PaginatedWalletHistoryDto>) => setQuery((current) => ({ ...current, ...patch, pageNumber: 0 })), []);
+  const reset = useCallback(() => { setSearchText(''); setQuery(EMPTY_QUERY); }, []);
+  const refresh = useCallback(() => Promise.all([load(), loadBalance()]), [load, loadBalance]);
 
-  const handlePageChange = useCallback((newPage: number) => {
-    setQuery((current) => ({ ...current, pageNumber: newPage }));
-  }, []);
-
-  const handleSearch = useCallback((searchTerm: string) => {
-    setQuery((current) => ({ ...current, search: searchTerm, pageNumber: 0 }));
-  }, []);
-
-  const handleViewDetail = useCallback(async (operationId: number) => {
-    if (!agentId) {
-      setError('Unable to identify agent');
-      return;
-    }
-
+  const openDetail = useCallback(async (id: number) => {
+    if (!agentId) return;
     try {
-      const response: WalletOperationDetailResponse = await getAgentWalletOperationDetail(agentId, operationId);
+      const response = await getAgentWalletOperationDetail(agentId, id);
       if (response.message?.toLowerCase() === 'success') {
-        setDetailModalState({ show: true, operation: response.object });
-      } else {
-        setError(response.desc || 'Failed to load operation detail');
-      }
-    } catch (fetchError) {
-      console.error('Error loading operation detail:', fetchError);
-      setError('Failed to connect to wallet service');
-    }
+        const operation = response.object;
+        const creatorId = Number(operation.createdBy);
+        if (Number.isInteger(creatorId) && creatorId > 0) {
+          try {
+            const userResponse = await axiosInstance.get<{ object?: { firstName?: string; lastName?: string; nic?: string } }>(`/users/admin/get-user-by-id?id=${creatorId}`);
+            const user = userResponse.data.object;
+            setDetail({ ...operation, createdByName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || null, createdByNic: user?.nic || null });
+            return;
+          } catch (creatorError) { console.error('Failed to resolve wallet creator:', creatorError); }
+        }
+        setDetail(operation);
+      } else setError(response.desc || 'Failed to load wallet detail');
+    } catch (detailError) { console.error('Failed to load wallet detail:', detailError); setError('Failed to load wallet detail'); }
   }, [agentId]);
 
-  const handleCloseModal = useCallback(() => {
-    setDetailModalState({ show: false, operation: null });
+  const openPaymentRecord = useCallback(async (paymentRecordId: number | null) => {
+    if (!paymentRecordId) { setError('This wallet record is not linked to a payment record.'); return; }
+    try { const response = await getPaymentRecordById(paymentRecordId); setPaymentRecord(response.message?.toLowerCase() === 'success' ? response.object?.items?.[0] || null : null); }
+    catch (paymentError) { console.error('Failed to load payment record:', paymentError); setError('Failed to load payment record'); }
   }, []);
 
-  const updateQuery = useCallback((patch: Partial<PaginatedWalletHistoryDto>) => {
-    setQuery((current) => ({ ...current, ...patch, pageNumber: 0 }));
-  }, []);
+  const debouncedSearch = useMemo(() => debounce((value: string) => update({ search: value }), 400), [update]);
+  const categoryOptions = useMemo(() => categories.map((item) => ({ value: item.id, label: item.name })), [categories]);
+  const statusOptions = useMemo(() => statuses.map((item) => ({ value: item.id, label: item.name })), [statuses]);
+  const incomeTotal = useMemo(() => rows.filter((row) => !row.isExpense).reduce((sum, row) => sum + (row.amount || 0), 0), [rows]);
+  const expenseTotal = useMemo(() => rows.filter((row) => row.isExpense).reduce((sum, row) => sum + (row.amount || 0), 0), [rows]);
 
-  if (!canAccessAgentWallet) {
-    return null;
-  }
+  if (!allowed) return null;
+  if (!agentId) return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">Unable to identify agent. Please log in again.</div>;
 
-  if (!agentId) {
-    return (
-      <div className="rounded-lg bg-white shadow p-6">
-        <p className="text-red-600">Unable to identify agent. Please log in again.</p>
-      </div>
-    );
-  }
+  return <div className="min-h-screen space-y-6 bg-gray-50 pb-12">
+    <div><h1 className="text-3xl md:text-4xl font-black bg-linear-to-r from-[#F59B0F] via-[#D17F0A] to-[#AC6C2A] bg-clip-text text-transparent">Agent Wallet</h1><p className="mt-1 text-sm md:text-base text-gray-600">Review agent balance, wallet movements, and linked payment records.</p></div>
 
-  return (
-    <div className="space-y-6">
-      {/* Balance Card */}
-      <div className="rounded-lg bg-white shadow">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Agent Wallet Balance</h2>
-        </div>
-        <div className="px-6 py-8">
-          {isLoadingBalance ? (
-            <div className="flex items-center justify-center">
-              <ArrowPathIcon className="h-8 w-8 animate-spin text-gray-400" />
-            </div>
-          ) : balance !== null ? (
-            <div className="flex items-center space-x-4">
-              <CurrencyDollarIcon className="h-16 w-16 text-green-600" />
-              <div>
-                <p className="text-sm font-medium text-gray-500">Current Balance</p>
-                <p className="text-4xl font-bold text-gray-900">{formatCurrency(balance)}</p>
-              </div>
-            </div>
-          ) : (
-            <p className="text-gray-500">Unable to load balance</p>
-          )}
-        </div>
-      </div>
-
-      {/* Transaction History */}
-      <div className="rounded-lg bg-white shadow">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Transaction History</h2>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="border-b border-gray-200 px-6 py-4">
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <div className="flex-1">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by code, reference, or note..."
-                  value={query.search || ''}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleRefresh}
-              disabled={isLoading || isLoadingBalance}
-              className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {(isLoading || isLoadingBalance) ? (
-                <ArrowPathIcon className="h-5 w-5 animate-spin" />
-              ) : (
-                <ArrowPathIcon className="h-5 w-5" />
-              )}
-              <span className="ml-2">Refresh</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mx-6 mt-4 rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
-
-        {/* Transactions Table */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Code
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Reference
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th scope="col" className="relative px-6 py-3">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
-                    <ArrowPathIcon className="mx-auto h-8 w-8 animate-spin text-gray-400" />
-                  </td>
-                </tr>
-              ) : transactions.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    No transactions found
-                  </td>
-                </tr>
-              ) : (
-                transactions.map((transaction) => (
-                  <tr
-                    key={transaction.id}
-                    className={transaction.isExpense ? 'bg-red-50' : 'bg-green-50'}
-                  >
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {formatDate(transaction.createdAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                        transaction.isExpense
-                          ? 'bg-red-50 text-red-700 ring-red-600/20'
-                          : 'bg-green-50 text-green-700 ring-green-600/20'
-                      }`}>
-                        {transaction.isExpense ? 'Expense' : 'Income'}
-                      </span>
-                    </td>
-                    <td className={`whitespace-nowrap px-6 py-4 text-sm font-semibold ${
-                      transaction.isExpense ? 'text-red-600' : 'text-green-600'
-                    }`}>
-                      {transaction.isExpense ? '-' : '+'}{formatCurrency(transaction.balance)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {transaction.code || '-'}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {transaction.ref || '-'}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {transaction.paymentCategory?.name || '-'}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleViewDetail(transaction.id)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        <EyeIcon className="h-5 w-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalCount > 0 && (
-          <div className="border-t border-gray-200 px-6 py-4 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {query.pageNumber * query.countPerPage + 1} to{' '}
-              {Math.min((query.pageNumber + 1) * query.countPerPage, totalCount)} of {totalCount} results
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => handlePageChange(query.pageNumber - 1)}
-                disabled={query.pageNumber === 0}
-                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeftIcon className="h-5 w-5" />
-                Previous
-              </button>
-              <button
-                onClick={() => handlePageChange(query.pageNumber + 1)}
-                disabled={query.pageNumber >= totalPages - 1}
-                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-                <ChevronRightIcon className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Detail Modal */}
-      <WalletOperationDetailModal
-        isOpen={detailModalState.show}
-        operation={detailModalState.operation}
-        onClose={handleCloseModal}
-      />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        { label: 'Current balance', value: formatCurrency(balance), icon: CurrencyDollarIcon, cls: 'from-orange-500 to-orange-600' },
+        { label: 'Records found', value: String(totalCount), icon: BanknotesIcon, cls: 'from-blue-500 to-blue-600' },
+        { label: 'Income on page', value: formatCurrency(incomeTotal), icon: ArrowPathIcon, cls: 'from-emerald-500 to-emerald-600' },
+        { label: 'Expenses on page', value: formatCurrency(expenseTotal), icon: ArrowPathIcon, cls: 'from-red-500 to-red-600' },
+      ].map((card) => <div key={card.label} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><div><p className="text-sm font-medium text-gray-600">{card.label}</p><p className="mt-1 text-2xl font-black text-gray-900">{balanceLoading && card.label === 'Current balance' ? '...' : card.value}</p></div><div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br ${card.cls} shadow-lg`}><card.icon className="h-7 w-7 text-white" /></div></div></div>)}
     </div>
-  );
+
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><div className="flex flex-wrap gap-2">{[{ label: 'All', start: null, end: null }, { label: 'Today', start: new Date(new Date().setHours(0,0,0,0)).toISOString(), end: new Date().toISOString() }, { label: 'This week', start: new Date(new Date().setDate(new Date().getDate()-new Date().getDay())).toISOString(), end: new Date().toISOString() }, { label: 'This month', start: new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString(), end: new Date().toISOString() }].map((range) => <button key={range.label} type="button" onClick={() => update({ fromDate: range.start, toDate: range.end })} className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-orange-100 hover:text-orange-700">{range.label}</button>)}</div></div>
+
+    {showFilters && <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6"><div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-4"><div><h2 className="text-lg font-black text-gray-900">Filters</h2><p className="mt-1 text-sm text-gray-500">Search and filter agent wallet movements.</p></div><button type="button" onClick={reset} className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-orange-600"><XMarkIcon className="h-4 w-4"/> Clear all</button></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="relative sm:col-span-2"><MagnifyingGlassIcon className="absolute left-3 top-9 h-4 w-4 text-gray-400"/><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Search</span><input value={searchText} onChange={(event) => { setSearchText(event.target.value); debouncedSearch(event.target.value); }} placeholder="Code, reference, note..." className="w-full rounded-xl border-0 bg-white py-2.5 pl-9 pr-3 text-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-orange-400" /></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">From date</span><input type="datetime-local" value={query.fromDate?.slice(0,16) || ''} onChange={(event) => update({ fromDate: event.target.value ? new Date(event.target.value).toISOString() : null })} className="w-full rounded-xl border-0 bg-white py-2.5 text-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-orange-400"/></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">To date</span><input type="datetime-local" value={query.toDate?.slice(0,16) || ''} onChange={(event) => update({ toDate: event.target.value ? new Date(event.target.value).toISOString() : null })} className="w-full rounded-xl border-0 bg-white py-2.5 text-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-orange-400"/></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Minimum amount</span><input type="number" min="0" value={query.minAmount ?? ''} onChange={(event) => update({ minAmount: event.target.value ? Number(event.target.value) : null })} className="w-full rounded-xl border-0 bg-white py-2.5 text-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-orange-400"/></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Maximum amount</span><input type="number" min="0" value={query.maxAmount ?? ''} onChange={(event) => update({ maxAmount: event.target.value ? Number(event.target.value) : null })} className="w-full rounded-xl border-0 bg-white py-2.5 text-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-orange-400"/></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Direction</span><Select<FilterOption,false> isClearable isSearchable={false} styles={styles} value={query.isExpense == null ? null : { value: query.isExpense ? 1 : 0, label: query.isExpense ? 'Expense / debit' : 'Income / credit' }} onChange={(option: SingleValue<FilterOption>) => update({ isExpense: option ? option.value === 1 : null })} options={[{value:0,label:'Income / credit'},{value:1,label:'Expense / debit'}]} placeholder="All movements" /></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Category</span><Select<FilterOption,false> isClearable isSearchable styles={styles} options={categoryOptions} value={categoryOptions.find((option) => option.value === query.paymentCategoryId) || null} onChange={(option: SingleValue<FilterOption>) => update({ paymentCategoryId: option?.value || null })} placeholder="All categories" /></label><label><span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Status</span><Select<FilterOption,false> isClearable isSearchable styles={styles} options={statusOptions} value={statusOptions.find((option) => option.value === query.paymentStatusId) || null} onChange={(option: SingleValue<FilterOption>) => update({ paymentStatusId: option?.value || null })} placeholder="All statuses" /></label></div></section>}
+
+    <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="text-sm text-gray-700">Showing <b>{rows.length}</b> of <b>{totalCount}</b> records</div><div className="flex items-center gap-2"><span className="text-sm text-gray-600">Per page:</span><div className="w-28"><Select<FilterOption,false> isSearchable={false} styles={styles} options={[5,10,20,50].map((size)=>({value:size,label:String(size)}))} value={{value:query.countPerPage,label:String(query.countPerPage)}} onChange={(option)=>setQuery((current)=>({...current,countPerPage:option?.value||10,pageNumber:0}))}/></div><button type="button" onClick={()=>setQuery((current)=>({...current,pageNumber:Math.max(0,current.pageNumber-1)}))} disabled={query.pageNumber===0||loading} className="rounded-lg border-2 border-gray-200 p-2 disabled:opacity-40"><ChevronLeftIcon className="h-5 w-5"/></button><div className="rounded-lg border-2 border-gray-200 px-4 py-1.5 text-sm font-bold">{query.pageNumber+1}/{totalPages}</div><button type="button" onClick={()=>setQuery((current)=>({...current,pageNumber:Math.min(totalPages-1,current.pageNumber+1)}))} disabled={query.pageNumber>=totalPages-1||loading} className="rounded-lg border-2 border-gray-200 p-2 disabled:opacity-40"><ChevronRightIcon className="h-5 w-5"/></button><button type="button" onClick={()=>void refresh()} className="rounded-lg border-2 border-gray-200 p-2"><ArrowPathIcon className={`h-5 w-5 ${loading||balanceLoading?'animate-spin':''}`}/></button></div></div></section>
+
+    <div className="md:hidden"><button type="button" onClick={()=>setShowFilters((value)=>!value)} className="flex w-full items-center justify-between rounded-xl border-2 border-gray-200 bg-white px-4 py-3 font-semibold"><span>Filters</span><FunnelIcon className="h-5 w-5"/></button></div>
+    {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">{error}</div>}
+    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"><div className="overflow-x-auto"><table className="min-w-full"><thead className="bg-gray-50 text-left text-xs font-black uppercase tracking-wide text-gray-500"><tr><th className="px-5 py-4">Date</th><th className="px-5 py-4">Movement</th><th className="px-5 py-4">Amount</th><th className="px-5 py-4">Balance</th><th className="px-5 py-4">Reference</th><th className="px-5 py-4">Category</th><th className="px-5 py-4 text-right">Action</th></tr></thead><tbody className="divide-y divide-gray-100">{loading?<tr><td colSpan={7} className="py-16 text-center"><ArrowPathIcon className="mx-auto h-8 w-8 animate-spin text-orange-500"/></td></tr>:rows.length===0?<tr><td colSpan={7} className="py-16 text-center text-gray-500"><BanknotesIcon className="mx-auto mb-2 h-10 w-10 text-gray-300"/>No wallet records found.</td></tr>:rows.map((row)=><tr key={row.id} className="hover:bg-orange-50/30"><td className="whitespace-nowrap px-5 py-4 text-sm text-gray-600">{formatDate(row.createdAt)}</td><td className="px-5 py-4"><span className={`rounded-full px-3 py-1 text-xs font-black ${row.isExpense?'bg-red-50 text-red-700':'bg-emerald-50 text-emerald-700'}`}>{row.isExpense?'Expense':'Income'}</span></td><td className={`whitespace-nowrap px-5 py-4 text-sm font-black ${row.isExpense?'text-red-600':'text-emerald-600'}`}>{row.isExpense?'-':'+'}{formatCurrency(row.amount)}</td><td className="whitespace-nowrap px-5 py-4 text-sm font-bold text-gray-900">{formatCurrency(row.balance)}</td><td className="max-w-52 truncate px-5 py-4 text-sm text-gray-600">{row.ref||row.code||'N/A'}</td><td className="px-5 py-4 text-sm text-gray-600">{row.paymentCategory?.name||'N/A'}</td><td className="px-5 py-4 text-right"><div className="flex justify-end gap-1"><button type="button" onClick={()=>void openDetail(row.id)} className="rounded-xl p-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600" title="View wallet record"><EyeIcon className="h-5 w-5"/></button>{row.paymentRecordId&&<button type="button" onClick={()=>void openPaymentRecord(row.paymentRecordId)} className="rounded-xl p-2 text-orange-600 hover:bg-orange-50" title="Open payment record"><DocumentTextIcon className="h-5 w-5"/></button>}</div></td></tr>)}</tbody></table></div></section>
+
+    <WalletOperationDetailModal isOpen={detail!==null} operation={detail} onOpenPaymentRecord={detail?.paymentRecordId?()=>void openPaymentRecord(detail.paymentRecordId):undefined} onClose={()=>setDetail(null)} />
+    <PaymentRecordDetailModal isOpen={paymentRecord!==null} record={paymentRecord} onClose={()=>setPaymentRecord(null)} />
+  </div>;
 }

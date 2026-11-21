@@ -7,16 +7,17 @@ import com.kaleox.deliveryya.dto.user.UpdateEmployeeDto;
 import com.kaleox.deliveryya.dto.user.UserDto;
 import com.kaleox.deliveryya.dto.user.UserEmployeeDto;
 import com.kaleox.deliveryya.entities.Employee;
+import com.kaleox.deliveryya.entities.BranchHasEmployee;
 import com.kaleox.deliveryya.entities.User;
 import com.kaleox.deliveryya.entities.UserRole;
 import com.kaleox.deliveryya.entities.VerificationStatus;
 import com.kaleox.deliveryya.repo.BranchRepo;
+import com.kaleox.deliveryya.repo.BranchHasEmployeeRepo;
 import com.kaleox.deliveryya.repo.EmployeeRepo;
 import com.kaleox.deliveryya.repo.UserRepo;
 import com.kaleox.deliveryya.service.EmployeeService;
 import com.kaleox.deliveryya.service.WalletService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
     private final UserRepo userRepo;
     private final ModelMapper modelMapper;
     private final EmployeeRepo employeeRepo;
     private final BranchRepo branchRepo;
+    private final BranchHasEmployeeRepo branchHasEmployeeRepo;
     private final WalletService walletService;
 
     @Override
@@ -65,11 +66,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public String setEmployee(SetEmployeeDto dto, int userId) {
-        User user = userRepo.findById(userId).orElseThrow(() -> new BusinessException("User not found", null));
-
-        if (user.getUserRole().getId() < dto.getUserRoles().getId()) {
-            throw new BusinessException("You don't have permission to promote this user", null);
-        }
 
         User promotingUser = userRepo.findById(dto.getUsers().getId()).orElseThrow(() -> new BusinessException("User to promote not found", null));
         employeeRepo.findByUsers(promotingUser).ifPresent(e -> {
@@ -80,9 +76,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         promotingUser.setUserRole(UserRole.builder().id(dto.getUserRoles().getId()).build());
         userRepo.save(promotingUser);
 
-        employeeRepo.save(Employee.builder()
+        Employee employee = employeeRepo.save(Employee.builder()
                 .verificationStatus(VerificationStatus.builder().id(dto.getVerificationStatus().getId()).build())
-                .branches(branchRepo.findById(dto.getBranches().getId()).orElseThrow(() -> new BusinessException("Branch not found", null)))
                 .users(promotingUser)
                 .location(dto.getLocation())
                 .mobile(dto.getMobile())
@@ -90,14 +85,16 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .liveLocation(dto.getLiveLocation())
                 .build());
 
-        // Initialize AgentWallet with balance 0 for the new employee
-        try {
-            walletService.initializeAgentWallet(promotingUser.getId());
-            log.info("Initialized AgentWallet for new employee: {}", promotingUser.getId());
-        } catch (BusinessException e) {
-            // If wallet already exists, log warning but don't fail the employee registration
-            log.warn("AgentWallet initialization failed for employee {}: {}", promotingUser.getId(), e.getMessage());
+        if (dto.getBranches() != null && dto.getBranches().getId() != null) {
+            var branch = branchRepo.findById(dto.getBranches().getId())
+                    .orElseThrow(() -> new BusinessException("Branch not found", null));
+            branchHasEmployeeRepo.save(BranchHasEmployee.builder()
+                    .branch(branch)
+                    .employee(employee)
+                    .build());
         }
+
+        walletService.initializeAgentWallet(promotingUser.getId());
 
         return "Employee registered successfully";
     }
@@ -120,9 +117,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setMobile(dto.getMobile());
         employee.setWhatsapp(dto.getWhatsapp());
         employee.setVerificationStatus(VerificationStatus.builder().id(dto.getVerificationStatus().getId()).build());
-        employee.setBranches(branchRepo.findById(dto.getBranches().getId())
-                .orElseThrow(() -> new BusinessException("Branch not found", null)));
-
         employeeRepo.save(employee);
 
         return "Employee updated successfully";

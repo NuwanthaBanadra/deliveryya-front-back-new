@@ -12,6 +12,7 @@ import com.kaleox.deliveryya.service.WalletService;
 import com.kaleox.deliveryya.service.specification.DeliveryFeeSpec;
 import com.kaleox.deliveryya.service.specification.PaymentRecodeSpec;
 import com.kaleox.deliveryya.utill.FileStorageUtil;
+import com.kaleox.deliveryya.enums.WalletType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -62,6 +63,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final ClientMarketOwnerWalletRepo clientMarketOwnerWalletRepo;
     private final DeliveryRepo deliveryRepo;
     private final EmployeeRepo employeeRepo;
+    private final BranchRepo branchRepo;
 
     private static @NonNull Map<String, String> getErrorMap(PaymentRecordDto paymentRecordDto) {
         Map<String, String> errorMap = new HashMap<>();
@@ -96,6 +98,22 @@ public class PaymentServiceImpl implements PaymentService {
         List<PaymentStatusDto> dtoList = paymentStatuses.stream().map(ps -> modelMapper.map(ps, PaymentStatusDto.class)).toList();
 
         return ResponseDto.<List<PaymentStatusDto>>builder().message("Success").desc("Payment statuses retrieved successfully").object(dtoList).build();
+    }
+
+    @Override
+    public ResponseDto<List<CommonIdNameDto>> getAllPaymentCategories() {
+        List<CommonIdNameDto> categories = paymentCategoryRepo.findAll().stream()
+                .map(category -> CommonIdNameDto.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .build())
+                .toList();
+
+        return ResponseDto.<List<CommonIdNameDto>>builder()
+                .message("Success")
+                .desc("Payment categories retrieved successfully")
+                .object(categories)
+                .build();
     }
 
     @Override
@@ -201,13 +219,15 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public String createPaymentRecode(PaymentRecordDto paymentRecordDto) {
+    public Integer createPaymentRecode(PaymentRecordDto paymentRecordDto) {
 
         double itemsTotal = paymentRecordDto.getPaymentRecordItems().stream().map(PaymentRecordItemsDto::getAmount)
                 .mapToDouble(amount -> amount != null ? amount : 0.0).sum();
 
-        if (paymentRecordDto.getAmount() > itemsTotal) {
-            throw new BusinessException("Payment record amount cannot be greater than the total of payment record items", null);
+        if (paymentRecordDto.getAmount() == null
+                || Math.abs(paymentRecordDto.getAmount() - itemsTotal) > 0.0001) {
+            throw new BusinessException("Payment record amount must equal the total of payment record items",
+                    Map.of("amount", "Amount must equal the sum of all payment record items"));
         }
 
         for (PaymentRecordItemsDto itemDto : paymentRecordDto.getPaymentRecordItems()) {
@@ -218,14 +238,13 @@ public class PaymentServiceImpl implements PaymentService {
                 orderRepo.findByOrderCode_code(normalizedCode).orElseThrow(() -> new BusinessException("Order not found for code: " + itemCode, null));
             } else if (normalizedCode.startsWith("UJC")) {
                 urgentJobRepo.findByJobCode(normalizedCode).orElseThrow(() -> new BusinessException("Urgent job not found for code: " + itemCode, null));
-            } else {
-                throw new BusinessException("Invalid code: " + itemCode + ". Code must start with ORD or UJC", null);
             }
 
             itemDto.setCode(normalizedCode);
         }
 
         PaymentType paymentType = paymentTypeRepo.findById(paymentRecordDto.getPaymentType().getId()).orElseThrow(() -> new BusinessException("Payment type not found with id: " + paymentRecordDto.getPaymentType().getId(), null));
+        validateWalletOwner(paymentRecordDto);
 
         // For paymentType=4 (COD handover), validate ORD items before any state changes
         if (paymentType.getId() == 4) {
@@ -249,6 +268,16 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRecord.setPaymentType(paymentType);
         paymentRecord.setVerificationStatus(verificationStatus);
         paymentRecord.setIsReturn(paymentRecordDto.getIsReturn());
+        paymentRecord.setFromWallet(paymentRecordDto.getFromWallet());
+        paymentRecord.setToWallet(paymentRecordDto.getToWallet());
+        paymentRecord.setFromUserId(paymentRecordDto.getFromUserId());
+        paymentRecord.setToUserId(paymentRecordDto.getToUserId());
+        paymentRecord.setBranchId(paymentRecordDto.getBranchId());
+
+        if (paymentRecordDto.getBranchId() != null) {
+            branchRepo.findById(paymentRecordDto.getBranchId())
+                    .orElseThrow(() -> new BusinessException("Branch not found with id: " + paymentRecordDto.getBranchId(), null));
+        }
 
         // Move and validate proof file if provided
         if (paymentRecordDto.getProofUrl() != null && !paymentRecordDto.getProofUrl().isEmpty()) {
@@ -262,12 +291,7 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRecord.setProofUrl(movedProofUrl);
         }
 
-        if (paymentRecordDto.getBankDetail() != null && paymentRecordDto.getBankDetail().getId() != null) {
-            BankDetail bankDetail = bankDetailRepo.findById(paymentRecordDto.getBankDetail().getId()).orElseThrow(() -> new BusinessException("Bank detail not found with id: " + paymentRecordDto.getBankDetail().getId(), null));
-            paymentRecord.setBankDetail(bankDetail);
-        } else {
-            paymentRecord.setBankDetail(null);
-        }
+        applyBankDetail(paymentRecord, paymentRecordDto);
 
         if (paymentRecordDto.getPaymentCategory() != null && paymentRecordDto.getPaymentCategory().getId() != null) {
             PaymentCategory paymentCategory = paymentCategoryRepo.findById(paymentRecordDto.getPaymentCategory().getId()).orElseThrow(() -> new BusinessException("Payment category not found with id: " + paymentRecordDto.getPaymentCategory().getId(), null));
@@ -276,7 +300,7 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRecord.setPaymentCategory(null);
         }
 
-        PaymentRecord savedPaymentRecord = paymentRecodeRepo.save(paymentRecord);
+        PaymentRecord savedPaymentRecord = paymentRecodeRepo.saveAndFlush(paymentRecord);
 
         List<PaymentRecordItems> paymentRecordItems = paymentRecordDto.getPaymentRecordItems().stream().map(itemDto -> {
             PaymentRecordItems item = modelMapper.map(itemDto, PaymentRecordItems.class);
@@ -289,13 +313,71 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (paymentType.getId() == 4) {
             applyOrderPaidAmountAdjustments(paymentRecordItems, getPaidAmountDirection(paymentRecordDto.getIsReturn()));
-            // Debit AgentWallet for ORD items (paymentType=4 is created as VERIFIED)
-            debitAgentWalletForOrdItems(paymentRecordItems, savedPaymentRecord);
-            // Credit CompanyWallet for COD handover (paymentType=4 is created as VERIFIED)
-            creditCompanyWalletForVerifiedPayment(savedPaymentRecord, paymentRecordItems);
+            applyOrderCollectivePriceAdjustments(paymentRecordItems, -getPaidAmountDirection(paymentRecordDto.getIsReturn()));
+            if (hasWalletDirection(savedPaymentRecord)) {
+                applyWalletDirection(savedPaymentRecord, paymentRecordItems, false);
+            } else {
+                debitAgentWalletForOrdItems(paymentRecordItems, savedPaymentRecord);
+                creditCompanyWalletForVerifiedPayment(savedPaymentRecord, paymentRecordItems);
+            }
+        } else if (isVerifiedVerificationStatus(savedPaymentRecord.getVerificationStatus())
+                && hasWalletDirection(savedPaymentRecord)) {
+            applyWalletDirection(savedPaymentRecord, paymentRecordItems, false);
         }
 
-        return "Payment Recode Successfully";
+        return savedPaymentRecord.getId();
+    }
+
+    @Override
+    public ResponseDto<PaymentReferenceValidationDto> validatePaymentReference(
+            PaymentReferenceValidationRequestDto dto) {
+        String code = dto.getCode().trim().toUpperCase(Locale.ROOT);
+
+        if (code.startsWith("ORD")) {
+            Order order = orderRepo.findByOrderCode_code(code)
+                    .orElseThrow(() -> new BusinessException("Order not found for code: " + code,
+                            Map.of("code", "No order exists for this reference")));
+            return ResponseDto.<PaymentReferenceValidationDto>builder()
+                    .status(200)
+                    .message("Success")
+                    .desc("Order reference verified")
+                    .object(PaymentReferenceValidationDto.builder()
+                            .code(code)
+                            .type("ORD")
+                            .referenceId(order.getId())
+                            .label("Order " + code)
+                            .build())
+                    .build();
+        }
+
+        if (code.startsWith("UJC")) {
+            UrgentJob urgentJob = urgentJobRepo.findByJobCode(code)
+                    .orElseThrow(() -> new BusinessException("Urgent job not found for code: " + code,
+                            Map.of("code", "No urgent job exists for this reference")));
+            return ResponseDto.<PaymentReferenceValidationDto>builder()
+                    .status(200)
+                    .message("Success")
+                    .desc("Urgent job reference verified")
+                    .object(PaymentReferenceValidationDto.builder()
+                            .code(code)
+                            .type("UJC")
+                            .referenceId(urgentJob.getId())
+                            .label("Urgent job " + code)
+                            .build())
+                    .build();
+        }
+
+        return ResponseDto.<PaymentReferenceValidationDto>builder()
+                .status(200)
+                .message("Success")
+                .desc("Reference does not require existence verification")
+                .object(PaymentReferenceValidationDto.builder()
+                        .code(code)
+                        .type("OTHER")
+                        .referenceId(null)
+                        .label(code)
+                        .build())
+                .build();
     }
 
     @Override
@@ -313,8 +395,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         double itemsTotal = paymentRecordDto.getPaymentRecordItems().stream().map(PaymentRecordItemsDto::getAmount).mapToDouble(amount -> amount != null ? amount : 0.0).sum();
-        if (paymentRecordDto.getAmount() > itemsTotal) {
-            throw new BusinessException("Payment record amount cannot be greater than the total of payment record items", null);
+        if (paymentRecordDto.getAmount() == null
+                || Math.abs(paymentRecordDto.getAmount() - itemsTotal) > 0.0001) {
+            throw new BusinessException("Payment record amount must equal the total of payment record items",
+                    Map.of("amount", "Amount must equal the sum of all payment record items"));
         }
 
         for (PaymentRecordItemsDto itemDto : paymentRecordDto.getPaymentRecordItems()) {
@@ -325,14 +409,13 @@ public class PaymentServiceImpl implements PaymentService {
                 orderRepo.findByOrderCode_code(normalizedCode).orElseThrow(() -> new BusinessException("Order not found for code: " + itemCode, null));
             } else if (normalizedCode.startsWith("UJC")) {
                 urgentJobRepo.findByJobCode(normalizedCode).orElseThrow(() -> new BusinessException("Urgent job not found for code: " + itemCode, null));
-            } else {
-                throw new BusinessException("Invalid code: " + itemCode + ". Code must start with ORD or UJC", null);
             }
 
             itemDto.setCode(normalizedCode);
         }
 
         PaymentType paymentType = paymentTypeRepo.findById(paymentRecordDto.getPaymentType().getId()).orElseThrow(() -> new BusinessException("Payment type not found with id: " + paymentRecordDto.getPaymentType().getId(), null));
+        validateWalletOwner(paymentRecordDto);
 
         List<PaymentRecordItems> previousItems = paymentRecordItemsRepo.findByPaymentRecord_Id(existingRecord.getId());
         if (existingRecord.getPaymentType() != null && Objects.equals(existingRecord.getPaymentType().getId(), 4)) {
@@ -343,6 +426,13 @@ public class PaymentServiceImpl implements PaymentService {
         existingRecord.setDesc(paymentRecordDto.getDesc());
         existingRecord.setPaymentType(paymentType);
         existingRecord.setIsReturn(Boolean.TRUE.equals(paymentRecordDto.getIsReturn()));
+        existingRecord.setFromWallet(paymentRecordDto.getFromWallet());
+        existingRecord.setToWallet(paymentRecordDto.getToWallet());
+        existingRecord.setFromUserId(paymentRecordDto.getFromUserId());
+        existingRecord.setToUserId(paymentRecordDto.getToUserId());
+        if (paymentRecordDto.getBranchId() != null) {
+            existingRecord.setBranchId(paymentRecordDto.getBranchId());
+        }
 
         // Handle proof file update
         if (paymentRecordDto.getProofUrl() != null && !paymentRecordDto.getProofUrl().isEmpty()) {
@@ -371,12 +461,7 @@ public class PaymentServiceImpl implements PaymentService {
             existingRecord.setProofUrl(null);
         }
 
-        if (paymentRecordDto.getBankDetail() != null && paymentRecordDto.getBankDetail().getId() != null) {
-            BankDetail bankDetail = bankDetailRepo.findById(paymentRecordDto.getBankDetail().getId()).orElseThrow(() -> new BusinessException("Bank detail not found with id: " + paymentRecordDto.getBankDetail().getId(), null));
-            existingRecord.setBankDetail(bankDetail);
-        } else {
-            existingRecord.setBankDetail(null);
-        }
+        applyBankDetail(existingRecord, paymentRecordDto);
 
         if (paymentRecordDto.getPaymentCategory() != null && paymentRecordDto.getPaymentCategory().getId() != null) {
             PaymentCategory paymentCategory = paymentCategoryRepo.findById(paymentRecordDto.getPaymentCategory().getId()).orElseThrow(() -> new BusinessException("Payment category not found with id: " + paymentRecordDto.getPaymentCategory().getId(), null));
@@ -403,6 +488,92 @@ public class PaymentServiceImpl implements PaymentService {
         return "Payment record updated successfully";
     }
 
+    private void detachPaymentRecordFromWallets(Integer paymentRecordId) {
+        List<CompanyWallet> companyWallets = companyWalletRepo.findByPaymentRecord_Id(paymentRecordId);
+        if (!companyWallets.isEmpty()) {
+            companyWallets.forEach(wallet -> wallet.setPaymentRecord(null));
+            companyWalletRepo.saveAllAndFlush(companyWallets);
+        }
+
+        List<AgentWallet> agentWallets = agentWalletRepo.findByPaymentRecord_Id(paymentRecordId);
+        if (!agentWallets.isEmpty()) {
+            agentWallets.forEach(wallet -> wallet.setPaymentRecord(null));
+            agentWalletRepo.saveAllAndFlush(agentWallets);
+        }
+
+        List<ClientMarketOwnerWallet> clientWallets = clientMarketOwnerWalletRepo.findByPaymentRecord_Id(paymentRecordId);
+        if (!clientWallets.isEmpty()) {
+            clientWallets.forEach(wallet -> wallet.setPaymentRecord(null));
+            clientMarketOwnerWalletRepo.saveAllAndFlush(clientWallets);
+        }
+    }
+
+    private void applyBankDetail(PaymentRecord paymentRecord, PaymentRecordDto paymentRecordDto) {
+        Integer bankDetailId = paymentRecordDto.getBankDetail() != null
+                ? paymentRecordDto.getBankDetail().getId()
+                : null;
+
+        if (bankDetailId == null || bankDetailId <= 0) {
+            paymentRecord.setBankDetail(null);
+            paymentRecord.setBank_id(null);
+            return;
+        }
+
+        BankDetail bankDetail = bankDetailRepo.findByIdAndIsDeletedFalse(bankDetailId)
+                .orElseThrow(() -> new BusinessException("Bank detail not found with id: " + bankDetailId, null));
+
+        if (paymentRecordDto.getBranchId() != null
+                && (!Boolean.TRUE.equals(bankDetail.getIsCompany()) || !Boolean.TRUE.equals(bankDetail.getIsActive()))) {
+            throw new BusinessException("An active company bank detail is required for branch payment records.", null);
+        }
+
+        paymentRecord.setBankDetail(bankDetail);
+        paymentRecord.setBank_id(bankDetail.getBank() != null ? bankDetail.getBank().getId() : null);
+    }
+
+    private void validateWalletOwner(PaymentRecordDto paymentRecordDto) {
+        validateWalletSide("from", paymentRecordDto.getFromWallet(), paymentRecordDto.getFromUserId());
+        validateWalletSide("to", paymentRecordDto.getToWallet(), paymentRecordDto.getToUserId());
+
+        if (paymentRecordDto.getFromWallet() == null || paymentRecordDto.getFromWallet() == WalletType.COMPANY) {
+            paymentRecordDto.setFromUserId(null);
+        }
+        if (paymentRecordDto.getToWallet() == null || paymentRecordDto.getToWallet() == WalletType.COMPANY) {
+            paymentRecordDto.setToUserId(null);
+        }
+    }
+
+    private void validateWalletSide(String side, WalletType walletType, Integer userId) {
+        if (walletType == null || walletType == WalletType.COMPANY) {
+            return;
+        }
+
+        if (userId == null || userId <= 0) {
+            throw new BusinessException(
+                    side + "UserId is required when " + side + "Wallet is not COMPANY",
+                    Map.of(side + "UserId", "A valid user id is required for this wallet"));
+        }
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found with id: " + userId, null));
+        Integer roleId = user.getUserRole() != null ? user.getUserRole().getId() : null;
+
+        if (walletType == WalletType.AGENT && !Objects.equals(roleId, 7)) {
+            throw new BusinessException("The selected user is not an agent",
+                    Map.of(side + "UserId", "AGENT wallet requires user role 7 (Agent)"));
+        }
+
+        if ((walletType == WalletType.CLIENT || walletType == WalletType.CUSTOMER)
+                && !Objects.equals(roleId, 5) && !Objects.equals(roleId, 8)) {
+            throw new BusinessException("The selected user is not a client or market owner",
+                    Map.of(side + "UserId", "CLIENT/CUSTOMER wallet requires user role 5 or 8"));
+        }
+    }
+
+    private boolean isNonCompanyWallet(WalletType walletType) {
+        return walletType != null && walletType != WalletType.COMPANY;
+    }
+
     @Override
     public String updatePaymentVerificationStatusOrDelete(UpdatePaymentVerificationStatusOrDeleteDto dto) {
         boolean deleteRequested = Boolean.TRUE.equals(dto.getIsDeleted());
@@ -419,31 +590,44 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (deleteRequested) {
             List<PaymentRecordItems> existingItems = paymentRecordItemsRepo.findByPaymentRecord_Id(paymentRecord.getId());
-            if (paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4) && isVerifiedVerificationStatus(paymentRecord.getVerificationStatus())) {
+            if (paymentRecord.getPaymentType() != null
+                    && Objects.equals(paymentRecord.getPaymentType().getId(), 4)
+                    && isVerifiedVerificationStatus(paymentRecord.getVerificationStatus())) {
                 applyOrderPaidAmountAdjustments(existingItems, -getPaidAmountDirection(paymentRecord.getIsReturn()));
-                // Reverse AgentWallet debit for verified paymentType=4
-                reverseAgentWalletDebitForOrdItems(existingItems);
             }
 
-            // Reverse collective price adjustment for bank transfer market orders
+            if (!hasWalletDirection(paymentRecord)
+                    && paymentRecord.getPaymentType() != null
+                    && Objects.equals(paymentRecord.getPaymentType().getId(), 4)
+                    && isVerifiedVerificationStatus(paymentRecord.getVerificationStatus())) {
+                // Reverse AgentWallet debit for verified paymentType=4
+                reverseAgentWalletDebitForOrdItems(paymentRecord, existingItems);
+            }
+
+            // Reverse the collective-price settlement and restore the order payment status.
             if (isVerifiedVerificationStatus(paymentRecord.getVerificationStatus())) {
-                applyOrderCollectivePriceAdjustments(existingItems, -getPaidAmountDirection(paymentRecord.getIsReturn()));
+                applyOrderCollectivePriceAdjustments(existingItems, getPaidAmountDirection(paymentRecord.getIsReturn()));
             }
 
             // Reverse CompanyWallet credit for verified records (only paymentType=4)
-            if (isVerifiedVerificationStatus(paymentRecord.getVerificationStatus()) &&
-                paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4)) {
+            if (isVerifiedVerificationStatus(paymentRecord.getVerificationStatus()) && hasWalletDirection(paymentRecord)) {
+                applyWalletDirection(paymentRecord, existingItems, true);
+            } else if (isVerifiedVerificationStatus(paymentRecord.getVerificationStatus()) &&
+                    paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4)) {
                 reverseCompanyWalletCreditForUnverifiedPayment(paymentRecord, existingItems);
             }
 
             // Reverse Client/MarketOwnerWallet credit for verified records (only paymentType=2)
-            if (isVerifiedVerificationStatus(paymentRecord.getVerificationStatus()) &&
+            if (!hasWalletDirection(paymentRecord) && isVerifiedVerificationStatus(paymentRecord.getVerificationStatus()) &&
                 paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 2)) {
-                reverseClientMarketOwnerWalletCreditForUnverifiedPayment(existingItems);
+                reverseClientMarketOwnerWalletCreditForUnverifiedPayment(paymentRecord, existingItems);
             }
+
+            detachPaymentRecordFromWallets(paymentRecord.getId());
 
             paymentRecordItemsRepo.deleteByPaymentRecord_Id(paymentRecord.getId());
             paymentRecodeRepo.delete(paymentRecord);
+            paymentRecodeRepo.flush();
             return "Payment record deleted successfully";
         }
 
@@ -468,47 +652,50 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // Handle bank transfer market orders: adjust collective price based on order's payment type
+        // Settle or restore the linked order collective amount on verification transitions.
         List<PaymentRecordItems> existingItems = paymentRecordItemsRepo.findByPaymentRecord_Id(paymentRecord.getId());
 
         if (currentVerified && !targetVerified) {
-            applyOrderCollectivePriceAdjustments(existingItems, -getPaidAmountDirection(paymentRecord.getIsReturn()));
-        } else if (!currentVerified && targetVerified) {
             applyOrderCollectivePriceAdjustments(existingItems, getPaidAmountDirection(paymentRecord.getIsReturn()));
+        } else if (!currentVerified && targetVerified) {
+            applyOrderCollectivePriceAdjustments(existingItems, -getPaidAmountDirection(paymentRecord.getIsReturn()));
         }
 
-        // Handle CompanyWallet credit/reversal based on verification transition
-        // Only applies to paymentType=4 (COD handover)
-        if (paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4)) {
+        // Apply the explicitly selected wallet direction when present.
+        if (hasWalletDirection(paymentRecord)) {
             if (!currentVerified && targetVerified) {
-                // UNVERIFIED → VERIFIED: credit CompanyWallet
+                applyWalletDirection(paymentRecord, existingItems, false);
+            } else if (currentVerified && !targetVerified) {
+                applyWalletDirection(paymentRecord, existingItems, true);
+            }
+        } else if (paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4)) {
+            if (!currentVerified && targetVerified) {
                 creditCompanyWalletForVerifiedPayment(paymentRecord, existingItems);
             } else if (currentVerified && !targetVerified) {
-                // VERIFIED → UNVERIFIED: reverse CompanyWallet credit
                 reverseCompanyWalletCreditForUnverifiedPayment(paymentRecord, existingItems);
             }
         }
 
         // Handle Client/MarketOwnerWallet credit/reversal based on verification transition
         // Only applies to paymentType=2 (Bank Transfer - Client/MarketOwner payment)
-        if (paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 2)) {
+        if (!hasWalletDirection(paymentRecord) && paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 2)) {
             if (!currentVerified && targetVerified) {
                 // UNVERIFIED → VERIFIED: credit Client/MarketOwnerWallet
                 creditClientMarketOwnerWalletForVerifiedPayment(paymentRecord, existingItems);
             } else if (currentVerified && !targetVerified) {
                 // VERIFIED → UNVERIFIED: reverse Client/MarketOwnerWallet credit
-                reverseClientMarketOwnerWalletCreditForUnverifiedPayment(existingItems);
+                reverseClientMarketOwnerWalletCreditForUnverifiedPayment(paymentRecord, existingItems);
             }
         }
 
-        // Handle AgentWallet debit/reversal based on verification transition for paymentType=4
-        if (paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4)) {
+        // Legacy agent debit/reversal remains for records without explicit wallet direction.
+        if (!hasWalletDirection(paymentRecord) && paymentRecord.getPaymentType() != null && Objects.equals(paymentRecord.getPaymentType().getId(), 4)) {
             if (!currentVerified && targetVerified) {
                 // UNVERIFIED → VERIFIED: debit AgentWallet (only for paymentType≠4 since paymentType=4 is created as VERIFIED)
                 debitAgentWalletForOrdItems(existingItems, paymentRecord);
             } else if (currentVerified && !targetVerified) {
                 // VERIFIED → UNVERIFIED: reverse AgentWallet debit
-                reverseAgentWalletDebitForOrdItems(existingItems);
+                reverseAgentWalletDebitForOrdItems(paymentRecord, existingItems);
             }
         }
 
@@ -549,7 +736,7 @@ public class PaymentServiceImpl implements PaymentService {
             PaymentRecordDto dto = modelMapper.map(record, PaymentRecordDto.class);
             dto.setPaymentRecordItems(itemsByRecordId.getOrDefault(record.getId(), Collections.emptyList()));
             dto.setPaymentType(toCommon(record.getPaymentType()));
-            dto.setBankDetail(toCommon(record.getBankDetail()));
+            dto.setBankDetail(toBankDetailDto(record.getBankDetail()));
             dto.setVerificationStatus(toCommon(record.getVerificationStatus()));
             dto.setPaymentCategory(toCommon(record.getPaymentCategory()));
             dto.setMadeBy(resolveMadeBy(record.getCreatedBy(), usersById));
@@ -573,11 +760,24 @@ public class PaymentServiceImpl implements PaymentService {
         return CommonIdNameDto.builder().id(paymentType.getId()).name(paymentType.getName()).build();
     }
 
-    private CommonIdNameDto toCommon(BankDetail bankDetail) {
+    private BankDetailDto toBankDetailDto(BankDetail bankDetail) {
         if (bankDetail == null) {
             return null;
         }
-        return CommonIdNameDto.builder().id(bankDetail.getId()).name(bankDetail.getName()).build();
+        return BankDetailDto.builder()
+                .id(bankDetail.getId())
+                .name(bankDetail.getName())
+                .accNumber(bankDetail.getAccNumber())
+                .branch(bankDetail.getBranch())
+                .bank(bankDetail.getBank() == null ? null : CommonIdNameDto.builder()
+                        .id(bankDetail.getBank().getId())
+                        .name(bankDetail.getBank().getName())
+                        .build())
+                .userId(bankDetail.getUser() != null ? bankDetail.getUser().getId() : null)
+                .balance(bankDetail.getBalance() != null ? bankDetail.getBalance() : 0.0)
+                .isActive(bankDetail.getIsActive())
+                .isDeleted(bankDetail.getIsDeleted())
+                .build();
     }
 
     private CommonIdNameDto toCommon(VerificationStatus verificationStatus) {
@@ -634,12 +834,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     /**
-     * Deduct or add back payment amount from collective price for bank transfer market orders.
-     * This is only applied when:
-     * - Order's payment type is 2 (Bank transfer)
-     * - Order is a market order (marketOrder is not null)
-     * - Payment verification status transitions
-     * Note: Collective price can go negative to indicate overpayment
+     * Deduct or restore the amount settled by a verified payment record.
+     * Each item owns the amount applied to its linked order, so multi-order
+     * payment records cannot incorrectly complete every order with one total.
      */
     private void applyOrderCollectivePriceAdjustments(List<PaymentRecordItems> items, double multiplier) {
         for (PaymentRecordItems item : items) {
@@ -650,19 +847,17 @@ public class PaymentServiceImpl implements PaymentService {
 
             Order order = orderRepo.findByOrderCode_code(itemCode).orElseThrow(() -> new BusinessException("Order not found for code: " + itemCode, null));
 
-            // Only apply collective price adjustment for bank transfer market orders
-            if (order.getPaymentType() == null || !Objects.equals(order.getPaymentType().getId(), 2)) {
-                continue;
-            }
-
-            if (order.getMarketOrder() == null) {
-                continue;
-            }
-
             double existingCollectivePrice = order.getCollectivePrice() != null ? order.getCollectivePrice() : 0.0;
             double itemAmount = item.getAmount() != null ? item.getAmount() : 0.0;
             double updatedCollectivePrice = existingCollectivePrice + (itemAmount * multiplier);
             order.setCollectivePrice(updatedCollectivePrice);
+
+            if (multiplier < 0 && updatedCollectivePrice <= 0) {
+                order.setPaymentStatus(PaymentStatus.builder().id(PAYMENT_STATUS_COMPLETED_ID).build());
+            } else if (multiplier > 0) {
+                syncOrderPaymentStatus(order);
+            }
+
             orderRepo.save(order);
         }
     }
@@ -706,6 +901,103 @@ public class PaymentServiceImpl implements PaymentService {
         fileStorageUtil.deleteFile(fileReference);
     }
 
+    private boolean hasWalletDirection(PaymentRecord paymentRecord) {
+        return paymentRecord.getFromWallet() != null || paymentRecord.getToWallet() != null;
+    }
+
+    private void applyWalletDirection(PaymentRecord paymentRecord, List<PaymentRecordItems> items, boolean reversal) {
+        double amount = paymentRecord.getAmount() != null ? paymentRecord.getAmount() : 0.0;
+        if (amount <= 0) {
+            throw new BusinessException("Wallet transfer amount must be greater than zero", null);
+        }
+
+        applyWalletSide(paymentRecord, items, paymentRecord.getFromWallet(), amount,
+                true, reversal, "FROM");
+        applyWalletSide(paymentRecord, items, paymentRecord.getToWallet(), amount,
+                false, reversal, "TO");
+    }
+
+    private void applyWalletSide(PaymentRecord paymentRecord, List<PaymentRecordItems> items,
+                                 WalletType walletType, double amount, boolean expense,
+                                 boolean reversal, String side) {
+        if (walletType == null) {
+            return;
+        }
+
+        WalletType effectiveWalletType = walletType;
+        boolean effectiveExpense = reversal ? !expense : expense;
+        String ref = "PAYMENT_RECORD_WALLET:" + paymentRecord.getId() + ":" + side
+                + (reversal ? ":REVERSAL" : "");
+
+        if (walletOperationExists(effectiveWalletType, ref)) {
+            return;
+        }
+
+        WalletOperationDto operation = WalletOperationDto.builder()
+                .amount(amount)
+                .isExpense(effectiveExpense)
+                .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
+                .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                .paymentRecordId(paymentRecord.getId())
+                .branchId(paymentRecord.getBranchId())
+                .code(items != null && items.size() == 1 ? items.get(0).getCode() : null)
+                .ref(ref)
+                .note((reversal ? "Reversal of " : "") + "PaymentRecord " + side.toLowerCase() + " wallet transfer")
+                .build();
+
+        switch (effectiveWalletType) {
+            case COMPANY -> walletService.createCompanyWalletOperation(operation);
+            case AGENT -> walletService.createAgentWalletOperation(
+                    resolveWalletUserId(paymentRecord, WalletType.AGENT, items, side), operation);
+            case CLIENT, CUSTOMER -> walletService.createClientMarketOwnerWalletOperation(
+                    resolveWalletUserId(paymentRecord, effectiveWalletType, items, side), operation);
+        }
+    }
+
+    private boolean walletOperationExists(WalletType walletType, String ref) {
+        return switch (walletType) {
+            case COMPANY -> companyWalletRepo.findByRef(ref).isPresent();
+            case AGENT -> agentWalletRepo.findByRef(ref).isPresent();
+            case CLIENT, CUSTOMER -> clientMarketOwnerWalletRepo.findByRef(ref).isPresent();
+        };
+    }
+
+    private Integer resolveWalletUserId(PaymentRecord paymentRecord, WalletType walletType,
+                                        List<PaymentRecordItems> items, String side) {
+        Integer explicitUserId = "FROM".equals(side)
+                ? paymentRecord.getFromUserId()
+                : paymentRecord.getToUserId();
+        if (explicitUserId != null) {
+            return explicitUserId;
+        }
+
+        if (items == null) {
+            throw new BusinessException("Payment record items are required to resolve the wallet owner", null);
+        }
+
+        for (PaymentRecordItems item : items) {
+            String code = item.getCode() == null ? "" : item.getCode().trim().toUpperCase();
+            if (!code.startsWith("ORD")) {
+                continue;
+            }
+
+            if (walletType == WalletType.AGENT) {
+                return resolveResponsibleAgentForOrder(code);
+            }
+
+            Order order = orderRepo.findByOrderCode_code(code)
+                    .orElseThrow(() -> new BusinessException("Order not found for code: " + code, null));
+            if (order.getMarketOrder() != null && order.getMarketOrder().getUser() != null) {
+                return order.getMarketOrder().getUser().getId();
+            }
+            if (order.getOrderCode() != null && order.getOrderCode().getUsers() != null) {
+                return order.getOrderCode().getUsers().getId();
+            }
+        }
+
+        throw new BusinessException("Unable to resolve " + walletType.name().toLowerCase() + " wallet owner from payment items", null);
+    }
+
     private void creditCompanyWalletForVerifiedPayment(PaymentRecord paymentRecord, List<PaymentRecordItems> items) {
         String idempotencyRef = "PAYMENT_RECORD:" + paymentRecord.getId();
         String reversalRef = "PAYMENT_RECORD_REVERSAL:" + paymentRecord.getId();
@@ -732,9 +1024,11 @@ public class PaymentServiceImpl implements PaymentService {
         // Build wallet operation DTO
         WalletOperationDto walletOperation = WalletOperationDto.builder()
                 .amount(paymentRecord.getAmount() != null ? paymentRecord.getAmount() : 0.0)
-                .isExpense(false)
+                .isExpense(Boolean.TRUE.equals(paymentRecord.getIsReturn()))
                 .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
                 .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                .paymentRecordId(paymentRecord.getId())
+                .branchId(paymentRecord.getBranchId())
                 .code(code)
                 .ref(idempotencyRef)
                 .toOrFrom(null)
@@ -767,6 +1061,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .isExpense(true)
                 .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
                 .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                .paymentRecordId(paymentRecord.getId())
+                .branchId(paymentRecord.getBranchId())
                 .code(code)
                 .ref(reversalRef)
                 .toOrFrom(null)
@@ -897,6 +1193,8 @@ public class PaymentServiceImpl implements PaymentService {
                     .isExpense(true) // Debit
                     .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
                     .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                    .paymentRecordId(paymentRecord.getId())
+                    .branchId(paymentRecord.getBranchId())
                     .code(itemCode)
                     .ref(idempotencyRef)
                     .toOrFrom(null)
@@ -957,9 +1255,11 @@ public class PaymentServiceImpl implements PaymentService {
             // Build wallet operation DTO
             WalletOperationDto walletOperation = WalletOperationDto.builder()
                     .amount(item.getAmount() != null ? item.getAmount() : 0.0)
-                    .isExpense(false) // Credit
+                    .isExpense(Boolean.TRUE.equals(paymentRecord.getIsReturn())) // Expense or credit by payment kind
                     .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
                     .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                    .paymentRecordId(paymentRecord.getId())
+                    .branchId(paymentRecord.getBranchId())
                     .code(itemCode)
                     .ref(idempotencyRef)
                     .toOrFrom(null)
@@ -976,7 +1276,7 @@ public class PaymentServiceImpl implements PaymentService {
     /**
      * Reverse ClientMarketOwnerWallet credit for unverified PaymentRecordItems.
      */
-    private void reverseClientMarketOwnerWalletCreditForUnverifiedPayment(List<PaymentRecordItems> items) {
+    private void reverseClientMarketOwnerWalletCreditForUnverifiedPayment(PaymentRecord paymentRecord, List<PaymentRecordItems> items) {
         for (PaymentRecordItems item : items) {
             String itemCode = item.getCode() == null ? "" : item.getCode().trim().toUpperCase();
             if (!itemCode.startsWith("ORD")) {
@@ -1009,8 +1309,10 @@ public class PaymentServiceImpl implements PaymentService {
             WalletOperationDto walletOperation = WalletOperationDto.builder()
                     .amount(item.getAmount() != null ? item.getAmount() : 0.0)
                     .isExpense(true) // Debit to reverse credit
-                    .paymentCategoryId(null)
+                    .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
                     .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                    .paymentRecordId(paymentRecord.getId())
+                    .branchId(paymentRecord.getBranchId())
                     .code(itemCode)
                     .ref(reversalRef)
                     .toOrFrom(null)
@@ -1027,7 +1329,7 @@ public class PaymentServiceImpl implements PaymentService {
     /**
      * Reverse AgentWallet debit for ORD PaymentRecordItems when PaymentRecord transitions VERIFIED → UNVERIFIED.
      */
-    private void reverseAgentWalletDebitForOrdItems(List<PaymentRecordItems> items) {
+    private void reverseAgentWalletDebitForOrdItems(PaymentRecord paymentRecord, List<PaymentRecordItems> items) {
         for (PaymentRecordItems item : items) {
             String itemCode = item.getCode() == null ? "" : item.getCode().trim().toUpperCase();
             if (!itemCode.startsWith("ORD")) {
@@ -1049,8 +1351,10 @@ public class PaymentServiceImpl implements PaymentService {
             WalletOperationDto walletOperation = WalletOperationDto.builder()
                     .amount(item.getAmount() != null ? item.getAmount() : 0.0)
                     .isExpense(false) // Credit to reverse debit
-                    .paymentCategoryId(null)
+                    .paymentCategoryId(paymentRecord.getPaymentCategory() != null ? paymentRecord.getPaymentCategory().getId() : null)
                     .paymentStatusId(PAYMENT_STATUS_COMPLETED_ID)
+                    .paymentRecordId(paymentRecord.getId())
+                    .branchId(paymentRecord.getBranchId())
                     .code(itemCode)
                     .ref(reversalRef)
                     .toOrFrom(null)

@@ -34,9 +34,11 @@ public class WalletServiceImpl implements WalletService {
     private final AgentWalletRepo agentWalletRepo;
     private final ClientMarketOwnerWalletRepo clientMarketOwnerWalletRepo;
     private final CompanyWalletRepo companyWalletRepo;
+    private final BranchRepo branchRepo;
     private final UserRepo userRepo;
     private final PaymentCategoryRepo paymentCategoryRepo;
     private final PaymentStatusRepo paymentStatusRepo;
+    private final PaymentRecodeRepo paymentRecodeRepo;
     private final ModelMapper modelMapper;
 
     @Override
@@ -63,6 +65,45 @@ public class WalletServiceImpl implements WalletService {
                 .flatMap(companyWalletRepo::findById)
                 .map(CompanyWallet::getBalance)
                 .orElseThrow(() -> new BusinessException("No active CompanyWallet found. Please initialize the company wallet first.", null));
+    }
+
+    @Override
+    public Double getBranchWalletCurrentBalance(Integer branchId) {
+        return companyWalletRepo.findFirstByBranch_IdAndIsActiveTrueOrderByIdDesc(branchId)
+                .map(CompanyWallet::getBalance)
+                .orElseThrow(() -> new BusinessException("No active wallet found for branch id: " + branchId, null));
+    }
+
+    @Override
+    public List<WalletRecordDto> getBranchWalletHistory(Integer branchId) {
+        return companyWalletRepo.findByBranch_IdOrderByCreatedAtDesc(branchId).stream()
+                .map(this::mapToWalletRecordDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ResponseDto<PaginatedWalletHistoryDto> getBranchWalletHistoryPaginated(
+            Integer branchId, PaginatedWalletHistoryDto request) {
+        branchRepo.findById(branchId)
+                .orElseThrow(() -> new BusinessException("Branch not found", null));
+        Pageable pageable = PageRequest.of(
+                request.getPageNumber(),
+                request.getCountPerPage(),
+                Sort.by("createdAt").descending());
+        Page<CompanyWallet> page = companyWalletRepo.findAll(
+                WalletHistorySpec.getBranchWalletSpecification(branchId, request), pageable);
+        request.setTotalCount(page.getTotalElements());
+        request.setTotalPages(page.getTotalPages());
+        request.setCountPerPage(page.getSize());
+        request.setItems(page.getContent().stream()
+                .map(this::mapToWalletRecordDto)
+                .collect(Collectors.toList()));
+        return ResponseDto.<PaginatedWalletHistoryDto>builder()
+                .status(200)
+                .message("Success")
+                .desc("Branch wallet history fetched successfully")
+                .object(request)
+                .build();
     }
 
     @Override
@@ -94,14 +135,17 @@ public class WalletServiceImpl implements WalletService {
 
         PaymentCategory paymentCategory = resolvePaymentCategory(operation.getPaymentCategoryId());
         PaymentStatus paymentStatus = resolvePaymentStatus(operation.getPaymentStatusId());
+        PaymentRecord paymentRecord = resolvePaymentRecord(operation.getPaymentRecordId());
 
         AgentWallet walletRecord = AgentWallet.builder()
                 .agent(agent)
+                .amount(operation.getAmount())
                 .balance(newBalance)
                 .isActive(true)
                 .isExpense(operation.getIsExpense())
                 .paymentCategory(paymentCategory)
                 .paymentStatus(paymentStatus)
+                .paymentRecord(paymentRecord)
                 .code(operation.getCode())
                 .ref(operation.getRef())
                 .otherReason(operation.getOtherReason())
@@ -144,14 +188,17 @@ public class WalletServiceImpl implements WalletService {
 
         PaymentCategory paymentCategory = resolvePaymentCategory(operation.getPaymentCategoryId());
         PaymentStatus paymentStatus = resolvePaymentStatus(operation.getPaymentStatusId());
+        PaymentRecord paymentRecord = resolvePaymentRecord(operation.getPaymentRecordId());
 
         ClientMarketOwnerWallet walletRecord = ClientMarketOwnerWallet.builder()
                 .user(user)
+                .amount(operation.getAmount())
                 .balance(newBalance)
                 .isActive(true)
                 .isExpense(operation.getIsExpense())
                 .paymentCategory(paymentCategory)
                 .paymentStatus(paymentStatus)
+                .paymentRecord(paymentRecord)
                 .code(operation.getCode())
                 .ref(operation.getRef())
                 .otherReason(operation.getOtherReason())
@@ -170,15 +217,19 @@ public class WalletServiceImpl implements WalletService {
     public WalletRecordDto createCompanyWalletOperation(WalletOperationDto operation) {
         validateOperation(operation);
 
-        // Check if wallet is active
-        CompanyWallet activeWallet = companyWalletRepo.findByIsActiveTrue()
+        CompanyWallet activeWallet = operation.getBranchId() != null
+                ? companyWalletRepo.findFirstByBranch_IdAndIsActiveTrueOrderByIdDesc(operation.getBranchId())
+                .orElseThrow(() -> new BusinessException("No active wallet found for branch id: " + operation.getBranchId(), null))
+                : companyWalletRepo.findFirstByIsActiveTrueOrderByIdDesc()
                 .orElseThrow(() -> new BusinessException("No active CompanyWallet found. Please initialize the company wallet first.", null));
 
         if (!activeWallet.getIsActive()) {
             throw new BusinessException("CompanyWallet is deactivated. Cannot create operations on deactivated wallet.", null);
         }
 
-        Double previousBalance = getCompanyWalletCurrentBalance();
+        Double previousBalance = operation.getBranchId() != null
+                ? getBranchWalletCurrentBalance(operation.getBranchId())
+                : getCompanyWalletCurrentBalance();
         Double newBalance = calculateNewBalance(previousBalance, operation.getAmount(), operation.getIsExpense());
 
         if (newBalance < 0) {
@@ -190,18 +241,25 @@ public class WalletServiceImpl implements WalletService {
 
         PaymentCategory paymentCategory = resolvePaymentCategory(operation.getPaymentCategoryId());
         PaymentStatus paymentStatus = resolvePaymentStatus(operation.getPaymentStatusId());
+        PaymentRecord paymentRecord = resolvePaymentRecord(operation.getPaymentRecordId());
 
         CompanyWallet walletRecord = CompanyWallet.builder()
+                .amount(operation.getAmount())
                 .balance(newBalance)
                 .isActive(true)
                 .isExpense(operation.getIsExpense())
                 .paymentCategory(paymentCategory)
                 .paymentStatus(paymentStatus)
+                .paymentRecord(paymentRecord)
                 .code(operation.getCode())
                 .ref(operation.getRef())
                 .otherReason(operation.getOtherReason())
                 .note(operation.getNote())
                 .toOrFrom(operation.getToOrFrom())
+                .branch(operation.getBranchId() != null
+                        ? branchRepo.findById(operation.getBranchId())
+                        .orElseThrow(() -> new BusinessException("Branch not found with id: " + operation.getBranchId(), null))
+                        : null)
                 .build();
 
         CompanyWallet saved = companyWalletRepo.save(walletRecord);
@@ -256,15 +314,24 @@ public class WalletServiceImpl implements WalletService {
                 .orElseThrow(() -> new BusinessException("Payment status not found with id: " + statusId, null));
     }
 
+    private PaymentRecord resolvePaymentRecord(Integer paymentRecordId) {
+        if (paymentRecordId == null || paymentRecordId == 0) {
+            return null;
+        }
+        return paymentRecodeRepo.findById(paymentRecordId)
+                .orElseThrow(() -> new BusinessException("Payment record not found with id: " + paymentRecordId, null));
+    }
+
     private WalletRecordDto mapToWalletRecordDto(AgentWallet wallet) {
         return WalletRecordDto.builder()
                 .id(wallet.getId())
-                .amount(null) // Will be calculated by calculateAmountsForPaginatedResults for paginated APIs
+                .amount(wallet.getAmount())
                 .balance(wallet.getBalance())
                 .isActive(wallet.getIsActive())
                 .isExpense(wallet.getIsExpense())
                 .paymentCategory(toCommon(wallet.getPaymentCategory()))
                 .paymentStatus(toCommon(wallet.getPaymentStatus()))
+                .paymentRecordId(wallet.getPaymentRecord() != null ? wallet.getPaymentRecord().getId() : null)
                 .code(wallet.getCode())
                 .ref(wallet.getRef())
                 .otherReason(wallet.getOtherReason())
@@ -281,12 +348,13 @@ public class WalletServiceImpl implements WalletService {
     private WalletRecordDto mapToWalletRecordDto(ClientMarketOwnerWallet wallet) {
         return WalletRecordDto.builder()
                 .id(wallet.getId())
-                .amount(null) // Will be calculated by calculateAmountsForPaginatedResults for paginated APIs
+                .amount(wallet.getAmount())
                 .balance(wallet.getBalance())
                 .isActive(wallet.getIsActive())
                 .isExpense(wallet.getIsExpense())
                 .paymentCategory(toCommon(wallet.getPaymentCategory()))
                 .paymentStatus(toCommon(wallet.getPaymentStatus()))
+                .paymentRecordId(wallet.getPaymentRecord() != null ? wallet.getPaymentRecord().getId() : null)
                 .code(wallet.getCode())
                 .ref(wallet.getRef())
                 .otherReason(wallet.getOtherReason())
@@ -303,12 +371,13 @@ public class WalletServiceImpl implements WalletService {
     private WalletRecordDto mapToWalletRecordDto(CompanyWallet wallet) {
         return WalletRecordDto.builder()
                 .id(wallet.getId())
-                .amount(null) // Will be calculated by calculateAmountsForPaginatedResults for paginated APIs
+                .amount(wallet.getAmount())
                 .balance(wallet.getBalance())
                 .isActive(wallet.getIsActive())
                 .isExpense(wallet.getIsExpense())
                 .paymentCategory(toCommon(wallet.getPaymentCategory()))
                 .paymentStatus(toCommon(wallet.getPaymentStatus()))
+                .paymentRecordId(wallet.getPaymentRecord() != null ? wallet.getPaymentRecord().getId() : null)
                 .code(wallet.getCode())
                 .ref(wallet.getRef())
                 .otherReason(wallet.getOtherReason())
@@ -463,6 +532,10 @@ public class WalletServiceImpl implements WalletService {
 
         // Calculate amount for each DTO
         for (WalletRecordDto dto : dtos) {
+            if (dto.getAmount() != null) {
+                continue;
+            }
+
             Integer currentIndex = idToIndexMap.get(dto.getId());
             if (currentIndex != null && currentIndex + 1 < history.size()) {
                 Object previousRecord = history.get(currentIndex + 1);
@@ -487,6 +560,7 @@ public class WalletServiceImpl implements WalletService {
 
         AgentWallet wallet = AgentWallet.builder()
                 .agent(agent)
+                .amount(0.0)
                 .balance(0.0)
                 .isActive(true)
                 .isExpense(false)
@@ -520,6 +594,7 @@ public class WalletServiceImpl implements WalletService {
 
         ClientMarketOwnerWallet wallet = ClientMarketOwnerWallet.builder()
                 .user(user)
+                .amount(0.0)
                 .balance(0.0)
                 .isActive(true)
                 .isExpense(false)
@@ -542,11 +617,12 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public WalletRecordDto initializeCompanyWallet() {
         // Check if active wallet already exists
-        if (companyWalletRepo.findByIsActiveTrue().isPresent()) {
+        if (companyWalletRepo.findFirstByIsActiveTrueOrderByIdDesc().isPresent()) {
             throw new BusinessException("Active CompanyWallet already exists", null);
         }
 
         CompanyWallet wallet = CompanyWallet.builder()
+                .amount(0.0)
                 .balance(0.0)
                 .isActive(true)
                 .isExpense(false)
@@ -563,6 +639,28 @@ public class WalletServiceImpl implements WalletService {
         log.info("Initialized CompanyWallet");
 
         return mapToWalletRecordDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public WalletRecordDto initializeBranchWallet(Integer branchId) {
+        Branch branch = branchRepo.findById(branchId)
+                .orElseThrow(() -> new BusinessException("Branch not found", null));
+        CompanyWallet existing = companyWalletRepo.findFirstByBranch_IdAndIsActiveTrueOrderByIdDesc(branchId)
+                .orElse(null);
+        if (existing != null) {
+            return mapToWalletRecordDto(existing);
+        }
+        CompanyWallet wallet = CompanyWallet.builder()
+                .branch(branch)
+                .amount(0.0)
+                .balance(0.0)
+                .isActive(true)
+                .isExpense(false)
+                .note("Branch wallet initialized")
+                .ref("BRANCH-" + branchId)
+                .build();
+        return mapToWalletRecordDto(companyWalletRepo.save(wallet));
     }
 
     @Override
@@ -746,6 +844,21 @@ public class WalletServiceImpl implements WalletService {
                 .status(200)
                 .message("Success")
                 .desc("Company wallet operation detail fetched successfully")
+                .object(mapToWalletRecordDto(wallet))
+                .build();
+    }
+
+    @Override
+    public ResponseDto<WalletRecordDto> getBranchWalletOperationDetail(Integer branchId, Integer operationId) {
+        CompanyWallet wallet = companyWalletRepo.findById(operationId)
+                .filter(record -> record.getBranch() != null
+                        && record.getBranch().getId().equals(branchId))
+                .orElseThrow(() -> new BusinessException(
+                        "Branch wallet operation not found", null));
+        return ResponseDto.<WalletRecordDto>builder()
+                .status(200)
+                .message("Success")
+                .desc("Branch wallet operation detail fetched successfully")
                 .object(mapToWalletRecordDto(wallet))
                 .build();
     }

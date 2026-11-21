@@ -1143,8 +1143,7 @@ function UrgentJobs() {
             >
               Reset Filters
             </button>
-            <div className="inline-flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
-              Priority jobs should stay visible to dispatch and delivery teams.
+            <div className="inline-flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">Priority jobs should stay visible to dispatch and delivery teams.
             </div>
           </div>
         </div>

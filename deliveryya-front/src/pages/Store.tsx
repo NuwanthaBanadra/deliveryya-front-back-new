@@ -16,7 +16,7 @@ function Store() {
     const storeSearchQuery = searchParams.get('search') ?? ''
 
     return (
-        <div className='min-h-screen bg-white'>
+        <div className='min-h-screen bg-linear-to-b from-orange-50/60 via-white to-[#FFF4EE]'>
             <NavBar />
             <StoreHero />
             <StoreSearch />

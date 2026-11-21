@@ -16,6 +16,8 @@ interface EmployeeRegistrationFormProps {
   lastName: string;
   onSuccess: () => void;
   isLoading: boolean;
+  branchId?: number;
+  branchName?: string;
 }
 
 export const EmployeeRegistrationForm = ({
@@ -24,6 +26,8 @@ export const EmployeeRegistrationForm = ({
   lastName,
   onSuccess,
   isLoading,
+  branchId,
+  branchName,
 }: EmployeeRegistrationFormProps) => {
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -37,7 +41,7 @@ export const EmployeeRegistrationForm = ({
     whatsapp: '',
     verificationStatusId: 0,
     userRoleId: 0,
-    branchId: 0,
+    branchId: branchId ?? 0,
     liveLocation: '',
   });
 
@@ -122,7 +126,7 @@ export const EmployeeRegistrationForm = ({
     if (!formData.verificationStatusId)
       newErrors.verificationStatusId = 'Verification status is required';
     if (!formData.userRoleId) newErrors.userRoleId = 'User role is required';
-    if (!formData.branchId) newErrors.branchId = 'Branch is required';
+    if (!branchId && !formData.branchId) newErrors.branchId = 'Branch is required';
     if (!formData.liveLocation.trim())
       newErrors.liveLocation = 'Live location is required';
 
@@ -182,7 +186,7 @@ export const EmployeeRegistrationForm = ({
         },
         branches: {
           id: formData.branchId,
-          name: selectedBranch?.name,
+          name: selectedBranch?.name ?? branchName,
         },
         users: {
           id: formData.userId,
@@ -299,7 +303,7 @@ export const EmployeeRegistrationForm = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
-          <div>
+          {!branchId && <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Branch *
             </label>
@@ -319,7 +323,7 @@ export const EmployeeRegistrationForm = ({
             {errors.branchId && (
               <p className="text-red-500 text-sm mt-1">{errors.branchId}</p>
             )}
-          </div>
+          </div>}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Verification Status *

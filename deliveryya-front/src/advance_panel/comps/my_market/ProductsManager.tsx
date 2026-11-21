@@ -22,7 +22,7 @@ export interface Product {
     description: string;
     price: number;
     oldPrice?: number;
-    category: string;
+    category: string | { id: number; name: string };
     image: string;
     stock: number;
     rating: number;
@@ -546,7 +546,7 @@ function ProductsManager() {
             }
 
             const stocksByProductId = new Map<number, BackendStock[]>();
-            
+
             stocksItems.forEach((stock) => {
                 const productId = stock.products?.id;
                 if (!productId) return;

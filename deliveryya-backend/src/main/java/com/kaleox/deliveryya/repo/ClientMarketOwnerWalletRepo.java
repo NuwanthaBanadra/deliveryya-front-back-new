@@ -30,4 +30,6 @@ public interface ClientMarketOwnerWalletRepo extends JpaRepository<ClientMarketO
     Optional<ClientMarketOwnerWallet> findByIdAndUser_Id(Integer id, Integer userId);
 
     Optional<ClientMarketOwnerWallet> findByRef(String ref);
+
+    List<ClientMarketOwnerWallet> findByPaymentRecord_Id(Integer paymentRecordId);
 }

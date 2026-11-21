@@ -32,6 +32,7 @@ public class PaginatedOrdersDto {
     Integer markerOrderId;
     Integer deliveryStatusId;
     Integer paymentStatusId;
+    java.util.List<Integer> excludedDeliveryStatusIds;
     Integer paymentTypeId;
 
     Integer thirdPartySendersId;

@@ -20,6 +20,52 @@ export const getTypeFromDay = (days: number): string => {
 }
 
 class JwtUtil {
+  private static readonly branchStorageKey = "deliveryya_branch_id";
+  private static readonly branchCipherKey = "DeliveryYaBranchContext";
+
+  static encryptBranchId(branchId: number): string {
+    if (!Number.isInteger(branchId) || branchId <= 0) {
+      throw new Error("Invalid branch ID");
+    }
+
+    const value = `BID-${branchId}`;
+    const encoded = Array.from(value)
+      .map((character, index) => character.charCodeAt(0) ^ this.branchCipherKey.charCodeAt(index % this.branchCipherKey.length))
+      .map((code) => code.toString(16).padStart(2, "0"))
+      .join("");
+    return btoa(encoded);
+  }
+
+  static decryptBranchId(value: string | null): number | null {
+    if (!value) return null;
+
+    try {
+      const hex = atob(value);
+      const decoded = Array.from({ length: hex.length / 2 }, (_, index) => parseInt(hex.slice(index * 2, index * 2 + 2), 16))
+        .map((code, index) => String.fromCharCode(code ^ this.branchCipherKey.charCodeAt(index % this.branchCipherKey.length)))
+        .join("");
+      if (!decoded.startsWith("BID-")) return null;
+
+      const branchId = Number(decoded.slice(4));
+      return Number.isInteger(branchId) && branchId > 0 ? branchId : null;
+    } catch (error) {
+      console.warn("Invalid branch context", error);
+      return null;
+    }
+  }
+
+  static setBranchId(branchId: number): void {
+    localStorage.setItem(this.branchStorageKey, this.encryptBranchId(branchId));
+  }
+
+  static getBranchId(): number | null {
+    return this.decryptBranchId(localStorage.getItem(this.branchStorageKey));
+  }
+
+  static clearBranchId(): void {
+    localStorage.removeItem(this.branchStorageKey);
+  }
+
   static decodeToken(token: string): DecodedUserData | null {
     try {
       const decoded = jwtDecode(token) as DecodedUserData;

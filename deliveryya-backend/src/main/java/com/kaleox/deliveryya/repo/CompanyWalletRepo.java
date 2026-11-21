@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface CompanyWalletRepo extends JpaRepository<CompanyWallet, Integer>, JpaSpecificationExecutor<CompanyWallet> {
-    Optional<CompanyWallet> findByIsActiveTrue();
+    Optional<CompanyWallet> findFirstByIsActiveTrueOrderByIdDesc();
 
     List<CompanyWallet> findAllByOrderByCreatedAtDesc();
 
@@ -24,6 +24,12 @@ public interface CompanyWalletRepo extends JpaRepository<CompanyWallet, Integer>
     List<CompanyWallet> findAllHistory();
 
     Optional<CompanyWallet> findByRef(String ref);
+
+    List<CompanyWallet> findByPaymentRecord_Id(Integer paymentRecordId);
+
+    List<CompanyWallet> findByBranch_IdOrderByCreatedAtDesc(Integer branchId);
+
+    Optional<CompanyWallet> findFirstByBranch_IdAndIsActiveTrueOrderByIdDesc(Integer branchId);
 
     Page<CompanyWallet> findAll(Pageable pageable);
 }

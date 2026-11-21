@@ -5,7 +5,7 @@ import {
     ScaleIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axiosInstance from '../../../../util/AxiosUtil';
 import { getCurrentUserId } from '../../../../util/AccessController';
 import { getCurrentUserRoleId, ROLE_IDS } from '../../../../util/RoleAccess';
@@ -92,18 +92,18 @@ function JobRequestModal({ isOpen, onClose, onSubmit }: JobRequestModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isCreated, setIsCreated] = useState(false);
 
-    const resetForm = () => {
+    const resetForm = useCallback(() => {
         setJobRequest({ details: '', qty: 1, approxWeight: '', locationMapUrl: '', locationAddress: '' });
-    };
+    }, []);
 
-    const resetAll = () => {
+    const resetAll = useCallback(() => {
         resetForm();
         setIsMapModalLocationOpen(false);
         setFormError(null);
         setLocationPrefillError(null);
         setIsCreated(false);
         setIsSubmitting(false);
-    };
+    }, [resetForm]);
 
     useEffect(() => {
         const prefillMarketOwnerLocation = async () => {
@@ -144,6 +144,17 @@ function JobRequestModal({ isOpen, onClose, onSubmit }: JobRequestModalProps) {
 
         void prefillMarketOwnerLocation();
     }, [isOpen]);
+
+    useEffect(() => {
+        if (!isCreated) return;
+
+        const closeTimer = window.setTimeout(() => {
+            resetAll();
+            onClose();
+        }, 1500);
+
+        return () => window.clearTimeout(closeTimer);
+    }, [isCreated, onClose, resetAll]);
 
     const handleClose = () => {
         resetAll();

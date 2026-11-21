@@ -19,6 +19,14 @@ public class UrgentJobSpec {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("jobStatus").get("id"), dto.getJobStatusId()));
         }
 
+        if (dto.getPaymentStatusId() != null && dto.getPaymentStatusId() != 0) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("paymentStatus").get("id"), dto.getPaymentStatusId()));
+        }
+
+        if (dto.getExcludedJobStatusIds() != null && !dto.getExcludedJobStatusIds().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.not(root.get("jobStatus").get("id").in(dto.getExcludedJobStatusIds())));
+        }
+
         if (dto.getVerificationStatusId() != null && dto.getVerificationStatusId() != 0) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("verificationStatus").get("id"), dto.getVerificationStatusId()));
         }

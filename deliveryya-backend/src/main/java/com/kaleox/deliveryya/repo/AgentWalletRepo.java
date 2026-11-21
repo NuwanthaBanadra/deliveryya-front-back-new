@@ -27,6 +27,8 @@ public interface AgentWalletRepo extends JpaRepository<AgentWallet, Integer>, Jp
 
     Optional<AgentWallet> findByRef(String ref);
 
+    List<AgentWallet> findByPaymentRecord_Id(Integer paymentRecordId);
+
     Page<AgentWallet> findByAgent_Id(Integer agentId, Pageable pageable);
 
     Optional<AgentWallet> findByIdAndAgent_Id(Integer id, Integer agentId);

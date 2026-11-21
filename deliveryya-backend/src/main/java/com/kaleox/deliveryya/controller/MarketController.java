@@ -1,12 +1,7 @@
 package com.kaleox.deliveryya.controller;
 
 import com.kaleox.deliveryya.config.BusinessException;
-import com.kaleox.deliveryya.dto.BankDetailDto;
-import com.kaleox.deliveryya.dto.MarketDto;
-import com.kaleox.deliveryya.dto.ResponseDto;
-import com.kaleox.deliveryya.dto.SendOtpDto;
-import com.kaleox.deliveryya.dto.UpdateMarketStatusInfoDto;
-import com.kaleox.deliveryya.dto.VerifyOtpDto;
+import com.kaleox.deliveryya.dto.*;
 import com.kaleox.deliveryya.dto.customDto.CommonIdNameDto;
 import com.kaleox.deliveryya.dto.paginatedDto.PaginatedBankDetailDto;
 import com.kaleox.deliveryya.dto.paginatedDto.PaginatedMarketDto;
@@ -166,5 +161,7 @@ public class MarketController {
         ResponseDto<Void> response = otpService.verifyOtpForBankDetail(verifyOtpDto);
         return ResponseEntity.ok(response);
     }
+
+
 
 }

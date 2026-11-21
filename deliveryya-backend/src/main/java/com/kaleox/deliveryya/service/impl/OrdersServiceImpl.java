@@ -2,7 +2,6 @@ package com.kaleox.deliveryya.service.impl;
 
 import com.kaleox.deliveryya.config.BusinessException;
 import com.kaleox.deliveryya.dto.*;
-import com.kaleox.deliveryya.dto.WalletOperationDto;
 import com.kaleox.deliveryya.dto.customDto.CommonIdNameDto;
 import com.kaleox.deliveryya.dto.customDto.DeliveringUserHistoryDto;
 import com.kaleox.deliveryya.dto.customDto.RequestOrderCode;
@@ -629,6 +628,7 @@ public class OrdersServiceImpl implements OrderService {
                 .deliveryStatus(deliveryStatus)
                 .build());
 
+        /*
         // Credit AgentWallet for COD collection when order is delivered by agent
         // Only applies to COD orders (paymentType=1) with delivery status "Delivered By Agent" (id=7)
         if (order.getPaymentType() != null && Objects.equals(order.getPaymentType().getId(), 1) &&
@@ -641,6 +641,7 @@ public class OrdersServiceImpl implements OrderService {
         if (Objects.equals(deliveryStatus.getId(), 9)) {
             creditAgentWalletForReturnedOrder(order, employee.getUsers().getId());
         }
+        */
 
         if (Boolean.TRUE.equals(dto.getSendNotification())) {
             String noteMessage = dto.getNote() == null ? "" : dto.getNote().trim();
@@ -1039,13 +1040,10 @@ public class OrdersServiceImpl implements OrderService {
                 .mobile(employee.getMobile())
                 .whatsapp(employee.getWhatsapp())
                 .verificationStatus(employee.getVerificationStatus() == null ? null : CommonIdNameDto.builder()
-                                                                                      .id(employee.getVerificationStatus().getId())
-                                                                                      .name(employee.getVerificationStatus().getName())
-                                                                                      .build())
-                .branch(employee.getBranches() == null ? null : CommonIdNameDto.builder()
-                                                                .id(employee.getBranches().getId())
-                                                                .name(employee.getBranches().getName())
-                                                                .build())
+                        .id(employee.getVerificationStatus().getId())
+                        .name(employee.getVerificationStatus().getName())
+                        .build())
+                .branch(null)
                 .user(employeeUserDto)
                 .build();
 
@@ -1099,7 +1097,7 @@ public class OrdersServiceImpl implements OrderService {
                 })
                 .toList();
 
-        List<AgentJob> agentJobs = agentJobRepo.findByEmployeesAndUrgentJob_PaymentStatus_IdIsNot(employee, 2);
+        List<AgentJob> agentJobs = agentJobRepo.findByEmployeesAndUrgentJob_PaymentStatus_IdIsNot(employee, 1);
         final Integer[] onHandUrgentJobCount = {0};
         final Double[] urgentJobValues = {0.0};
 
@@ -1398,7 +1396,7 @@ public class OrdersServiceImpl implements OrderService {
     public String dropOrder(@Valid @NotNull @Min(0) Integer orderId, Integer userId) {
         Order order = orderRepo.findById(orderId).orElseThrow(() -> new BusinessException("Order not found", null));
 
-        if ((order.getDeliveryTo().getUser().getId() != userId && order.getOrderCode().getUsers().getId() != userId) ) {
+        if ((order.getDeliveryTo().getUser().getId() != userId && order.getOrderCode().getUsers().getId() != userId)) {
             throw new BusinessException("You are not the authorized to delete this order", null);
         }
 
@@ -1705,13 +1703,9 @@ public class OrdersServiceImpl implements OrderService {
         return baseCollectiveAmount + currentDeliveryFeePart;
     }
 
-    private void applyThirdPartySenderUpdate(Order order, ThirdPartySendersDto dto, Boolean removeThirdPartySender) {
+    private void applyThirdPartySenderUpdate(Order order, @NotNull ThirdPartySendersDto dto, Boolean removeThirdPartySender) {
         if (Boolean.TRUE.equals(removeThirdPartySender)) {
             order.setThirdPartySenders(null);
-            return;
-        }
-
-        if (dto == null) {
             return;
         }
 

@@ -36,4 +36,10 @@ public class Branch {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cites_id", referencedColumnName = "id", nullable = false)
     private City city;
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.Set<BranchHasEmployee> branchHasEmployees = new java.util.HashSet<>();
+
+    @OneToMany(mappedBy = "branch")
+    private java.util.Set<CompanyWallet> companyWallets = new java.util.HashSet<>();
 }

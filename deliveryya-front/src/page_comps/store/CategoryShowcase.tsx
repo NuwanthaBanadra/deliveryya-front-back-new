@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { FaLaptop, FaMobileAlt, FaHeadphones, FaCamera, FaGamepad, FaTv, FaShoppingBag } from "react-icons/fa";
-import { MdWatch, MdKeyboard, MdCategory } from "react-icons/md";
+import { MdCategory } from "react-icons/md";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../util/AxiosUtil";
 
 type ApiCategory = {
@@ -48,24 +48,17 @@ type Category = {
 
 function CategoryShowcase() {
     const MARKET_ID = 1;
+    const navigate = useNavigate();
     const [categories, setCategories] = useState<Category[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Available gradients for random selection
     const gradients = [
-        "from-[#FF6B35] to-[#FF8C42]",
-        "from-[#00BFA5] to-[#1DE9B6]",
-        "from-[#7E57C2] to-[#9575CD]",
-        "from-[#FFA726] to-[#FFB84D]",
-        "from-[#EF5350] to-[#E57373]",
-        "from-[#5C6BC0] to-[#7986CB]",
-        "from-[#FF6F91] to-[#FF9AAC]",
-        "from-[#26C6DA] to-[#4DD0E1]",
-        "from-[#66BB6A] to-[#81C784]",
-        "from-[#AB47BC] to-[#BA68C8]",
-        "from-[#FF7043] to-[#FF8A65]",
-        "from-[#42A5F5] to-[#64B5F6]",
+        "from-[#FF6347] to-[#FF4500]",
+        "from-[#F59B0F] to-[#AC6C2A]",
+        "from-[#FF7F50] to-[#FF4500]",
+        "from-[#FF8C00] to-[#F59B0F]",
     ];
 
     // Visual styling mapping for categories
@@ -159,7 +152,7 @@ function CategoryShowcase() {
                 {/* Loading State */}
                 {isLoading && (
                     <div className="text-center py-12">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B35]"></div>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#F59B0F]"></div>
                         <p className="text-gray-600 mt-4">Loading categories...</p>
                     </div>
                 )}
@@ -170,7 +163,7 @@ function CategoryShowcase() {
                         <p className="text-red-500 text-lg">{error}</p>
                         <button 
                             onClick={fetchCategories}
-                            className="mt-4 bg-[#FF6B35] text-white font-semibold py-2 px-6 rounded-lg hover:bg-[#FF8C42] transition-all"
+                            className="mt-4 rounded-xl bg-[#F59B0F] px-6 py-2 font-semibold text-white transition-all hover:bg-[#AC6C2A]"
                         >
                             Try Again
                         </button>
@@ -180,8 +173,18 @@ function CategoryShowcase() {
                 {/* Categories Grid */}
                 {!isLoading && !error && categories.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {categories.map((category, i) => {
+                    {categories.map((category) => {
                         const Icon = category.icon;
+                        const openCategory = () => {
+                            navigate(
+                                {
+                                    pathname: "/all-products",
+                                    search: `?${createSearchParams({ categoryId: String(category.id) }).toString()}`,
+                                },
+                                { state: { scrollToResults: true } }
+                            );
+                        };
+
                         return (
                             <div
                                 key={category.id}
@@ -216,7 +219,11 @@ function CategoryShowcase() {
                                     <h3 className={`text-xl font-bold bg-linear-to-r ${category.gradient} text-transparent bg-clip-text group-hover:scale-110 inline-block transition-transform duration-300`}>
                                         {category.name}
                                     </h3>
-                                    <button className={`mt-3 w-full bg-linear-to-r ${category.gradient} text-white font-semibold py-2 rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300`}>
+                                    <button
+                                        type="button"
+                                        onClick={openCategory}
+                                        className={`mt-3 w-full bg-linear-to-r ${category.gradient} text-white font-semibold py-2 rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300`}
+                                    >
                                         Explore
                                     </button>
                                 </div>
@@ -240,7 +247,11 @@ function CategoryShowcase() {
                     <div className="relative z-10 py-16 px-8 text-center text-white">
                         <h3 className="text-3xl md:text-4xl font-bold mb-4">Can't find what you're looking for?</h3>
                         <p className="text-lg mb-8 text-white/90">Explore all categories and discover amazing products</p>
-                        <button className="bg-white text-[#FF6B35] font-bold py-4 px-12 rounded-full hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/all-products", { state: { scrollToResults: true } })}
+                            className="bg-white text-[#FF6B35] font-bold py-4 px-12 rounded-full hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                        >
                             View All Categories
                         </button>
                     </div>

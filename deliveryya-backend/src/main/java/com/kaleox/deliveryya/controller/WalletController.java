@@ -84,7 +84,8 @@ public class WalletController {
             @PathVariable @NotNull Integer agentId,
             @Valid @RequestBody WalletOperationDto operation,
             @AuthenticationPrincipal UserDetails userDetails) {
-        // Ownership validation: user can only create operations on their own wallet
+        // Ownership validation: user can only create operations on their own wallet.
+        // paymentRecordId is optional and is used for payment-generated wallet entries.
         Integer currentUserId = Integer.valueOf(userDetails.getUsername());
         if (!currentUserId.equals(agentId)) {
             return ResponseEntity.status(403).body(ResponseDto.<WalletRecordDto>builder()
@@ -107,7 +108,8 @@ public class WalletController {
             @PathVariable @NotNull Integer userId,
             @Valid @RequestBody WalletOperationDto operation,
             @AuthenticationPrincipal UserDetails userDetails) {
-        // Ownership validation: user can only create operations on their own wallet
+        // Ownership validation: user can only create operations on their own wallet.
+        // paymentRecordId is optional and is used for payment-generated wallet entries.
         Integer currentUserId = Integer.valueOf(userDetails.getUsername());
         if (!currentUserId.equals(userId)) {
             return ResponseEntity.status(403).body(ResponseDto.<WalletRecordDto>builder()
@@ -128,6 +130,7 @@ public class WalletController {
     @PostMapping("/company/operation")
     public ResponseEntity<ResponseDto<WalletRecordDto>> createCompanyWalletOperation(
             @Valid @RequestBody WalletOperationDto operation) {
+        // paymentRecordId is optional and is used for payment-generated wallet entries.
         return ResponseEntity.ok(ResponseDto.<WalletRecordDto>builder()
                 .status(200)
                 .message("Success")
@@ -198,6 +201,36 @@ public class WalletController {
                 .build());
     }
 
+    @GetMapping("/branch/{branchId}/balance")
+    public ResponseEntity<ResponseDto<Double>> getBranchWalletBalance(@PathVariable @NotNull Integer branchId) {
+        return ResponseEntity.ok(ResponseDto.<Double>builder()
+                .status(200).message("Success")
+                .desc("Branch wallet balance fetched successfully")
+                .object(walletService.getBranchWalletCurrentBalance(branchId)).build());
+    }
+
+    @GetMapping("/branch/{branchId}/history")
+    public ResponseEntity<ResponseDto<List<WalletRecordDto>>> getBranchWalletHistory(@PathVariable @NotNull Integer branchId) {
+        return ResponseEntity.ok(ResponseDto.<List<WalletRecordDto>>builder()
+                .status(200).message("Success")
+                .desc("Branch wallet history fetched successfully")
+                .object(walletService.getBranchWalletHistory(branchId)).build());
+    }
+
+    @PostMapping("/branch/{branchId}/history/paginated")
+    public ResponseEntity<ResponseDto<PaginatedWalletHistoryDto>> getBranchWalletHistoryPaginated(
+            @PathVariable @NotNull Integer branchId,
+            @Valid @RequestBody PaginatedWalletHistoryDto request) {
+        return ResponseEntity.ok(walletService.getBranchWalletHistoryPaginated(branchId, request));
+    }
+
+    @GetMapping("/branch/{branchId}/operation/{id}")
+    public ResponseEntity<ResponseDto<WalletRecordDto>> getBranchWalletOperationDetail(
+            @PathVariable @NotNull Integer branchId,
+            @PathVariable @NotNull Integer id) {
+        return ResponseEntity.ok(walletService.getBranchWalletOperationDetail(branchId, id));
+    }
+
     @PostMapping("/agent/{agentId}/initialize")
     public ResponseEntity<ResponseDto<WalletRecordDto>> initializeAgentWallet(@PathVariable @NotNull Integer agentId) {
         return ResponseEntity.ok(ResponseDto.<WalletRecordDto>builder()
@@ -226,6 +259,14 @@ public class WalletController {
                 .desc("Company wallet initialized successfully")
                 .object(walletService.initializeCompanyWallet())
                 .build());
+    }
+
+    @PostMapping("/branch/{branchId}/initialize")
+    public ResponseEntity<ResponseDto<WalletRecordDto>> initializeBranchWallet(@PathVariable @NotNull Integer branchId) {
+        return ResponseEntity.ok(ResponseDto.<WalletRecordDto>builder()
+                .status(200).message("Success")
+                .desc("Branch wallet initialized successfully")
+                .object(walletService.initializeBranchWallet(branchId)).build());
     }
 
     @PostMapping("/agent/{agentId}/activate")

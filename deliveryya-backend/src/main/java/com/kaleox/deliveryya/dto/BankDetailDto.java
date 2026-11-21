@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -36,6 +37,10 @@ public class BankDetailDto implements Serializable {
     @NotBlank(message = "Branch is required")
     @Size(max = 45, message = "Branch must not exceed 45 characters")
     String branch;
+
+    @NotNull(message = "Balance is required")
+    @PositiveOrZero(message = "Balance cannot be negative")
+    Double balance;
 
     @Valid
     @NotNull(message = "Bank is required")

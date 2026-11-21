@@ -2,6 +2,7 @@ package com.kaleox.deliveryya.dto;
 
 import com.kaleox.deliveryya.dto.customDto.CommonIdNameDto;
 import com.kaleox.deliveryya.entities.PaymentRecord;
+import com.kaleox.deliveryya.enums.WalletType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -42,7 +43,7 @@ public class PaymentRecordDto implements Serializable {
     @Size(min = 1)
     List<PaymentRecordItemsDto> paymentRecordItems;
 
-    CommonIdNameDto bankDetail;
+    BankDetailDto bankDetail;
     CommonIdNameDto verificationStatus;
 
     @NotNull
@@ -53,6 +54,12 @@ public class PaymentRecordDto implements Serializable {
 
     @NotNull
     Boolean isReturn = false;
+
+    WalletType fromWallet;
+    WalletType toWallet;
+    Integer fromUserId;
+    Integer toUserId;
+    Integer branchId;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

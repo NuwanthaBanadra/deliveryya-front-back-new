@@ -22,5 +22,7 @@ public interface BankDetailRepo extends JpaRepository<BankDetail, Integer>, JpaS
     List<BankDetail> findAllByUser_IdAndIsDeletedFalse(Integer userId);
 
     List<BankDetail> findAllByIsDeletedFalse();
+
+    List<BankDetail> findAllByIsCompanyAndIsActive(Boolean isCompany, Boolean isActive);
 }
 

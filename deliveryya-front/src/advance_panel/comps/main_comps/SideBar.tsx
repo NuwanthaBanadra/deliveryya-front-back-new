@@ -1,4 +1,4 @@
-import { ArrowLeftOnRectangleIcon, BriefcaseIcon, BuildingStorefrontIcon, ChevronDownIcon, ClipboardDocumentListIcon, DocumentTextIcon, ShoppingBagIcon, TruckIcon, UserCircleIcon, UsersIcon, BoltIcon, ChartBarIcon, CurrencyDollarIcon, UserGroupIcon, WalletIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftOnRectangleIcon, BuildingOffice2Icon, BuildingStorefrontIcon, ChevronDownIcon, ClipboardDocumentListIcon, DocumentTextIcon, ShoppingBagIcon, TruckIcon, UserCircleIcon, UsersIcon, BoltIcon, ChartBarIcon, CurrencyDollarIcon, UserGroupIcon, WalletIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logoImage from '../../../assets/images/logo.jpeg';
@@ -17,6 +17,7 @@ interface SubMenuItem {
   id: string;
   label: string;
   href: string;
+  icon?: React.ReactNode;
   badge?: number;
   allowedAccessIds?: readonly number[];
 }
@@ -78,7 +79,7 @@ const menuGroups: MenuGroup[] = [
         label: 'Markets',
         icon: <BuildingStorefrontIcon className="w-5 h-5" />,
         subItems: [
-          { id: 'market-directory', label: 'Markets Directory', href: 'markets', allowedAccessIds: [FRONTEND_ACCESS_IDS.VIEW_MARKETS] },
+          { id: 'market-directory', label: 'Markets Directory', href: 'markets', icon: <BuildingStorefrontIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.VIEW_MARKETS] },
         ],
       },
 
@@ -87,8 +88,8 @@ const menuGroups: MenuGroup[] = [
         label: 'My Market',
         icon: <ShoppingBagIcon className="w-5 h-5" />,
         subItems: [
-          { id: 'manage-products', label: 'Manage Products', href: 'my-market', allowedAccessIds: [FRONTEND_ACCESS_IDS.MY_MARKET_PRODUCTS] },
-          { id: 'categories', label: 'Categories & Brands', href: 'my-market/categories', allowedAccessIds: [FRONTEND_ACCESS_IDS.MY_MARKET_CATEGORIES] },
+          { id: 'manage-products', label: 'Manage Products', href: 'my-market', icon: <ShoppingBagIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.MY_MARKET_PRODUCTS] },
+          { id: 'categories', label: 'Categories & Brands', href: 'my-market/categories', icon: <ClipboardDocumentListIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.MY_MARKET_CATEGORIES] },
         ],
       },
       {
@@ -159,9 +160,9 @@ const menuGroups: MenuGroup[] = [
         label: 'Agent Jobs',
         icon: <UserGroupIcon className="w-5 h-5" />,
         subItems: [
-          { id: 'argent-jobs', label: 'Argent Jobs', href: 'employee-assignments', allowedAccessIds: [FRONTEND_ACCESS_IDS.EMPLOYEE_ASSIGNMENTS] },
-          { id: 'pickup-request-assignments', label: 'Pickup requests', href: 'employee-assignments/pickup-requests', allowedAccessIds: [FRONTEND_ACCESS_IDS.PICKUP_REQUEST_ASSIGNMENTS] },
-          { id: 'on-hand-orders', label: 'On hand orders', href: 'employee-assignments/on-hand-orders', allowedAccessIds: [FRONTEND_ACCESS_IDS.ON_HAND_ORDERS] },
+          { id: 'argent-jobs', label: 'Argent Jobs', href: 'employee-assignments', icon: <UserGroupIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.EMPLOYEE_ASSIGNMENTS] },
+          { id: 'pickup-request-assignments', label: 'Pickup requests', href: 'employee-assignments/pickup-requests', icon: <TruckIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.PICKUP_REQUEST_ASSIGNMENTS] },
+          { id: 'on-hand-orders', label: 'On hand orders', href: 'employee-assignments/on-hand-orders', icon: <ClipboardDocumentListIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.ON_HAND_ORDERS] },
         ],
       },
       {
@@ -223,10 +224,10 @@ const menuGroups: MenuGroup[] = [
         allowedAccessIds: [FRONTEND_ACCESS_IDS.COMPLAINTS_MANAGEMENT],
       },
       {
-        id: 'career',
-        label: 'Career',
-        icon: <BriefcaseIcon className="w-5 h-5" />,
-        href: 'career',
+        id: 'branches',
+        label: 'Manage Branches',
+        icon: <BuildingOffice2Icon className="w-5 h-5" />,
+        href: 'branches',
         allowedAccessIds: [FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT],
       },
       {
@@ -235,15 +236,15 @@ const menuGroups: MenuGroup[] = [
         icon: <ShieldCheckIcon className="w-5 h-5" />,
         subItems: [
           {
-            id: 'access-catalog', label: 'Accesses & APIs', href: 'access-management/accesses',
+            id: 'access-catalog', label: 'Accesses & APIs', href: 'access-management/accesses', icon: <ShieldCheckIcon className="w-4 h-4" />,
             allowedAccessIds: [FRONTEND_ACCESS_IDS.ACCESS_MANAGEMENT],
           },
           {
-            id: 'user-roles', label: 'User Roles', href: 'access-management/roles',
+            id: 'user-roles', label: 'User Roles', href: 'access-management/roles', icon: <UsersIcon className="w-4 h-4" />,
             allowedAccessIds: [FRONTEND_ACCESS_IDS.ACCESS_MANAGEMENT],
           },
           {
-            id: 'user-access-control', label: 'User Access Control', href: 'access-management/users',
+            id: 'user-access-control', label: 'User Access Control', href: 'access-management/users', icon: <UserCircleIcon className="w-4 h-4" />,
             allowedAccessIds: [FRONTEND_ACCESS_IDS.ACCESS_MANAGEMENT],
           },
         ],
@@ -293,6 +294,13 @@ const menuGroups: MenuGroup[] = [
         href: 'agent-wallet',
         allowedAccessIds: [FRONTEND_ACCESS_IDS.AGENT_WALLET],
       },
+      {
+        id: 'client-market-owner-wallet',
+        label: 'Client / Market Owner Wallet',
+        icon: <WalletIcon className="w-5 h-5" />,
+        href: 'client-market-owner-wallet',
+        allowedAccessIds: [FRONTEND_ACCESS_IDS.CLIENT_MARKET_OWNER_WALLET],
+      },
     ],
   }
 ];
@@ -327,7 +335,7 @@ const getActiveItemFromPath = (pathname: string): string => {
   if (normalized.startsWith('markets')) return 'market-directory';
   if (normalized.startsWith('ordercode-requests')) return 'ordercode-requests';
   if (normalized.startsWith('manage-users')) return 'manage-users';
-  if (normalized.startsWith('career')) return 'career';
+  if (normalized.startsWith('branches')) return 'branches';
   if (normalized.startsWith('verify-documents')) return 'verify-documents';
   if (normalized.startsWith('my-complaints')) return 'my-complaints';
   if (normalized.startsWith('complaints')) return 'complaints-management';
@@ -545,15 +553,11 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                       onClick={() => {
                         if (item.subItems) {
                           toggleMenu(item.id);
-                          const defaultSubItem = item.subItems[0];
-                          if (defaultSubItem) {
-                            handleNavigate(defaultSubItem.id, defaultSubItem.href);
-                          }
                         } else if (item.href) {
                           handleNavigate(item.id, item.href);
                         }
                       }}
-                      className={`w-full rounded-lg font-semibold text-sm transition-all duration-300 group/item relative overflow-hidden ${parentActive
+                      className={`w-full rounded-lg font-semibold text-sm transition-all duration-300 group/item relative ${parentActive
                         ? 'bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] text-white shadow-lg'
                         : 'text-gray-700 hover:bg-orange-50 hover:text-[#F59B0F]'
                         } ${isExpanded ? 'px-3 py-3' : 'lg:px-2.5 lg:py-2.5 px-3 py-3'
@@ -615,36 +619,55 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                       )}
                     </button>
 
-                    {/* Sub Menu Items - Only show when expanded */}
-                    {item.subItems && expandedMenus.includes(item.id) && isExpanded && (
+                    {/* Inline sub-menu when the sidebar is open */}
+                    {item.subItems && expandedMenus.includes(item.id) && isOpen && (
                       <div className="ml-9 mt-1 space-y-1 animate-slideDown">
-                        {item.subItems.map((subItem) => {
-                          return (
-                            <button
-                              key={subItem.id}
-                              type="button"
-                              title={subItem.label}
-                              onClick={() => {
-                                handleNavigate(subItem.id, subItem.href);
-                              }}
-                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 group/subitem ${activeItem === subItem.id
-                                ? 'bg-orange-100 text-[#F59B0F] font-bold scale-[1.01]'
-                                : 'text-gray-600 hover:bg-orange-50 hover:text-[#F59B0F]'
-                                }`}
-                            >
-                              <span className="flex items-center gap-2">
-                                <span className={`w-1.5 h-1.5 rounded-full bg-current transition-transform group-hover/subitem:scale-125 ${activeItem === subItem.id ? 'scale-125' : ''
-                                  }`}></span>
-                                {subItem.label}
+                        {item.subItems.map((subItem) => (
+                          <button
+                            key={subItem.id}
+                            type="button"
+                            title={subItem.label}
+                            onClick={() => handleNavigate(subItem.id, subItem.href)}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 group/subitem ${activeItem === subItem.id
+                              ? 'bg-orange-100 text-[#F59B0F] font-bold scale-[1.01]'
+                              : 'text-gray-600 hover:bg-orange-50 hover:text-[#F59B0F]'
+                              }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <span className={`w-1.5 h-1.5 rounded-full bg-current transition-transform group-hover/subitem:scale-125 ${activeItem === subItem.id ? 'scale-125' : ''}`}></span>
+                              {subItem.label}
+                            </span>
+                            {subItem.badge && (
+                              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#F59B0F] text-white">
+                                {subItem.badge}
                               </span>
-                              {subItem.badge && (
-                                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#F59B0F] text-white">
-                                  {subItem.badge}
-                                </span>
-                              )}
-                            </button>
-                          )
-                        })}
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Icon-only flyout while the desktop sidebar is collapsed */}
+                    {item.subItems && expandedMenus.includes(item.id) && !isOpen && isHovered && (
+                      <div className="absolute left-full ml-1 top-0 z-[60] hidden min-w-12 flex-col gap-1 rounded-xl border border-orange-100 bg-white p-1.5 shadow-xl lg:flex">
+                        {item.subItems.map((subItem) => (
+                          <button
+                            key={subItem.id}
+                            type="button"
+                            title={subItem.label}
+                            aria-label={subItem.label}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleNavigate(subItem.id, subItem.href);
+                            }}
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all ${activeItem === subItem.id
+                              ? 'bg-[#F59B0F] text-white shadow-md'
+                              : 'text-gray-600 hover:bg-orange-50 hover:text-[#F59B0F]'
+                              }`}
+                          >
+                            {subItem.icon ?? item.icon}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>

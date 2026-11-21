@@ -1,7 +1,7 @@
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Fragment, type ReactNode, useEffect, useMemo, useState } from 'react';
-import Select from 'react-select';
+import Select, { type CSSObjectWithLabel, type GroupBase, type StylesConfig } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import {
     FiAlertTriangle,
@@ -46,8 +46,13 @@ type PaymentType = {
 
 type BankDetail = {
     id?: number;
+    name?: string;
     bankName?: string;
     accountNumber?: string;
+    accNumber?: string;
+    bank?: {
+        name?: string;
+    } | null;
     [key: string]: unknown;
 };
 
@@ -68,11 +73,17 @@ type PaymentRecord = {
     verificationStatus: VerificationStatus;
     isReturn: boolean;
     paymentType: PaymentType;
+    fromWallet?: WalletType | null;
+    toWallet?: WalletType | null;
+    fromUserId?: number | null;
+    toUserId?: number | null;
     paymentRecordItems?: PaymentRecordItem[];
     createdAt?: string;
     updatedAt?: string;
     madeBy?: string;
 };
+
+type WalletType = 'AGENT' | 'COMPANY' | 'CLIENT' | 'CUSTOMER';
 
 type OrderDetail = {
     orderCode?: { code?: string | null } | null;
@@ -97,7 +108,7 @@ type Props = {
     loadBankDetailOptions: (inputValue: string) => Promise<AsyncOption[]>;
     canManagePaymentDirection?: boolean;
     onClose: () => void;
-    onUpdated: () => void;
+    onUpdated: (keepOpen?: boolean) => void;
 };
 
 type EditablePaymentItem = {
@@ -172,22 +183,30 @@ const formatDateTime = (value?: string) => {
 const brandPrimary = '#FF6347';
 const brandFocus = '#F59B0F';
 
+const getBankDetailLabel = (bankDetail: BankDetail): string => {
+    const bankName = bankDetail.bankName || bankDetail.bank?.name || bankDetail.name || 'Unknown Bank';
+    const accountNumber = bankDetail.accountNumber || bankDetail.accNumber;
+    return accountNumber ? `${bankName} (${accountNumber})` : bankName;
+};
+
 function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED_PAYMENT_RECORD_MODES, paymentRecord, userId, paymentTypes, verificationStatuses, loadBankDetailOptions, canManagePaymentDirection = false, onClose, onUpdated, }: Props) {
     const [activeMode, setActiveMode] = useState<ModalMode>(mode);
-    const [amount, setAmount] = useState('');
     const [desc, setDesc] = useState('');
     const [proofUrl, setProofUrl] = useState('');
     const [isReturn, setIsReturn] = useState<boolean>(false);
     const [paymentTypeId, setPaymentTypeId] = useState<number | null>(null);
     const [selectedBankDetail, setSelectedBankDetail] = useState<AsyncOption | null>(null);
     const [selectedStatusId, setSelectedStatusId] = useState<number | null>(null);
+    const [selectedFromUser, setSelectedFromUser] = useState<AsyncOption | null>(null);
+    const [selectedToUser, setSelectedToUser] = useState<AsyncOption | null>(null);
     const [items, setItems] = useState<EditablePaymentItem[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoadingOrders, setIsLoadingOrders] = useState(false);
     const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
+    const [showLinkedOrders, setShowLinkedOrders] = useState(false);
 
     const fieldLabelClass = 'mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500';
-    const inputClass = 'w-full h-[48px] rounded-2xl border border-slate-200 bg-white px-4 text-slate-900 shadow-sm transition focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-100';
+    const inputClass = 'w-full h-[42px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm transition focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-100';
     const textareaClass = 'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-100';
     const cardClass = 'rounded-[28px] border border-slate-200 bg-white/95 shadow-sm';
 
@@ -195,19 +214,21 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
         if (!isOpen || !paymentRecord) return;
 
         setActiveMode(allowedModes.includes(mode) ? mode : allowedModes[0] ?? 'update');
-        setAmount(paymentRecord.amount !== null ? String(paymentRecord.amount) : '');
         setDesc(paymentRecord.desc || '');
         setProofUrl(paymentRecord.proofUrl || '');
         setIsReturn(Boolean(paymentRecord.isReturn));
         setPaymentTypeId(paymentRecord.paymentType?.id ?? null);
         setSelectedStatusId(paymentRecord.verificationStatus?.id ?? null);
+        setSelectedFromUser(paymentRecord.fromUserId ? { value: paymentRecord.fromUserId, label: `From user #${paymentRecord.fromUserId}` } : null);
+        setSelectedToUser(paymentRecord.toUserId ? { value: paymentRecord.toUserId, label: `To user #${paymentRecord.toUserId}` } : null);
         setIsSubmitting(false);
+        setShowLinkedOrders(false);
 
         setSelectedBankDetail(
             paymentRecord.bankDetail?.id
                 ? {
                     value: Number(paymentRecord.bankDetail.id),
-                    label: `${paymentRecord.bankDetail.bankName || 'Unknown Bank'} (${paymentRecord.bankDetail.accountNumber || 'N/A'})`,
+                    label: getBankDetailLabel(paymentRecord.bankDetail),
                 }
                 : null
         );
@@ -223,48 +244,48 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
         );
     }, [allowedModes, isOpen, mode, paymentRecord]);
 
-    const selectStyles = {
-        control: (base: any, state: any) => ({
+    const selectStyles: StylesConfig<AsyncOption, false, GroupBase<AsyncOption>> = {
+        control: (base: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
             ...base,
-            minHeight: '48px',
-            height: '48px',
-            borderRadius: '1rem',
+            minHeight: '42px',
+            height: '42px',
+            borderRadius: '0.75rem',
             borderWidth: '1px',
             borderColor: state.isFocused ? brandFocus : '#fed7aa',
             boxShadow: state.isFocused ? '0 0 0 4px rgba(245, 155, 15, 0.14)' : 'none',
             backgroundColor: '#ffffff',
             '&:hover': { borderColor: '#fdba74' },
         }),
-        valueContainer: (base: any) => ({
+        valueContainer: (base: CSSObjectWithLabel) => ({
             ...base,
-            minHeight: '46px',
+            minHeight: '40px',
             padding: '0 12px',
         }),
-        indicatorsContainer: (base: any) => ({
+        indicatorsContainer: (base: CSSObjectWithLabel) => ({
             ...base,
-            height: '46px',
+            height: '40px',
         }),
-        menu: (base: any) => ({
+        menu: (base: CSSObjectWithLabel) => ({
             ...base,
-            borderRadius: '1rem',
+            borderRadius: '0.75rem',
             overflow: 'hidden',
             border: '1px solid #fed7aa',
             boxShadow: '0 18px 34px rgba(15, 23, 42, 0.14)',
         }),
-        menuList: (base: any) => ({
+        menuList: (base: CSSObjectWithLabel) => ({
             ...base,
             paddingTop: 6,
             paddingBottom: 6,
             backgroundColor: '#ffffff',
         }),
-        option: (base: any, state: any) => ({
+        option: (base: CSSObjectWithLabel, state: { isSelected: boolean; isFocused: boolean }) => ({
             ...base,
             backgroundColor: state.isSelected ? brandPrimary : state.isFocused ? '#fff7ed' : '#ffffff',
             color: state.isSelected ? '#ffffff' : '#111827',
             fontWeight: 600,
         }),
-        placeholder: (base: any) => ({ ...base, color: '#94a3b8' }),
-        singleValue: (base: any) => ({ ...base, color: '#111827' }),
+        placeholder: (base: CSSObjectWithLabel) => ({ ...base, color: '#94a3b8' }),
+        singleValue: (base: CSSObjectWithLabel) => ({ ...base, color: '#111827' }),
     };
 
     const notifyValidation = async (message: string) => {
@@ -274,6 +295,11 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
     const notifyMainError = async (message: string) => {
         await swalErrorModal('Operation Failed', message);
     };
+
+    const isVerifiedStatus = (status?: VerificationStatus | null) =>
+        status?.name?.trim().toLowerCase() === 'verified' || status?.id === 1;
+    const isVerifiedStatusId = (statusId: number | null) =>
+        isVerifiedStatus(verificationStatuses.find((status) => status.id === statusId));
 
     const sanitizedItems = useMemo(() => {
         return items
@@ -291,10 +317,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
         return sanitizedItems.reduce((sum, item) => sum + item.amount, 0);
     }, [sanitizedItems]);
 
-    const amountValue = useMemo(() => {
-        const parsedAmount = Number(amount || 0);
-        return Number.isFinite(parsedAmount) ? parsedAmount : 0;
-    }, [amount]);
+    const amountValue = useMemo(() => itemsTotal, [itemsTotal]);
 
     const amountDifference = useMemo(() => {
         return itemsTotal - amountValue;
@@ -310,7 +333,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
     }, [items]);
 
     useEffect(() => {
-        if (!isOpen || (activeMode !== 'update' && activeMode !== 'status')) {
+        if (!isOpen || !showLinkedOrders || (activeMode !== 'update' && activeMode !== 'status')) {
             setOrderDetails([]);
             return;
         }
@@ -358,7 +381,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
         return () => {
             isMounted = false;
         };
-    }, [isOpen, activeMode, orderCodes, userId]);
+    }, [isOpen, activeMode, orderCodes, userId, showLinkedOrders]);
 
     const orderSummary = useMemo(() => {
         const totalPrice = orderDetails.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
@@ -381,6 +404,37 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
         return options.filter((option) => option.value > 0);
     };
 
+    const loadWalletUsers = async (inputValue: string, walletType: WalletType | null): Promise<AsyncOption[]> => {
+        if (!walletType || walletType === 'COMPANY' || inputValue.trim().length < 2) return [];
+        try {
+            const response = await axiosInstance.post<ApiResponse<{ items?: Array<{
+                id: number;
+                firstName?: string;
+                lastName?: string;
+                email?: string;
+                userRole?: { id?: number; name?: string };
+            }> }>>('/users/get-users', {
+                pageNumber: 0,
+                countPerPage: 25,
+                isActive: true,
+                search: inputValue.trim(),
+            });
+            return (response.data.object?.items || [])
+                .filter((user) => {
+                    const roleId = user.userRole?.id;
+                    return walletType === 'AGENT'
+                        ? roleId === 7
+                        : roleId === 5 || roleId === 8;
+                })
+                .map((user) => ({
+                    value: user.id,
+                    label: `${`${user.firstName || ''} ${user.lastName || ''}`.trim() || `User #${user.id}`}${user.email ? ` - ${user.email}` : ''}${user.userRole?.name ? ` (${user.userRole.name})` : ''}`,
+                }));
+        } catch {
+            return [];
+        }
+    };
+
     const handleUpdateRecord = async () => {
         if (!paymentRecord?.id) return;
         if (!paymentTypeId) {
@@ -395,6 +449,14 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
             await notifyValidation('Please add the proof URL.');
             return;
         }
+        if (paymentRecord.fromWallet && paymentRecord.fromWallet !== 'COMPANY' && !selectedFromUser) {
+            await notifyValidation('Please select the from-wallet user.');
+            return;
+        }
+        if (paymentRecord.toWallet && paymentRecord.toWallet !== 'COMPANY' && !selectedToUser) {
+            await notifyValidation('Please select the to-wallet user.');
+            return;
+        }
         if ((paymentRecord.paymentRecordItems || []).length > 0 && sanitizedItems.length === 0) {
             await notifyValidation('This record has payment items, but none of them have a valid amount.');
             return;
@@ -402,10 +464,6 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
 
         if (!Number.isFinite(amountValue) || amountValue < 0) {
             await notifyValidation('Amount must be a valid number.');
-            return;
-        }
-        if (amountValue > itemsTotal) {
-            await notifyValidation('Amount cannot be greater than the total item amount.');
             return;
         }
 
@@ -419,6 +477,14 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
             paymentType: { id: paymentTypeId },
             bankDetail: selectedBankDetail?.value ? { id: selectedBankDetail.value } : null,
             isReturn: canManagePaymentDirection ? isReturn : paymentRecord.isReturn,
+            fromWallet: paymentRecord.fromWallet ?? null,
+            toWallet: paymentRecord.toWallet ?? null,
+            fromUserId: paymentRecord.fromWallet && paymentRecord.fromWallet !== 'COMPANY'
+                ? selectedFromUser?.value ?? null
+                : null,
+            toUserId: paymentRecord.toWallet && paymentRecord.toWallet !== 'COMPANY'
+                ? selectedToUser?.value ?? null
+                : null,
             paymentRecordItems: sanitizedItems,
         };
 
@@ -432,7 +498,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
             }
 
             void swalAlert('Updated', 'Payment record saved successfully.', 'success');
-            onUpdated();
+            onUpdated(!isVerifiedStatus(paymentRecord.verificationStatus));
         } catch {
             setIsSubmitting(false);
             await notifyMainError('Failed to update the payment record. Please try again.');
@@ -461,7 +527,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
             }
 
             void swalAlert('Updated', 'Verification status updated successfully.', 'success');
-            onUpdated();
+            onUpdated(!isVerifiedStatusId(selectedStatusId));
         } catch {
             setIsSubmitting(false);
             await notifyMainError('Failed to update verification status. Please try again.');
@@ -510,8 +576,9 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
     const paymentTypeName = paymentRecord.paymentType?.name || 'N/A';
     const verificationName = paymentRecord.verificationStatus?.name || 'N/A';
     const bankLabel = paymentRecord.bankDetail
-        ? `${paymentRecord.bankDetail.bankName || 'Unknown Bank'}${paymentRecord.bankDetail.accountNumber ? ` • ${paymentRecord.bankDetail.accountNumber}` : ''}`
+        ? getBankDetailLabel(paymentRecord.bankDetail)
         : 'No bank detail attached';
+
     const amountDeltaLabel = amountDifference === 0
         ? 'Balanced with the item total'
         : amountDifference > 0
@@ -572,29 +639,29 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                             leaveFrom="opacity-100 translate-y-0 scale-100"
                             leaveTo="opacity-0 translate-y-4 scale-[0.98]"
                         >
-                            <DialogPanel className="relative flex w-full max-w-6xl flex-col overflow-hidden rounded-4xl border border-orange-200 bg-[linear-gradient(180deg,#FFF8F2_0%,#FFFFFF_100%)] shadow-[0_30px_90px_rgba(255,99,71,0.18)]">
+                            <DialogPanel className="relative flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-orange-200 bg-slate-50 shadow-[0_30px_90px_rgba(255,99,71,0.18)]">
                                 <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#F59B0F] to-[#AC6C2A]" />
 
-                                <div className="flex flex-col gap-4 border-b border-orange-100 bg-white/90 px-5 py-5 backdrop-blur md:flex-row md:items-start md:justify-between md:px-6">
+                                <div className="flex flex-col gap-3 border-b border-orange-100 bg-white/90 px-4 py-3 backdrop-blur md:flex-row md:items-center md:justify-between md:px-5">
                                     <div className="flex items-start gap-4">
-                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] text-white shadow-lg shadow-[#AC6C2A]/25">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] text-white shadow-lg shadow-[#AC6C2A]/25">
                                             {currentMeta.icon}
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Payment records</p>
                                             <h3 className="mt-1 text-2xl font-black text-slate-900">Manage record #{paymentRecord.id}</h3>
-                                            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">{currentMeta.subtitle}</p>
-                                            <div className="mt-3 flex flex-wrap gap-2">
+                                            <p className="mt-0.5 max-w-2xl text-xs text-slate-600">{currentMeta.subtitle}</p>
+                                            <div className="mt-2 flex flex-wrap gap-1.5">
                                                 <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-800">
-                                                    <FiCreditCard className="h-3.5 w-3.5 text-[#F59B0F]" />
+                                                    <FiCreditCard className="h-3 w-3 text-[#F59B0F]" />
                                                     {paymentTypeName}
                                                 </span>
                                                 <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-800">
-                                                    <FiShield className="h-3.5 w-3.5 text-[#FF6347]" />
+                                                    <FiShield className="h-3 w-3 text-[#FF6347]" />
                                                     {verificationName}
                                                 </span>
                                                 <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-800">
-                                                    <FiTag className="h-3.5 w-3.5 text-[#FF4500]" />
+                                                    <FiTag className="h-3 w-3 text-[#FF4500]" />
                                                     {recordDirection}
                                                 </span>
                                             </div>
@@ -612,10 +679,24 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                     </button>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
-                                    <div className="grid gap-5 xl:grid-cols-[300px_minmax(0,1fr)]">
-                                        <aside className="space-y-4">
-                                            <div className={`${cardClass} border-orange-200 bg-[linear-gradient(180deg,#FFFDF9_0%,#FFFFFF_100%)] p-5`}>
+                                <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
+                                    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-orange-200 bg-white/90 p-2 shadow-sm">
+                                        {availableModeTabs.map((tab) => (
+                                            <button
+                                                key={tab.mode}
+                                                type="button"
+                                                onClick={() => setActiveMode(tab.mode)}
+                                                disabled={isSubmitting}
+                                                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition ${activeMode === tab.mode ? 'bg-[#F59B0F] text-white shadow-sm' : 'text-slate-600 hover:bg-orange-50'}`}
+                                            >
+                                                {tab.icon}
+                                                {tab.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="grid gap-4">
+                                        <aside className="hidden">
+                                            <div className={`${cardClass} border-orange-200 bg-[linear-gradient(180deg,#FFFDF9_0%,#FFFFFF_100%)] p-4`}>
                                                 <div className="mb-4 flex items-center justify-between gap-3">
                                                     <div>
                                                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Snapshot</p>
@@ -627,7 +708,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                     </span>
                                                 </div>
 
-                                                <div className="space-y-3">
+                                                <div className="space-y-2">
                                                     {metricCard('Amount', formatMoney(paymentRecord.amount), 'amber')}
                                                     {metricCard('Direction', recordDirection)}
                                                     {metricCard('Type', paymentTypeName)}
@@ -641,10 +722,10 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                 </div>
                                             </div>
 
-                                            <div className={`${cardClass} border-orange-200 bg-white/95 p-4`}>
+                                            <div className={`${cardClass} border-orange-200 bg-white/95 p-3`}>
                                                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Mode</p>
                                                 <h4 className="mt-1 text-lg font-black text-slate-900">Choose the task</h4>
-                                                <div className="mt-4 grid gap-2">
+                                                <div className="mt-3 grid gap-1.5">
                                                 {availableModeTabs.map((tab) => {
                                                         const isActive = activeMode === tab.mode;
 
@@ -654,14 +735,13 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                                 type="button"
                                                                 onClick={() => setActiveMode(tab.mode)}
                                                                 disabled={isSubmitting}
-                                                                className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${isActive ? 'border-transparent bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] text-white shadow-lg shadow-[#AC6C2A]/25' : 'border-orange-200 bg-white text-slate-700 hover:border-orange-300 hover:bg-orange-50/70'}`}
+                                                                className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${isActive ? 'border-transparent bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] text-white shadow-lg shadow-[#AC6C2A]/25' : 'border-orange-200 bg-white text-slate-700 hover:border-orange-300 hover:bg-orange-50/70'}`}
                                                             >
-                                                                <span className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ${isActive ? 'bg-white/15 text-white' : 'bg-orange-100 text-[#FF6347]'}`}>
+                                                                <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${isActive ? 'bg-white/15 text-white' : 'bg-orange-100 text-[#FF6347]'}`}>
                                                                     {tab.icon}
                                                                 </span>
                                                                 <span className="min-w-0">
-                                                                    <span className="block font-bold">{tab.label}</span>
-                                                                    <span className={`mt-1 block text-xs leading-5 ${isActive ? 'text-white/80' : 'text-slate-500'}`}>{tab.description}</span>
+                                                                    <span className="block text-sm font-bold">{tab.label}</span>
                                                                 </span>
                                                             </button>
                                                         );
@@ -669,7 +749,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                 </div>
                                             </div>
 
-                                            <div className={`${cardClass} border-orange-200 bg-white/95 p-5`}>
+                                            <div className={`${cardClass} border-orange-200 bg-white/95 p-4`}>
                                                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Activity</p>
                                                 <h4 className="mt-1 text-lg font-black text-slate-900">Record details</h4>
                                                 <div className="mt-4 space-y-3 text-sm text-slate-700">
@@ -683,14 +763,40 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                             </div>
                                         </aside>
 
-                                        <main className="space-y-4">
-                                            <PaymentProofPreview proofUrl={paymentRecord.proofUrl} compact />
+                                        <main className="mx-auto w-full max-w-4xl space-y-3">
+                                            <div className="grid gap-2 sm:grid-cols-4">
+                                                {metricCard('Amount', formatMoney(paymentRecord.amount), 'amber')}
+                                                {metricCard('Items', String(items.length))}
+                                                {metricCard('Bank', bankLabel)}
+                                                {metricCard('Direction', recordDirection)}
+                                            </div>
+                                            <details className="rounded-2xl border border-orange-200 bg-white px-4 py-3 shadow-sm">
+                                                <summary className="cursor-pointer text-sm font-bold text-slate-800">View payment proof</summary>
+                                                <div className="mt-3">
+                                                    <PaymentProofPreview proofUrl={paymentRecord.proofUrl} compact />
+                                                </div>
+                                            </details>
 
                                             {(activeMode === 'update' || activeMode === 'status') && (
-                                                <div className={`${cardClass} border-orange-200 bg-white/95 p-5`}>
-                                                    {sectionTitle(<FiInfo className="h-5 w-5" />, 'Linked orders', 'Review these values before saving changes or approving the record.')}
+                                                <div className={`${cardClass} border-orange-200 bg-white/95 p-4`}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowLinkedOrders((current) => !current)}
+                                                        className="flex w-full items-center justify-between gap-3 text-left"
+                                                    >
+                                                        <span className="flex items-center gap-3">
+                                                            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-[#F59B0F]">
+                                                                <FiInfo className="h-4 w-4" />
+                                                            </span>
+                                                            <span>
+                                                                <span className="block text-base font-black text-slate-900">Linked orders</span>
+                                                                <span className="block text-xs text-slate-500">{orderCodes.length} order reference{orderCodes.length === 1 ? '' : 's'} · click to review</span>
+                                                            </span>
+                                                        </span>
+                                                        <span className="text-xs font-bold text-orange-700">{showLinkedOrders ? 'Hide' : 'Review'}</span>
+                                                    </button>
 
-                                                    {orderCodes.length > 0 && (
+                                                    {showLinkedOrders && orderCodes.length > 0 && (
                                                         <div className="mb-4 flex flex-wrap gap-2">
                                                             {orderCodes.map((code) => (
                                                                 <span key={code} className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-800">
@@ -701,16 +807,16 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                         </div>
                                                     )}
 
-                                                    {isLoadingOrders ? (
+                                                    {showLinkedOrders && isLoadingOrders ? (
                                                         <div className="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
                                                             <FiLoader className="h-4 w-4 animate-spin text-[#F59B0F]" />
                                                             Loading linked order details...
                                                         </div>
-                                                    ) : orderDetails.length === 0 ? (
+                                                    ) : showLinkedOrders && orderDetails.length === 0 ? (
                                                         <div className="rounded-2xl border border-orange-100 bg-orange-50/60 px-4 py-4 text-sm text-slate-600">
                                                             No linked <span className="font-semibold">ORD</span> codes were found in the items yet. Add one or more order codes to enable verification support.
                                                         </div>
-                                                    ) : (
+                                                    ) : showLinkedOrders ? (
                                                         <div className="space-y-4">
                                                             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                                                                 {metricCard('Total price', formatMoney(orderSummary.totalPrice))}
@@ -747,7 +853,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                                 </table>
                                                             </div>
                                                         </div>
-                                                    )}
+                                                    ) : null}
                                                 </div>
                                             )}
 
@@ -761,40 +867,51 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                 leaveFrom="opacity-100 translate-y-0"
                                                 leaveTo="opacity-0 translate-y-2"
                                             >
-                                                <div className={`${cardClass} border-orange-200 bg-white/95 p-5`}>
+                                                <div className={`${cardClass} border-orange-200 bg-white/95 p-4`}>
                                                     {sectionTitle(<FiEdit3 className="h-5 w-5" />, 'Update details', 'Make the smallest accurate change needed, then verify the total against the items below.')}
 
                                                     <div className="grid gap-4 md:grid-cols-2">
                                                         <div>
-                                                            <label className={fieldLabelClass}>Amount</label>
+                                                            <label className={fieldLabelClass}>Calculated amount</label>
                                                             <input
                                                                 type="number"
                                                                 min={0}
-                                                                value={amount}
-                                                                onChange={(event) => setAmount(event.target.value)}
-                                                                className={inputClass}
-                                                                placeholder="Enter payment amount"
+                                                                value={amountValue.toFixed(2)}
+                                                                readOnly
+                                                                className={`${inputClass} bg-slate-50 font-bold text-slate-700`}
+                                                                placeholder="Calculated from items"
                                                             />
                                                         </div>
 
                                                         {canManagePaymentDirection ? (
                                                             <div>
-                                                                <label className={fieldLabelClass}>Direction</label>
-                                                                <Select
-                                                                    options={[
-                                                                        { value: false, label: 'Incoming' },
-                                                                        { value: true, label: 'Outgoing' },
-                                                                    ]}
-                                                                    value={{ value: isReturn, label: isReturn ? 'Outgoing' : 'Incoming' }}
-                                                                    onChange={(selected) => setIsReturn(Boolean(selected?.value))}
-                                                                    styles={selectStyles}
-                                                                />
+                                                                <label className={fieldLabelClass}>Payment kind</label>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setIsReturn(false)}
+                                                                        className={`h-[40px] rounded-xl text-sm font-bold transition ${!isReturn
+                                                                            ? 'border border-[#15803D] bg-[#15803D] text-white shadow-sm'
+                                                                            : 'border border-slate-200 bg-white text-slate-500 hover:border-[#86EFAC] hover:bg-[#F0FDF4] hover:text-[#166534]'}`}
+                                                                    >
+                                                                        <ArrowTrendingUpIcon className="mr-1.5 inline h-4 w-4" aria-hidden="true" />Income
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setIsReturn(true)}
+                                                                        className={`h-[40px] rounded-xl text-sm font-bold transition ${isReturn
+                                                                            ? 'border border-[#B91C1C] bg-[#B91C1C] text-white shadow-sm'
+                                                                            : 'border border-slate-200 bg-white text-slate-500 hover:border-[#FCA5A5] hover:bg-[#FEF2F2] hover:text-[#991B1B]'}`}
+                                                                    >
+                                                                        <ArrowTrendingDownIcon className="mr-1.5 inline h-4 w-4" aria-hidden="true" />Expense
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         ) : (
                                                             <div>
-                                                                <label className={fieldLabelClass}>Direction</label>
-                                                                <div className="flex h-[48px] items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700">
-                                                                    {recordDirection}
+                                                                <label className={fieldLabelClass}>Payment kind</label>
+                                                                <div className="flex h-[42px] items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-700">
+                                                                    {paymentRecord.isReturn ? 'Expense' : 'Income'}
                                                                 </div>
                                                             </div>
                                                         )}
@@ -822,6 +939,36 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                                 styles={selectStyles}
                                                             />
                                                         </div>
+
+                                                        {paymentRecord.fromWallet && paymentRecord.fromWallet !== 'COMPANY' && (
+                                                            <div>
+                                                                <label className={fieldLabelClass}>From user</label>
+                                                                <AsyncSelect
+                                                                    cacheOptions
+                                                                    loadOptions={(inputValue) => loadWalletUsers(inputValue, paymentRecord.fromWallet ?? null)}
+                                                                    value={selectedFromUser}
+                                                                    onChange={(selected) => setSelectedFromUser(selected)}
+                                                                    placeholder="Search from-wallet user..."
+                                                                    styles={selectStyles}
+                                                                    isClearable
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {paymentRecord.toWallet && paymentRecord.toWallet !== 'COMPANY' && (
+                                                            <div>
+                                                                <label className={fieldLabelClass}>To user</label>
+                                                                <AsyncSelect
+                                                                    cacheOptions
+                                                                    loadOptions={(inputValue) => loadWalletUsers(inputValue, paymentRecord.toWallet ?? null)}
+                                                                    value={selectedToUser}
+                                                                    onChange={(selected) => setSelectedToUser(selected)}
+                                                                    placeholder="Search to-wallet user..."
+                                                                    styles={selectStyles}
+                                                                    isClearable
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     <div className="mt-4">
@@ -899,14 +1046,14 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                     <div className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${amountDifference === 0 ? 'border-orange-200 bg-orange-50 text-orange-900' : amountDifference < 0 ? 'border-red-200 bg-red-50 text-red-900' : 'border-orange-200 bg-orange-50/70 text-orange-900'}`}>
                                                         <div className="inline-flex items-center gap-2 font-semibold">
                                                             <FiDollarSign className="h-4 w-4 text-[#FF6347]" />
-                                                            Suggested amount from items: {formatMoney(itemsTotal)}
+                                                            Calculated record amount: {formatMoney(itemsTotal)}
                                                         </div>
                                                         <p className="mt-1 text-sm leading-6 opacity-90">
-                                                            Keep the amount aligned with the item total where possible. A lower amount is allowed, but a higher amount will be blocked on save.
+                                                            The record amount is calculated automatically from the payment item amounts and cannot be entered manually.
                                                         </p>
                                                     </div>
 
-                                                    <div className="mt-5 flex justify-end">
+                                                    <div className="sticky bottom-0 -mx-4 mt-4 flex justify-end border-t border-orange-100 bg-white/95 px-4 py-3 backdrop-blur">
                                                         <button
                                                             type="button"
                                                             onClick={handleUpdateRecord}
@@ -961,7 +1108,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                         {metricCard('Order suggestion', formatMoney(orderSummary.suggestedForPaymentRecord))}
                                                     </div>
 
-                                                    <div className="mt-5 flex justify-end">
+                                                    <div className="sticky bottom-0 -mx-4 mt-4 flex justify-end border-t border-orange-100 bg-white/95 px-4 py-3 backdrop-blur">
                                                         <button
                                                             type="button"
                                                             onClick={handleUpdateVerificationStatus}
@@ -998,7 +1145,7 @@ function PaymentRecordManageModal({ isOpen, mode, allowedModes = DEFAULT_ALLOWED
                                                         </p>
                                                     </div>
 
-                                                    <div className="mt-5 flex justify-end">
+                                                    <div className="sticky bottom-0 -mx-4 mt-4 flex justify-end border-t border-red-100 bg-white/95 px-4 py-3 backdrop-blur">
                                                         <button
                                                             type="button"
                                                             onClick={handleDeleteRecord}

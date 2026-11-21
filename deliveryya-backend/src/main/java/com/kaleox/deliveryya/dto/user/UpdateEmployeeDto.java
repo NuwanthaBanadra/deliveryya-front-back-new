@@ -43,8 +43,5 @@ public class UpdateEmployeeDto implements Serializable {
     @NotNull
     private CommonIdNameDto verificationStatus;
 
-    @Valid
-    @NotNull
     private CommonIdNameDto branches;
 }
-

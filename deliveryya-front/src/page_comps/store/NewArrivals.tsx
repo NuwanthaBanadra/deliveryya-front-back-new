@@ -136,19 +136,19 @@ function NewArrivals() {
         <section className="bg-linear-to-b from-[#FFF4EE] to-white py-16 px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 bg-linear-to-r from-[#00BFA5] to-[#1DE9B6] text-white px-6 py-2 rounded-full mb-4 shadow-lg">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-5 py-2 text-white mb-4 shadow-lg">
                         <MdNewReleases className="w-5 h-5" />
                         <span className="font-bold">Just Arrived</span>
                     </div>
                     <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                        New <span className="text-transparent bg-clip-text bg-linear-to-r from-[#00BFA5] to-[#1DE9B6]">Arrivals</span>
+                        New <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F59B0F] to-[#AC6C2A]">Arrivals</span>
                     </h2>
                     <p className="text-gray-600 text-lg">Discover our latest collection of premium products</p>
                 </div>
 
                 {isLoading && (
                     <div className="text-center py-12">
-                        <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#00BFA5]"></div>
+                        <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#F59B0F]"></div>
                         <p className="text-gray-600 mt-4">Loading new arrivals...</p>
                     </div>
                 )}
@@ -158,7 +158,7 @@ function NewArrivals() {
                         <p className="text-red-500 text-lg">{error}</p>
                         <button
                             onClick={() => void fetchProducts()}
-                            className="mt-4 bg-[#00BFA5] text-white font-semibold py-2 px-6 rounded-lg hover:bg-[#00897B] transition-all"
+                            className="mt-4 rounded-xl bg-[#F59B0F] px-6 py-2 font-semibold text-white transition-all hover:bg-[#AC6C2A]"
                         >
                             Try Again
                         </button>
@@ -191,7 +191,7 @@ function NewArrivals() {
                         <button
                             onClick={() => void fetchProducts(pageNumber + 1, true)}
                             disabled={!hasMoreProducts || isLoadingMore}
-                            className="rounded-full bg-linear-to-r from-[#00BFA5] to-[#1DE9B6] px-7 py-3 text-sm font-bold text-white shadow-md transition-all hover:from-[#00897B] hover:to-[#00BFA5] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-full bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-7 py-3 text-sm font-bold text-white shadow-md transition-all hover:from-[#AC6C2A] hover:to-[#8B5A28] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {isLoadingMore ? 'Loading...' : hasMoreProducts ? 'Load More New Arrivals' : 'All New Arrivals Loaded'}
                         </button>

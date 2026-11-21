@@ -118,3 +118,32 @@ export const swalErrorModal = async (title: string, message: string) => {
         }
     });
 };
+
+export const swalSuccessModal = async (title: string, message: string) => {
+    const theme = alertThemes.success;
+
+    await Swal.fire({
+        icon: theme.icon,
+        title,
+        text: message,
+        toast: false,
+        position: 'center',
+        showConfirmButton: true,
+        confirmButtonText: 'Continue',
+        confirmButtonColor: '#AC6C2A',
+        timer: 2200,
+        timerProgressBar: true,
+        allowOutsideClick: false,
+        background: '#FFFDF5',
+        color: theme.color,
+        iconColor: '#AC6C2A',
+        customClass: {
+            popup: 'rounded-3xl shadow-2xl',
+            confirmButton: 'rounded-xl px-5 py-2.5 font-semibold',
+        },
+        didOpen: (popup) => {
+            popup.style.border = '1px solid #F59B0F55';
+            popup.style.boxShadow = '0 20px 50px rgba(172,108,42,0.18)';
+        },
+    });
+};

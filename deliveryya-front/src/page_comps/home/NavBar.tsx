@@ -1,4 +1,4 @@
-﻿import { Disclosure, DisclosureButton, DisclosurePanel, MenuItem } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel, MenuItem } from '@headlessui/react';
 import { Bars3Icon, ShoppingCartIcon, UserCircleIcon, UserIcon, XMarkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import NavbarSearch from './NavbarSearch';
@@ -380,7 +380,7 @@ export default function NavBar() {
                                             href="#"
                                             className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-[#F59B0F] rounded-xl transition-colors data-focus:bg-orange-50"
                                         >
-                                            <span className="text-xl">⚙️</span>
+                                            <span className="text-xl">??</span>
                                             <span>Settings</span>
                                         </a>
                                     </MenuItem> */}
@@ -391,7 +391,7 @@ export default function NavBar() {
                                                 onClick={handleLogout}
                                                 className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors data-focus:bg-red-50"
                                             >
-                                                <span className="text-xl">🚪</span>
+                                                <span className="text-xl">??</span>
                                                 <span>Sign out</span>
                                             </button>
                                         </MenuItem>

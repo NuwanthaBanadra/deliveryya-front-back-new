@@ -1,6 +1,6 @@
 import { MenuItem } from '@headlessui/react';
 import { Bars3Icon, EnvelopeIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IoSearchSharp } from 'react-icons/io5';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../util/AxiosUtil.ts';
@@ -42,6 +42,7 @@ function TopBar({ onMenuToggle, isSidebarOpen, currentPage = 'Dashboard', showMe
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
   const [markingReadId, setMarkingReadId] = useState<number | null>(null);
   const [profileImageFailed, setProfileImageFailed] = useState(false);
+  const notificationsContainerRef = useRef<HTMLDivElement | null>(null);
   const [loggedInUserProfile, setLoggedInUserProfile] = useState<LoggedInUserProfile | null>(
     () => buildUserProfileFromSession(),
   );
@@ -98,6 +99,25 @@ function TopBar({ onMenuToggle, isSidebarOpen, currentPage = 'Dashboard', showMe
 
     void loadNotifications();
   }, [isLoggedIn, canUseNotifications, notificationsLoaded]);
+
+  useEffect(() => {
+    if (!isNotificationsOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (target && !notificationsContainerRef.current?.contains(target)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [isNotificationsOpen]);
 
   const handleMenuClick = () => {
     onMenuToggle?.(!isSidebarOpen);
@@ -205,22 +225,24 @@ function TopBar({ onMenuToggle, isSidebarOpen, currentPage = 'Dashboard', showMe
           {/* Right: Actions */}
           <div className="flex items-center gap-3 sm:gap-4">
             {canUseNotifications && (
-              <NotificationsPanel
-                isOpen={isNotificationsOpen}
-                notificationCount={notificationCount}
-                notifications={notifications}
-                notificationsLoading={notificationsLoading}
-                notificationsError={notificationsError}
-                markingReadId={markingReadId}
-                selectedNotification={selectedNotification}
-                onToggle={toggleNotifications}
-                onClose={() => setIsNotificationsOpen(false)}
-                onRetry={() => setNotificationsLoaded(false)}
-                onOpenNotification={(notification) => {
-                  void handleOpenNotification(notification);
-                }}
-                onCloseSelectedNotification={() => setSelectedNotification(null)}
-              />
+              <div ref={notificationsContainerRef}>
+                <NotificationsPanel
+                  isOpen={isNotificationsOpen}
+                  notificationCount={notificationCount}
+                  notifications={notifications}
+                  notificationsLoading={notificationsLoading}
+                  notificationsError={notificationsError}
+                  markingReadId={markingReadId}
+                  selectedNotification={selectedNotification}
+                  onToggle={toggleNotifications}
+                  onClose={() => setIsNotificationsOpen(false)}
+                  onRetry={() => setNotificationsLoaded(false)}
+                  onOpenNotification={(notification) => {
+                    void handleOpenNotification(notification);
+                  }}
+                  onCloseSelectedNotification={() => setSelectedNotification(null)}
+                />
+              </div>
             )}
 
             {/* Messages */}

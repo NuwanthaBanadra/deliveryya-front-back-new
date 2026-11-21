@@ -30,6 +30,11 @@ public class CompanyWallet {
     private Double balance;
 
     @NotNull
+    @Builder.Default
+    @Column(name = "amount", nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
+    private Double amount = 0.0;
+
+    @NotNull
     @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
     private Boolean isActive;
 
@@ -43,6 +48,10 @@ public class CompanyWallet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_status_id")
     private PaymentStatus paymentStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_record_id")
+    private PaymentRecord paymentRecord;
 
     @Column(name = "code", length = 100)
     private String code;
@@ -58,6 +67,10 @@ public class CompanyWallet {
 
     @Column(name = "to_or_from")
     private Integer toOrFrom;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @CreatedDate
     @Column(updatable = false)

@@ -21,6 +21,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -94,15 +96,22 @@ public class AccessController {
                 .build());
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
     @PostMapping("/get-all-access-granted-users")
     public ResponseEntity<ResponseDto<PaginatedGrantedUsersDto>> getAllAccessGrantedUsers(@RequestBody @Valid PaginatedGrantedUsersDto dto) {
         return ResponseEntity.ok(accessService.getAllAccessGrantedUsers(dto));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
     @PostMapping("/grant-access-to-user-role")
-    public ResponseEntity<ResponseDto<Void>> grantAccessToUserRole(@RequestBody @Valid UpdateAccessDto dto) {
+    public ResponseEntity<ResponseDto<Void>> grantAccessToUserRole(@RequestBody @Valid UpdateAccessDto dto, @AuthenticationPrincipal UserDetails userDetails) {
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        System.out.println("=========================================");
+        System.out.println("Roles: " + roles);
+        System.out.println("=========================================");
 
         ResponseDto<Void> response = ResponseDto.<Void>builder()
                 .message("Success")
@@ -116,7 +125,7 @@ public class AccessController {
     }
 
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
     @GetMapping("/get-granted-accesses-by-user-role-id")
     public ResponseEntity<ResponseDto<List<AccessHasUserRoleDto>>> getGrantedAccesses(@RequestParam @Valid @Min(1) Integer userRoleId) {
 
@@ -127,7 +136,7 @@ public class AccessController {
                 .build());
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
     @GetMapping("/get-granted-accesses-by-user-id")
     public ResponseEntity<ResponseDto<List<UserHasAccessDto>>> getGrantedAccessesByUserId(@RequestParam @Valid @Min(1) Integer userId) {
 
@@ -139,7 +148,7 @@ public class AccessController {
     }
 
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN', 'ROLE_MANAGER', 'ROLE_OWNER')")
     @PostMapping("/grant-access-to-user")
     public ResponseEntity<ResponseDto<Void>> grantAccessToUser(@RequestBody @Valid GrantAccessToUserDto dto) {
 
@@ -156,7 +165,7 @@ public class AccessController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN','ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN','ROLE_OWNER')")
     @PostMapping("/create-access")
     public ResponseEntity<ResponseDto<Integer>> createAccess(@RequestBody @Valid CreateAccessRequestDto dto) {
         return ResponseEntity.ok(ResponseDto.<Integer>builder()
@@ -166,7 +175,7 @@ public class AccessController {
                 .build());
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN','ROLE_OWNER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN','ROLE_OWNER')")
     @PostMapping("/set-access")
     public ResponseEntity<ResponseDto<Void>> setAccess(@RequestBody @Valid SetAccessRequestDto dto) {
         return ResponseEntity.ok(ResponseDto.<Void>builder()
@@ -175,7 +184,7 @@ public class AccessController {
                 .build());
     }
 
-    //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN')")
+    //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN')")
     @PostMapping("/link-access-with-api")
     public ResponseEntity<ResponseDto<Void>> linkAccessWithApi(@RequestBody @Valid LinkAccessWithApiRequestDto dto) {
         return ResponseEntity.ok(ResponseDto.<Void>builder()
@@ -184,7 +193,7 @@ public class AccessController {
                 .build());
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN')")
     @PostMapping("/remove-api-features-for-api")
     public ResponseEntity<ResponseDto<Void>> removeApiFeaturesForApi(@RequestBody @Valid RemoveApiFeaturesForApiRequestDto dto) {
         return ResponseEntity.ok(ResponseDto.<Void>builder()
@@ -193,7 +202,7 @@ public class AccessController {
                 .build());
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPPER ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPER ADMIN')")
     @PostMapping("/set-api-features-for-api")
     public ResponseEntity<ResponseDto<Void>> setApiFeaturesForApi(@RequestBody @Valid SetApiFeaturesForApiRequestDto dto) {
         return ResponseEntity.ok(ResponseDto.<Void>builder()

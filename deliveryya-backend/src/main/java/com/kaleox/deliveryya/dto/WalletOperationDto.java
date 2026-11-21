@@ -23,6 +23,10 @@ public class WalletOperationDto {
 
     private Integer paymentStatusId;
 
+    private Integer paymentRecordId;
+
+    private Integer branchId;
+
     private String code;
 
     private String ref;

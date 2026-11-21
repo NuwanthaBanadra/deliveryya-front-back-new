@@ -22,9 +22,9 @@ export interface SettlementReportOrder {
         fullName?: string;
         city?: { name?: string };
     };
-    paymentStatus?: { id?: number; name?: string };
-    paymentType?: { id?: number; name?: string };
-    deliveryStatus?: { id?: number; name?: string };
+    paymentStatus?: { id?: number; name?: string } | string;
+    paymentType?: { id?: number; name?: string } | string;
+    deliveryStatus?: { id?: number; name?: string } | string;
     deliveryFee: number;
     collectivePrice: number;
     totalPrice?: number;
@@ -96,9 +96,9 @@ const CLIENT_MARKET_COLUMNS: CustomReportColumnKey[] = [
 
 const formatCurrency = (value: number): string => `LKR ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const formatAmount = (value: number): string => Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const SUCCESS_DELIVERY_STATUS_IDS = new Set([7, 10]);
+const SUCCESS_DELIVERY_STATUS_IDS = new Set([10]);
 const RETURNED_DELIVERY_STATUS_ID = 9;
-const INCLUDED_SETTLEMENT_STATUS_IDS = new Set([7, 9, 10]);
+const INCLUDED_SETTLEMENT_STATUS_IDS = new Set([9, 10]);
 const DELIVERY_COMPANY_RECEIVED_PAYMENT_STATUS_IDS = new Set([2, 4]);
 const MARKET_BANK_TRANSFER_PAYMENT_TYPE_IDS = new Set([2]);
 
@@ -115,8 +115,23 @@ const toPositiveInteger = (value: unknown): number | null => {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
 
-const getStatusName = (status?: { name?: string }): string => status?.name?.trim() || 'N/A';
-const getStatusId = (status?: { id?: number }): number | null => toPositiveInteger(status?.id ?? null);
+type StatusValue = { id?: number; name?: string } | string | undefined;
+
+const getStatusName = (status: StatusValue): string => {
+    if (typeof status === 'string') return status.trim() || 'N/A';
+    return status?.name?.trim() || 'N/A';
+};
+
+const getStatusId = (status: StatusValue): number | null => {
+    const explicitId = typeof status === 'string' ? null : toPositiveInteger(status?.id ?? null);
+    if (explicitId !== null) return explicitId;
+
+    const normalizedName = normalizeName(getStatusName(status));
+    if (normalizedName.includes('delivered')) return 7;
+    if (normalizedName.includes('return')) return normalizedName.includes('returned') ? 9 : 8;
+    if (normalizedName.includes('accepted')) return 10;
+    return null;
+};
 const toAmount = (value: unknown): number => {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
@@ -125,8 +140,8 @@ const normalizeName = (value?: string): string => (value || '').trim().toLowerCa
 const isPaidAmountReceivedByDeliveryCompany = (order: SettlementReportOrder): boolean => {
     const paymentStatusId = getStatusId(order.paymentStatus);
     const paymentTypeId = getStatusId(order.paymentType);
-    const paymentStatusName = normalizeName(order.paymentStatus?.name);
-    const paymentTypeName = normalizeName(order.paymentType?.name);
+    const paymentStatusName = normalizeName(getStatusName(order.paymentStatus));
+    const paymentTypeName = normalizeName(getStatusName(order.paymentType));
     const isPaidToDeliveryCompany =
         (paymentStatusId !== null && DELIVERY_COMPANY_RECEIVED_PAYMENT_STATUS_IDS.has(paymentStatusId)) ||
         paymentStatusName.includes('completed') ||
@@ -142,7 +157,12 @@ const isPaidAmountReceivedByDeliveryCompany = (order: SettlementReportOrder): bo
 
 const filterSettlementOrders = (orders: SettlementReportOrder[]): SettlementReportOrder[] => orders.filter((order) => {
     const deliveryStatusId = getStatusId(order.deliveryStatus);
-    return !!deliveryStatusId && INCLUDED_SETTLEMENT_STATUS_IDS.has(deliveryStatusId);
+    const deliveryStatusName = normalizeName(getStatusName(order.deliveryStatus));
+    return (
+        (deliveryStatusId !== null && INCLUDED_SETTLEMENT_STATUS_IDS.has(deliveryStatusId)) ||
+        deliveryStatusName === 'returned' ||
+        deliveryStatusName === 'acceptedbycustomer'
+    );
 });
 
 const uniqueNames = (values: Array<string | undefined>): string[] => Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => !!value)));
@@ -558,9 +578,9 @@ const buildSettlementReportDocDefinition = async (input: SettlementReportInput, 
         extraText: includePaidAmount ? formatCurrency(selectedPaidAmountTotal) : formatCurrency(settlementMetrics.successfulCollectible),
         extraNote: includePaidAmount ? 'Recorded for delivery company, excluding market bank transfers' : 'Successful order collectible total',
         deliveryChip: input.reportType === 'delivery-company'
-            ? `Delivery status: ${uniqueNames(reportOrders.map((order) => order.deliveryStatus?.name)).join(', ') || 'Delivered, Ready to Pickup, Returning'}`
-            : `Delivery status: ${uniqueNames(reportOrders.map((order) => order.deliveryStatus?.name)).join(', ') || 'N/A'}`,
-        paymentChip: `Payment status: ${uniqueNames(reportOrders.map((order) => order.paymentStatus?.name)).join(', ') || 'Paid'}`,
+            ? `Delivery status: ${uniqueNames(reportOrders.map((order) => getStatusName(order.deliveryStatus))).join(', ') || 'Delivered, Ready to Pickup, Returning'}`
+            : `Delivery status: ${uniqueNames(reportOrders.map((order) => getStatusName(order.deliveryStatus))).join(', ') || 'N/A'}`,
+        paymentChip: `Payment status: ${uniqueNames(reportOrders.map((order) => getStatusName(order.paymentStatus))).join(', ') || 'Paid'}`,
         fallbackChip: includePaidAmount ? 'Received amount included' : (reportOrders.length > 0 ? getReportAccentLabel(input.reportType) : 'No matching live orders'),
         appliedFilters: `Applied filters: ${(input.appliedFilters && input.appliedFilters.length > 0 ? input.appliedFilters : [`Date: ${input.dateRangeLabel}`]).join(' | ')}`,
         footerTime: currentDateTime,
@@ -713,8 +733,8 @@ const buildCustomReportDocDefinition = async (input: CustomReportInput, override
         extraLabel: input.reportType === 'delivery-company' ? 'Gross Collectible' : undefined,
         extraText: input.reportType === 'delivery-company' ? formatCurrency(totals.collectiveValue) : undefined,
         extraNote: input.reportType === 'delivery-company' ? 'Customer collectible total' : undefined,
-        deliveryChip: `Delivery status: ${uniqueNames(reportOrders.map((order) => order.deliveryStatus?.name)).join(', ') || 'N/A'}`,
-        paymentChip: `Payment status: ${uniqueNames(reportOrders.map((order) => order.paymentStatus?.name)).join(', ') || 'N/A'}`,
+        deliveryChip: `Delivery status: ${uniqueNames(reportOrders.map((order) => getStatusName(order.deliveryStatus))).join(', ') || 'N/A'}`,
+        paymentChip: `Payment status: ${uniqueNames(reportOrders.map((order) => getStatusName(order.paymentStatus))).join(', ') || 'N/A'}`,
         fallbackChip: reportOrders.length > 0 ? getReportAccentLabel(input.reportType) : 'No matching live orders',
         appliedFilters: `Applied filters: ${(input.appliedFilters && input.appliedFilters.length > 0 ? input.appliedFilters : [`Date: ${input.dateRangeLabel}`]).join(' | ')}`,
         footerTime: currentDateTime,
@@ -802,6 +822,13 @@ export const runSettlementReportAction = async (input: SettlementReportInput, ac
         return;
     }
     pdf.print();
+};
+
+export const createSettlementReportPdfFile = async (input: SettlementReportInput, filename: string, overrideOrders?: SettlementReportOrder[]): Promise<File> => {
+    const docDefinition = await buildSettlementReportDocDefinition(input, overrideOrders);
+    const pdf = pdfMake.createPdf(docDefinition);
+    const blob = await pdf.getBlob();
+    return new File([blob], filename, { type: 'application/pdf' });
 };
 
 export const runCommonReportAction = async (input: CommonReportInput, action: PdfAction, filename: string, overrideOrders?: SettlementReportOrder[]): Promise<void> => {

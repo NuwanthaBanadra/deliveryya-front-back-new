@@ -106,21 +106,21 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
     const secondaryMarkets = markets.slice(1);
 
     return (
-        <section className="relative bg-linear-to-br from-indigo-50 via-white to-purple-50 py-20 px-4 overflow-hidden">
+        <section className="relative overflow-hidden bg-linear-to-br from-orange-50 via-white to-[#FFF4EE] px-4 py-20">
             {/* Decorative Background Elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#5C6BC0]/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#9575CD]/5 rounded-full blur-3xl"></div>
+            <div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-[#F59B0F]/10 blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-[#FF6347]/10 blur-3xl"></div>
 
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 bg-linear-to-r from-[#5C6BC0] to-[#7986CB] text-white px-6 py-2.5 rounded-full mb-4 shadow-lg animate-pulse">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-6 py-2.5 text-white shadow-lg">
                         <HiShoppingCart className="w-5 h-5" />
-                        <span className="font-bold text-sm uppercase tracking-wider">Premium Stores</span>
+                        <span className="text-sm font-bold uppercase tracking-wider">Premium Stores</span>
                     </div>
                     <h2 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-4">
                         Discover Our{" "}
-                        <span className="text-transparent bg-clip-text bg-linear-to-r from-[#5C6BC0] via-[#7986CB] to-[#9575CD]">
+                        <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F59B0F] via-orange-500 to-[#AC6C2A]">
                             Best Markets
                         </span>
                     </h2>
@@ -131,7 +131,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
 
                 {isLoading && (
                     <div className="text-center py-16">
-                        <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#5C6BC0]"></div>
+                        <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#F59B0F]"></div>
                         <p className="text-gray-600 mt-4">Loading featured markets...</p>
                     </div>
                 )}
@@ -143,7 +143,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                             onClick={() => {
                                 void fetchMarkets(searchQuery ?? '')
                             }}
-                            className="mt-4 bg-[#5C6BC0] text-white font-semibold py-2 px-6 rounded-lg hover:bg-[#4A5FB0] transition-all"
+                            className="mt-4 rounded-xl bg-[#F59B0F] px-6 py-2 font-semibold text-white transition-all hover:bg-[#AC6C2A]"
                         >
                             Try Again
                         </button>
@@ -152,7 +152,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
 
                 {!isLoading && !error && featuredMarket && (
                 <div className="mb-16 group">
-                    <div className="relative bg-linear-to-br from-white to-gray-50 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 hover:shadow-indigo-200 transition-all duration-500">
+                    <div className="relative overflow-hidden rounded-3xl border border-orange-100 bg-linear-to-br from-white to-orange-50/40 shadow-2xl transition-all duration-500 hover:shadow-orange-200">
                         <div className="grid md:grid-cols-2 gap-0">
                             {/* Image Section */}
                             <div className="relative h-80 md:h-auto overflow-hidden">
@@ -161,7 +161,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                     alt={featuredMarket.name}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                 />
-                                <div className="absolute inset-0 bg-linear-to-r from-[#5C6BC0]/20 to-transparent"></div>
+                                <div className="absolute inset-0 bg-linear-to-r from-[#F59B0F]/25 to-transparent"></div>
                                 
                                 {/* Floating Badges on Image */}
                                 <div className="absolute top-6 left-6 flex flex-col gap-3">
@@ -169,7 +169,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                         <MdLocalOffer className="w-5 h-5" />
                                         Featured Market
                                     </div>
-                                    <div className="bg-linear-to-r from-[#5C6BC0] to-[#7986CB] text-white px-4 py-2 rounded-xl font-bold shadow-xl flex items-center gap-2">
+                                    <div className="flex items-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-4 py-2 font-bold text-white shadow-xl">
                                         <HiTrendingUp className="w-5 h-5" />
                                         Active Store
                                     </div>
@@ -188,15 +188,15 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                             {/* Info Section */}
                             <div className="p-8 md:p-12 flex flex-col justify-center">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-3 bg-linear-to-br from-[#5C6BC0] to-[#7986CB] rounded-2xl">
+                                    <div className="rounded-2xl bg-linear-to-br from-[#F59B0F] to-[#AC6C2A] p-3">
                                         <FaStore className="w-6 h-6 text-white" />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <h3 className="text-3xl font-bold text-gray-900">{featuredMarket.name}</h3>
-                                            <MdVerified className="w-6 h-6 text-[#5C6BC0]" />
+                                            <MdVerified className="h-6 w-6 text-[#F59B0F]" />
                                         </div>
-                                        <p className="text-[#7986CB] font-semibold">{featuredMarket.marketCategory?.name || 'Marketplace'}</p>
+                                        <p className="font-semibold text-[#AC6C2A]">{featuredMarket.marketCategory?.name || 'Marketplace'}</p>
                                     </div>
                                 </div>
 
@@ -206,8 +206,8 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
 
                                 {/* Stats */}
                                 <div className="grid grid-cols-3 gap-4 mb-8">
-                                    <div className="text-center p-4 bg-linear-to-br from-indigo-50 to-white rounded-xl border border-indigo-100">
-                                        <BiTimeFive className="w-6 h-6 text-[#5C6BC0] mx-auto mb-2" />
+                                    <div className="rounded-xl border border-orange-100 bg-linear-to-br from-orange-50 to-white p-4 text-center">
+                                        <BiTimeFive className="mx-auto mb-2 h-6 w-6 text-[#F59B0F]" />
                                         <p className="text-sm text-gray-600 mb-1">Delivery</p>
                                         <p className="font-bold text-gray-900">Fast</p>
                                     </div>
@@ -216,8 +216,8 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                         <p className="text-sm text-gray-600 mb-1">Delivery Fee</p>
                                         <p className="font-bold text-green-600">Varies</p>
                                     </div>
-                                    <div className="text-center p-4 bg-linear-to-br from-purple-50 to-white rounded-xl border border-purple-100">
-                                        <FaShoppingBag className="w-6 h-6 text-[#9575CD] mx-auto mb-2" />
+                                    <div className="rounded-xl border border-orange-100 bg-linear-to-br from-orange-50 to-white p-4 text-center">
+                                        <FaShoppingBag className="mx-auto mb-2 h-6 w-6 text-[#AC6C2A]" />
                                         <p className="text-sm text-gray-600 mb-1">Products</p>
                                         <p className="font-bold text-gray-900">Live</p>
                                     </div>
@@ -226,7 +226,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                 {/* CTA Button */}
                                 <button
                                     onClick={() => navigate(`/market/${featuredMarket.id}`)}
-                                    className="group/btn w-full bg-linear-to-r from-[#5C6BC0] to-[#7986CB] hover:from-[#4A5FB0] hover:to-[#6976BB] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02] flex items-center justify-center gap-3"
+                                    className="group/btn flex w-full items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:from-[#AC6C2A] hover:to-[#8B5A28] hover:shadow-2xl"
                                 >
                                     <span className="text-lg">Visit Store Now</span>
                                     <FaArrowRight className="w-5 h-5 group-hover/btn:translate-x-2 transition-transform duration-300" />
@@ -242,9 +242,9 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                 <div className="mb-12">
                     <div className="flex items-center justify-between mb-8">
                         <h3 className="text-3xl font-bold text-gray-900">
-                            More <span className="text-[#7986CB]">Popular Stores</span>
+                            More <span className="text-[#AC6C2A]">Popular Stores</span>
                         </h3>
-                        <div className="hidden md:flex items-center gap-2 text-[#5C6BC0] font-semibold cursor-pointer hover:gap-4 transition-all duration-300">
+                        <div className="hidden cursor-pointer items-center gap-2 font-semibold text-[#F59B0F] transition-all duration-300 hover:gap-4 md:flex">
                             <span>Explore All</span>
                             <FaArrowRight className="w-4 h-4" />
                         </div>
@@ -254,7 +254,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                         {secondaryMarkets.map((market, i) => (
                             <div
                                 key={i}
-                                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-500 border border-gray-100 hover:border-[#7986CB]/30 transform hover:-translate-y-2"
+                                className="group relative transform overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:border-orange-200 hover:shadow-2xl"
                             >
                                 {/* Image */}
                                 <div className="relative overflow-hidden h-48">
@@ -269,7 +269,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <button
                                             onClick={() => navigate(`/market/${market.id}`)}
-                                            className="bg-white text-[#5C6BC0] font-bold py-2 px-6 rounded-full shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300"
+                                            className="transform rounded-full bg-white px-6 py-2 font-bold text-[#F59B0F] shadow-xl transition-transform duration-300 group-hover:scale-100"
                                         >
                                             Quick View
                                         </button>
@@ -280,14 +280,14 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                 <div className="p-5">
                                     {/* Store Name */}
                                     <div className="flex items-start justify-between mb-3">
-                                        <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#5C6BC0] transition-colors flex-1">
+                                        <h4 className="flex-1 text-lg font-bold text-gray-900 transition-colors group-hover:text-[#F59B0F]">
                                             {market.name}
                                         </h4>
-                                        <MdVerified className="w-5 h-5 text-[#5C6BC0] shrink-0 mt-1" />
+                                        <MdVerified className="mt-1 h-5 w-5 shrink-0 text-[#F59B0F]" />
                                     </div>
 
                                     {/* Category Badge */}
-                                    <span className="inline-block bg-linear-to-r from-indigo-50 to-purple-50 text-[#5C6BC0] text-xs font-semibold px-3 py-1 rounded-full mb-4 border border-[#7986CB]/20">
+                                    <span className="mb-4 inline-block rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-[#AC6C2A]">
                                         {market.marketCategory?.name || 'Marketplace'}
                                     </span>
 
@@ -308,13 +308,16 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="text-sm text-gray-600">Delivery Fee</span>
                                         <div className="flex items-center gap-1">
-                                            <MdDeliveryDining className="w-5 h-5 text-[#7986CB]" />
+                                            <MdDeliveryDining className="h-5 w-5 text-[#F59B0F]" />
                                             <span className="font-bold text-gray-900">Varies</span>
                                         </div>
                                     </div>
 
                                     {/* Visit Button */}
-                                    <button className="w-full bg-linear-to-r from-[#7986CB] to-[#9575CD] hover:from-[#6976BB] hover:to-[#8865BC] text-white font-bold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => navigate(`/market/${market.id}`)}
+                                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] py-3 font-bold text-white shadow-md transition-all duration-300 hover:from-[#AC6C2A] hover:to-[#8B5A28] hover:shadow-lg"
+                                    >
                                         <FaStore className="w-4 h-4" />
                                         <span>Visit Store</span>
                                     </button>
@@ -327,7 +330,7 @@ function BestMarkets({ searchQuery }: BestMarketsProps) {
 
                 {/* View All CTA */}
                 <div className="text-center mt-16">
-                    <Link to="/all-markets" className="group bg-white hover:bg-linear-to-r hover:from-[#5C6BC0] hover:to-[#7986CB] text-gray-900 hover:text-white font-bold py-5 px-16 rounded-full border-2 border-[#5C6BC0] transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 inline-flex items-center gap-3">
+                    <Link to="/all-markets" className="group inline-flex transform items-center gap-3 rounded-full border-2 border-[#F59B0F] bg-white px-16 py-5 font-bold text-gray-900 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-linear-to-r hover:from-[#F59B0F] hover:to-[#AC6C2A] hover:text-white hover:shadow-2xl">
                         <span className="text-lg">Explore All Markets</span>
                         <FaArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                     </Link>

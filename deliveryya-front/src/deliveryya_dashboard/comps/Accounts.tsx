@@ -15,6 +15,7 @@ import { FRONTEND_ACCESS_IDS } from '../../util/FrontendAccess';
 import { generateFinancialReportPDF, printFinancialReport } from '../../util/PdfUtil';
 import { MdContentCopy } from 'react-icons/md';
 import Swal from 'sweetalert2';
+import { getCompanyBankDetailOptions } from '../../services/BankDetailService';
 import PaymentRecordManageModal from './accounts/PaymentRecordManageModal';
 
 // Payment Records Interfaces
@@ -71,6 +72,10 @@ interface PaymentRecord {
     urgentJobId: number | null;
     isReturn: boolean;
     paymentType: PaymentType;
+    fromWallet?: 'AGENT' | 'COMPANY' | 'CLIENT' | 'CUSTOMER' | null;
+    toWallet?: 'AGENT' | 'COMPANY' | 'CLIENT' | 'CUSTOMER' | null;
+    fromUserId?: number | null;
+    toUserId?: number | null;
     createdAt: string;
     updatedAt: string;
     referencesCodes: string[];
@@ -525,37 +530,13 @@ function Accounts() {
     }, [apiUserId, markets, query.marketId]);
 
     const loadBankDetailOptions = useCallback(async (inputValue: string): Promise<AsyncOption[]> => {
-        const requestBody = {
-            pageNumber: 0,
-            countPerPage: 10,
-            totalCount: 0,
-            totalPages: 0,
-            marketId: query.marketId ?? 0,
-            userId: apiUserId,
-            bankId: query.bankId || 0,
-            search: inputValue.trim(),
-        };
-
         try {
-            const response = await axiosInstance.post<ApiResponse<BankDetailsObject>>('/markets/get-bank-details', requestBody);
-            const objectData = response.data.object;
-            const details = Array.isArray(objectData) ? objectData : objectData?.items || [];
-
-            const mapped = details.map((detail) => {
-                const accountNumber = detail.accNumber || detail.accountNumber || 'N/A';
-                const bankName = detail.bank?.name || detail.bankName || 'Unknown Bank';
-                return {
-                    value: detail.id,
-                    label: `${bankName} (${accountNumber})`,
-                };
-            });
-
-            return [{ value: 0, label: 'All bank details' }, ...mapped];
+            return await getCompanyBankDetailOptions(inputValue);
         } catch (fetchError) {
             console.error('Failed to load bank details options:', fetchError);
-            return [{ value: 0, label: 'All bank details' }];
+            return [];
         }
-    }, [apiUserId, query.marketId, query.bankId]);
+    }, []);
 
     // Debounced versions — only fire after 350 ms of typing silence
     const debouncedLoadMarketOptions = useMemo(
@@ -757,9 +738,11 @@ function Accounts() {
         return { from, to };
     }, [totalCount, paginatedRecords.length, query.pageNumber, query.countPerPage]);
 
-    const handlePaymentRecordUpdated = useCallback(() => {
-        fetchPaymentRecords();
-        setManageModalState({ show: false, mode: 'update', record: null });
+    const handlePaymentRecordUpdated = useCallback((keepOpen = false) => {
+        void fetchPaymentRecords();
+        if (!keepOpen) {
+            setManageModalState({ show: false, mode: 'update', record: null });
+        }
     }, [fetchPaymentRecords]);
 
     const copyText = async (code: string) => {
@@ -938,6 +921,12 @@ function Accounts() {
                                 className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
                             />
                             Refresh
+                        </button>
+                        <button
+                            onClick={() => navigate('/deliverYya-cloud-console/accounts/create-payment-record')}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#D17F0A] text-white font-semibold hover:shadow-lg transition-all"
+                        >
+                            Create payment record
                         </button>
                         <button
                             onClick={handlePrintReport}

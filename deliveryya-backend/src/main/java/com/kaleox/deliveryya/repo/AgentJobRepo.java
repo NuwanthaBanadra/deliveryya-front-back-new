@@ -26,7 +26,8 @@ public interface AgentJobRepo extends JpaRepository<AgentJob, Integer>, JpaSpeci
                 LEFT JOIN uj.jobStatus js
                 LEFT JOIN uj.paymentStatus ps
                 WHERE aj.employees = :employee
-                  AND (js.id <> 3 OR js IS NULL OR ps.id <> :statusId OR ps IS NULL)
+                  AND ps.id = :statusId
+                  AND (js IS NULL OR js.id NOT IN (2, 3))
             """)
     List<AgentJob> findByEmployeesAndUrgentJob_PaymentStatus_IdIsNot(@Param("employee") Employee employees, @Param("statusId") Integer urgentJobPaymentStatusId);
 

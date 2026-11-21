@@ -5,6 +5,9 @@ import type {
   WalletPaginatedHistoryResponse,
   WalletOperationDetailResponse,
   PaginatedWalletHistoryDto,
+  PaginatedPaymentRecordResponse,
+  WalletOperationRequest,
+  WalletOperationMutationResponse,
 } from '../types/WalletTypes';
 
 // Agent Wallet APIs
@@ -69,4 +72,49 @@ export async function getCompanyWalletOperationDetail(
 ): Promise<WalletOperationDetailResponse> {
   const res = await axiosInstance.get(`/wallet/company/operation/${operationId}`);
   return res.data as WalletOperationDetailResponse;
+}
+
+export async function createAgentWalletOperation(agentId: number, operation: WalletOperationRequest): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post(`/wallet/agent/${agentId}/operation`, operation);
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function createClientMarketOwnerWalletOperation(userId: number, operation: WalletOperationRequest): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post(`/wallet/client-market-owner/${userId}/operation`, operation);
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function createCompanyWalletOperation(operation: WalletOperationRequest): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post('/wallet/company/operation', operation);
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function initializeAgentWallet(agentId: number): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post(`/wallet/agent/${agentId}/initialize`);
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function initializeClientMarketOwnerWallet(userId: number): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post(`/wallet/client-market-owner/${userId}/initialize`);
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function initializeCompanyWallet(): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post('/wallet/company/initialize');
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function initializeBranchWallet(branchId: number): Promise<WalletOperationMutationResponse> {
+  const res = await axiosInstance.post(`/wallet/branch/${branchId}/initialize`);
+  return res.data as WalletOperationMutationResponse;
+}
+
+export async function getPaymentRecordById(id: number): Promise<PaginatedPaymentRecordResponse> {
+  const res = await axiosInstance.post('/payment/get-payment-records', {
+    pageNumber: 0,
+    countPerPage: 1,
+    paymentRecodeId: id,
+    items: [],
+  });
+  return res.data as PaginatedPaymentRecordResponse;
 }

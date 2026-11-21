@@ -331,6 +331,7 @@ public class MarketServiceImpl implements MarketService {
         bankDetail.setId(null);
         bankDetail.setIsDeleted(false);
         bankDetail.setIsActive(bankDetailDto.getIsActive() != null ? bankDetailDto.getIsActive() : true);
+        bankDetail.setBalance(bankDetailDto.getBalance() != null ? bankDetailDto.getBalance() : 0.0);
 
         Bank bank = bankRepo.findById(bankDetailDto.getBank().getId())
                 .orElseThrow(() -> new BusinessException("Bank not found with id: " + bankDetailDto.getBank().getId(), null));
@@ -355,6 +356,7 @@ public class MarketServiceImpl implements MarketService {
         existingBankDetail.setName(bankDetailDto.getName());
         existingBankDetail.setAccNumber(bankDetailDto.getAccNumber());
         existingBankDetail.setBranch(bankDetailDto.getBranch());
+        existingBankDetail.setBalance(bankDetailDto.getBalance() != null ? bankDetailDto.getBalance() : existingBankDetail.getBalance());
 
         Bank bank = bankRepo.findById(bankDetailDto.getBank().getId())
                 .orElseThrow(() -> new BusinessException("Bank not found with id: " + bankDetailDto.getBank().getId(), null));
@@ -463,7 +465,7 @@ public class MarketServiceImpl implements MarketService {
         List<BankDetail> bankDetails;
 
         if (userId != null && userId != 0) {
-           User user = userRepo.findById(userId).orElseThrow(() -> new BusinessException("User cloud not be found", null));
+            User user = userRepo.findById(userId).orElseThrow(() -> new BusinessException("User cloud not be found", null));
 
             if (user.getId() == 1) {
                 // Case 1: Market id = 1 → only that market
@@ -598,6 +600,7 @@ public class MarketServiceImpl implements MarketService {
         dto.setUserId(bankDetail.getUser().getId());
         dto.setIsActive(bankDetail.getIsActive());
         dto.setIsDeleted(bankDetail.getIsDeleted());
+        dto.setBalance(bankDetail.getBalance() != null ? bankDetail.getBalance() : 0.0);
         return dto;
     }
 
@@ -726,4 +729,6 @@ public class MarketServiceImpl implements MarketService {
 
         fileStorageUtil.deleteFile(fileReference);
     }
+
+
 }

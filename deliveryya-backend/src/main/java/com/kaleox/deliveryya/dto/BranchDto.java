@@ -24,6 +24,10 @@ public class BranchDto implements Serializable {
     private String name;
 
     @NotNull
+    @Size(max = 20)
+    private String mainLine;
+
+    @NotNull
     @Size(max = 100)
     private String location;
 

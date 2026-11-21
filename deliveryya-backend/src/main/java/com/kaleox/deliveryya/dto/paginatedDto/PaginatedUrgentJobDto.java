@@ -24,6 +24,8 @@ public class PaginatedUrgentJobDto {
 
     Integer urgentJobId;
     Integer jobStatusId;
+    Integer paymentStatusId;
+    java.util.List<Integer> excludedJobStatusIds;
     Integer verificationStatusId;
     Integer vehicleTypeId;
     String placedUserId;

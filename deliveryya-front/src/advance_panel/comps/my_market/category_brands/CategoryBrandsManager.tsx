@@ -1101,7 +1101,7 @@ function CategoryBrandsManager({ marketIdOverride }: CategoryBrandsManagerProps)
     setSelectedProductForForm({
       ...product,
       category: product.category || { id: categoryId, name: typeof product.category === 'string' ? product.category : 'Uncategorized' },
-      brand: product.brand || { id: brandId, name: product.brand?.name || 'Unknown' },
+      brand: product.brand || { id: brandId, name: (product.brand as { name: string } | undefined)?.name || 'Unknown' },
     });
     setProductFormContext({ categoryId, brandId });
     setShowProductFormModal(true);

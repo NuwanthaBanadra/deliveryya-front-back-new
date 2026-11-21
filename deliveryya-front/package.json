@@ -45,6 +45,7 @@
     "jsbarcode": "^3.12.3",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
+    "pdfjs-dist": "^6.5.438",
     "pdfmake": "^0.3.6",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",

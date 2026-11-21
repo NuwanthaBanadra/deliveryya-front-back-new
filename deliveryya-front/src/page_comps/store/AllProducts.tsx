@@ -5,7 +5,7 @@ import { FaArrowRight, FaFilter, FaSearch, FaStar, FaTimes } from "react-icons/f
 import { MdStorefront } from "react-icons/md";
 import Select, { type SingleValue, type StylesConfig } from "react-select";
 import AsyncSelect from "react-select/async";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "../../util/AxiosUtil";
 import { addToCart, getCartItems } from "../../util/CartUtil";
 import { parseCurrencyToNumber } from "../../util/CurrencyUtil";
@@ -200,6 +200,8 @@ const mapProduct = (product: ApiProduct): Product => {
 function AllProducts({ productCount, showAllProductsBtn, className, searchQuery: externalSearchQuery }: Props) {
     const pageSize = productCount ?? DEFAULT_PAGE_SIZE;
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const categoryIdFromUrl = toPositiveInteger(searchParams.get("categoryId") ?? "");
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = useState(externalSearchQuery ?? '');
     const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -209,7 +211,9 @@ function AllProducts({ productCount, showAllProductsBtn, className, searchQuery:
     const [selectedMarket, setSelectedMarket] = useState<SelectOption | null>(null);
     const [defaultMarketOptions, setDefaultMarketOptions] = useState<SelectOption[]>([]);
     const [categoryOptions, setCategoryOptions] = useState<SelectOption[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState<SelectOption | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<SelectOption | null>(
+        categoryIdFromUrl ? { value: categoryIdFromUrl, label: "Selected category" } : null
+    );
     const [brandOptions, setBrandOptions] = useState<SelectOption[]>([]);
     const [selectedBrand, setSelectedBrand] = useState<SelectOption | null>(null);
     const [selectedRating, setSelectedRating] = useState<SelectOption>(ratingOptions[0]);
@@ -367,18 +371,22 @@ function AllProducts({ productCount, showAllProductsBtn, className, searchQuery:
 
     useEffect(() => {
         setSelectedMarket(null);
-        setSelectedCategory(null);
+        if (!categoryIdFromUrl) {
+            setSelectedCategory(null);
+        }
         setSelectedBrand(null);
         setPageNumber(1);
         void loadMarketOptions('', selectedMarketCategoryId).then(setDefaultMarketOptions);
-    }, [selectedMarketCategoryId]);
+    }, [selectedMarketCategoryId, categoryIdFromUrl]);
 
     useEffect(() => {
-        setSelectedCategory(null);
+        if (!categoryIdFromUrl) {
+            setSelectedCategory(null);
+        }
         setSelectedBrand(null);
         setPageNumber(1);
         void loadCategories(selectedMarketId);
-    }, [selectedMarketId]);
+    }, [selectedMarketId, categoryIdFromUrl]);
 
     useEffect(() => {
         setSelectedBrand(null);
@@ -952,7 +960,7 @@ function AllProducts({ productCount, showAllProductsBtn, className, searchQuery:
 
                 {showAllProductsBtn && (
                     <div className="text-center mt-10">
-                        <Link to="/all-products" className="group w-90 justify-center bg-white hover:bg-linear-to-r hover:from-[#F59B0F] hover:to-[#AC6C2A] text-gray-900 hover:text-white font-bold py-4 px-16 rounded-full border-2 border-[#5C6BC0] transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center gap-3 mx-auto">
+                        <Link to="/all-products" className="group w-90 justify-center bg-white hover:bg-linear-to-r hover:from-[#F59B0F] hover:to-[#AC6C2A] text-gray-900 hover:text-white font-bold py-4 px-16 rounded-full border-2 border-[#F59B0F] transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center gap-3 mx-auto">
                             <span className="text-lg">Explore All Products</span>
                             <FaArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
                         </Link>

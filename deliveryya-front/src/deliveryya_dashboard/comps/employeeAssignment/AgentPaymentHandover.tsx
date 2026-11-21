@@ -1,10 +1,13 @@
-import { ArrowPathIcon, BanknotesIcon, BoltIcon, CurrencyDollarIcon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, BanknotesIcon, BoltIcon, CurrencyDollarIcon, MagnifyingGlassIcon, ShoppingBagIcon, UserGroupIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useCallback, useMemo, useState } from 'react';
 import AsyncSelect from 'react-select/async';
+import { getCustomSelectFieldStyles } from './selectStyles';
 import axiosInstance from '../../../util/AxiosUtil';
 import { debounce } from '../../../util/DebounceUtil';
 import { swalAlert } from '../../../util/SwalUtil';
 import { buildProofUploadFile, uploadProofToStorage } from '../../../util/PaymentProofUtil';
+import { getCompanyBankDetailOptions, type BankDetailOption } from '../../../services/BankDetailService';
+import JwtUtil from '../../../util/JwtUtil';
 import PaymentProofModal from './PaymentProofModal';
 
 interface OnHandOrdersData {
@@ -13,8 +16,8 @@ interface OnHandOrdersData {
   onHandUrgentJobCount: number;
   urgentJobValues: number;
   onHandOrderCount: number;
-  urgentJobList: Array<Record<string, unknown>>;
-  orderList: Array<Record<string, unknown>>;
+  urgentJobList: UrgentJobRow[];
+  orderList: OrderRow[];
 }
 
 interface EmployeeSelectOption {
@@ -22,41 +25,65 @@ interface EmployeeSelectOption {
   label: string;
 }
 
-const customSelectFieldStyles = {
-  control: (base: any, state: any) => ({
-    ...base,
-    padding: '0.2rem',
-    borderWidth: '2px',
-    borderColor: state.isFocused ? '#F59B0F' : '#E5E7EB',
-    borderRadius: '0.75rem',
-    boxShadow: state.isFocused ? '0 0 0 3px rgba(245, 155, 15, 0.15)' : 'none',
-    '&:hover': {
-      borderColor: '#FCD34D',
-    },
-    transition: 'all 0.3s',
-    backgroundColor: 'white',
-  }),
-  option: (base: any, state: any) => ({
-    ...base,
-    backgroundColor: state.isSelected
-      ? '#F59B0F'
-      : state.isFocused
-        ? '#FEF3C7'
-        : 'white',
-    color: state.isSelected ? 'white' : '#1F2937',
-    cursor: 'pointer',
-  }),
-  placeholder: (base: any) => ({
-    ...base,
-    color: '#9CA3AF',
-  }),
-  menu: (base: any) => ({
-    ...base,
-    borderRadius: '0.75rem',
-    overflow: 'hidden',
-    boxShadow: '0 10px 25px -5px rgba(245, 155, 15, 0.2)',
-  }),
-};
+interface PaymentTypeOption {
+  value: number;
+  label: string;
+}
+
+interface PaymentRecordPayload {
+  id: number;
+  amount: number;
+  desc: string;
+  proofUrl: string;
+  orderCode: string;
+  referencesCodes: string[];
+  paymentRecordItems: Array<{ code: string; note: string; amount: number }>;
+  isReturn: boolean;
+  paymentType: { id: number };
+  fromWallet: null;
+  toWallet: 'COMPANY';
+  paymentCategory: { id: number };
+  bankDetail: { id: number } | null;
+}
+
+const paymentTypeOptions: PaymentTypeOption[] = [
+  { value: 1, label: 'Cash' },
+  { value: 2, label: 'Bank transfer' },
+];
+
+interface OrderRow extends Record<string, unknown> {
+  id?: number | string;
+  orderId?: number | string;
+  code?: string;
+  orderCode?: string | { code?: string | null } | null;
+  collectivePrice?: number | string | null;
+  createdAt?: string | null;
+  deliveryTo?: {
+    fullName?: string | null;
+    primaryMobile?: string | null;
+    secondaryMobile?: string | null;
+  } | null;
+  paymentStatus?: { name?: string | null } | null;
+  deliveryStatus?: { name?: string | null } | null;
+}
+
+interface UrgentJobRow extends Record<string, unknown> {
+  id?: number | string;
+  jobId?: number | string;
+  jobCode?: string | null;
+  code?: string | null;
+  job?: string | null;
+  desc?: string | null;
+  username?: string | null;
+  mobile?: string | null;
+  cost?: number | string | null;
+  amount?: number | string | null;
+  totalPrice?: number | string | null;
+  trip?: number | string | null;
+  jobStatus?: { name?: string | null } | null;
+}
+
+const customSelectFieldStyles = getCustomSelectFieldStyles<EmployeeSelectOption>();
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -71,13 +98,13 @@ const str = (...vals: unknown[]): string => {
 
 const normalizeReferenceCode = (code: string): string => code.trim().toUpperCase();
 
-const getOrderReferenceCode = (order: Record<string, unknown>): string => {
+const getOrderReferenceCode = (order: OrderRow): string => {
   const orderCode = isRecord(order.orderCode) ? order.orderCode : null;
   return str(orderCode?.code, order.orderCode, order.code);
 };
 
-const getUrgentReferenceCode = (job: Record<string, unknown>): string => str(job.jobCode, job.code);
-const getUrgentPaymentAmount = (job: Record<string, unknown>): number => Number(job.cost ?? job.amount ?? job.totalPrice) || 0;
+const getUrgentReferenceCode = (job: UrgentJobRow): string => str(job.jobCode, job.code);
+const getUrgentPaymentAmount = (job: UrgentJobRow): number => Number(job.cost ?? job.amount ?? job.totalPrice) || 0;
 
 const getPaginatedItems = (value: unknown): Array<Record<string, unknown>> => {
   if (Array.isArray(value)) {
@@ -91,11 +118,11 @@ const getPaginatedItems = (value: unknown): Array<Record<string, unknown>> => {
   return [];
 };
 
-const mergeRowsByCode = (
-  tableRows: Array<Record<string, unknown>>,
-  manualRows: Array<Record<string, unknown>>,
-  getCode: (row: Record<string, unknown>) => string,
-): Array<Record<string, unknown>> => {
+const mergeRowsByCode = <T extends Record<string, unknown>>(
+  tableRows: T[],
+  manualRows: T[],
+  getCode: (row: T) => string,
+): T[] => {
   const seen = new Set<string>();
 
   return [...tableRows, ...manualRows].filter((row, index) => {
@@ -187,10 +214,22 @@ function AgentPaymentHandover() {
   const [paymentProofFiles, setPaymentProofFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [manualReferenceCode, setManualReferenceCode] = useState('');
-  const [manualOrderRows, setManualOrderRows] = useState<Array<Record<string, unknown>>>([]);
-  const [manualUrgentRows, setManualUrgentRows] = useState<Array<Record<string, unknown>>>([]);
+  const [manualOrderRows, setManualOrderRows] = useState<OrderRow[]>([]);
+  const [manualUrgentRows, setManualUrgentRows] = useState<UrgentJobRow[]>([]);
   const [isVerifyingManualReference, setIsVerifyingManualReference] = useState(false);
   const [manualReferenceError, setManualReferenceError] = useState<string | null>(null);
+  const [bankDetails, setBankDetails] = useState<BankDetailOption[]>([]);
+  const [selectedBankDetail, setSelectedBankDetail] = useState<BankDetailOption | null>(null);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<PaymentTypeOption>(paymentTypeOptions[0]);
+
+  const loadBankDetails = useCallback(async () => {
+    try {
+      setBankDetails(await getCompanyBankDetailOptions());
+    } catch (error) {
+      console.error('Failed to load company bank details for agent handover:', error);
+      setBankDetails([]);
+    }
+  }, []);
 
   const loadDataByAgent = useCallback(async (agentId: number) => {
     if (!Number.isFinite(agentId) || agentId <= 0) {
@@ -214,8 +253,8 @@ function AgentPaymentHandover() {
           onHandUrgentJobCount: Number(obj.onHandUrgentJobCount) || 0,
           urgentJobValues: Number(obj.urgentJobValues) || 0,
           onHandOrderCount: Number(obj.onHandOrderCount) || 0,
-          urgentJobList: Array.isArray(obj.urgentJobList) ? obj.urgentJobList.filter(isRecord) : [],
-          orderList: Array.isArray(obj.orderList) ? obj.orderList.filter(isRecord) : [],
+          urgentJobList: Array.isArray(obj.urgentJobList) ? obj.urgentJobList.filter(isRecord) as UrgentJobRow[] : [],
+          orderList: Array.isArray(obj.orderList) ? obj.orderList.filter(isRecord) as OrderRow[] : [],
         });
       } else {
         setData({
@@ -289,6 +328,8 @@ function AgentPaymentHandover() {
     setSelectedAgent(option);
     setSelectedRows(new Set());
     setPaymentProofFiles([]);
+    setSelectedBankDetail(null);
+    setSelectedPaymentType(paymentTypeOptions[0]);
     setUploadProgress(null);
     setManualReferenceCode('');
     setManualOrderRows([]);
@@ -304,15 +345,27 @@ function AgentPaymentHandover() {
     setData(null);
   }, [loadDataByAgent]);
 
-  const tableOrderList = useMemo(() => data?.orderList ?? [], [data?.orderList]);
-  const tableUrgentJobList = useMemo(() => data?.urgentJobList ?? [], [data?.urgentJobList]);
+  const handleOpenPaymentProofModal = () => {
+    setSubmitError(null);
+    setIsPaymentProofModalOpen(true);
+    void loadBankDetails();
+  };
 
-  const getOrderRowId = useCallback((order: Record<string, unknown>, idx: number) => {
-    return `order:${str(order.id, order.orderId) || idx}`;
+  const tableOrderList = useMemo(
+    () => mergeRowsByCode(data?.orderList ?? [], manualOrderRows, getOrderReferenceCode),
+    [data?.orderList, manualOrderRows],
+  );
+  const tableUrgentJobList = useMemo(
+    () => mergeRowsByCode(data?.urgentJobList ?? [], manualUrgentRows, getUrgentReferenceCode),
+    [data?.urgentJobList, manualUrgentRows],
+  );
+
+  const getOrderRowId = useCallback((order: OrderRow, idx: number) => {
+    return `order:${str(order.id, order.orderId) || normalizeReferenceCode(getOrderReferenceCode(order)) || idx}`;
   }, []);
 
-  const getUrgentRowId = useCallback((job: Record<string, unknown>, idx: number) => {
-    return `urgent:${str(job.id, job.jobId) || idx}`;
+  const getUrgentRowId = useCallback((job: UrgentJobRow, idx: number) => {
+    return `urgent:${str(job.id, job.jobId) || normalizeReferenceCode(getUrgentReferenceCode(job)) || idx}`;
   }, []);
 
   const allRowIds = useMemo(
@@ -445,6 +498,8 @@ function AgentPaymentHandover() {
     setIsPaymentProofModalOpen(false);
     setPaymentProofFiles([]);
     setUploadProgress(null);
+    setSelectedBankDetail(null);
+    setSelectedPaymentType(paymentTypeOptions[0]);
   };
 
   const handleRemoveSelectedRow = useCallback((kind: 'order' | 'urgent', code: string) => {
@@ -484,8 +539,7 @@ function AgentPaymentHandover() {
 
   const findPaymentReferenceByCode = async (
     normalizedCode: string,
-    agentId: number,
-  ): Promise<{ kind: 'order' | 'urgent'; row: Record<string, unknown> } | null> => {
+  ): Promise<{ kind: 'order' | 'urgent'; row: OrderRow | UrgentJobRow } | null> => {
     const lookupKinds: Array<'order' | 'urgent'> = normalizedCode.startsWith('UJC')
       ? ['urgent']
       : normalizedCode.startsWith('ORD')
@@ -498,7 +552,8 @@ function AgentPaymentHandover() {
           pageNumber: 0,
           countPerPage: 5,
           orderCode: normalizedCode,
-          userId: agentId,
+          paymentStatusId: 1,
+          excludedDeliveryStatusIds: [7, 9],
           search: '',
         });
         const items = getPaginatedItems(response.data?.object);
@@ -513,7 +568,8 @@ function AgentPaymentHandover() {
           pageNumber: 0,
           countPerPage: 5,
           jobCode: normalizedCode,
-          userId: agentId,
+          paymentStatusId: 1,
+          excludedJobStatusIds: [2, 3],
           search: '',
         });
         const items = getPaginatedItems(response.data?.object);
@@ -554,7 +610,7 @@ function AgentPaymentHandover() {
     setManualReferenceError(null);
 
     try {
-      const verifiedReference = await findPaymentReferenceByCode(normalizedCode, agentId);
+      const verifiedReference = await findPaymentReferenceByCode(normalizedCode);
 
       if (!verifiedReference) {
         setManualReferenceError('No order or urgent job was found for this agent and code.');
@@ -562,9 +618,9 @@ function AgentPaymentHandover() {
       }
 
       if (verifiedReference.kind === 'order') {
-        setManualOrderRows((prev) => mergeRowsByCode([], [...prev, verifiedReference.row], getOrderReferenceCode));
+        setManualOrderRows((prev) => mergeRowsByCode([], [...prev, verifiedReference.row as OrderRow], getOrderReferenceCode));
       } else {
-        setManualUrgentRows((prev) => mergeRowsByCode([], [...prev, verifiedReference.row], getUrgentReferenceCode));
+        setManualUrgentRows((prev) => mergeRowsByCode([], [...prev, verifiedReference.row as UrgentJobRow], getUrgentReferenceCode));
       }
 
       setManualReferenceCode('');
@@ -639,6 +695,11 @@ function AgentPaymentHandover() {
       return;
     }
 
+    if (selectedPaymentType.value === 2 && !selectedBankDetail) {
+      setSubmitError('Please select the company bank account that received the handover.');
+      return;
+    }
+
     if (selectedReferenceCodes.length === 0) {
       setSubmitError('Please select at least one order/job row to continue.');
       return;
@@ -661,7 +722,7 @@ function AgentPaymentHandover() {
         throw new Error('Proof upload returned an empty path.');
       }
 
-      const payload = {
+      const payload: PaymentRecordPayload = {
         id: 0,
         amount: Number((selectedOrdersTotal + selectedUrgentJobsTotal).toFixed(2)),
         desc: `Branch handover from ${selectedAgent?.label || 'agent'} (${preparedProofFile.name})`,
@@ -670,17 +731,44 @@ function AgentPaymentHandover() {
         referencesCodes: selectedReferenceCodes,
         paymentRecordItems,
         isReturn: false,
-        paymentType: {
-          id: 1,
+        paymentType: { id: selectedPaymentType.value },
+        fromWallet: null,
+        toWallet: 'COMPANY',
+        paymentCategory: {
+          id: 8,
         },
+        bankDetail: selectedPaymentType.value === 2 && selectedBankDetail
+          ? { id: selectedBankDetail.value }
+          : null,
       };
 
-      await axiosInstance.post('/payment/create-payment-record', payload);
+      const endpoint = selectedPaymentType.value === 2
+        ? '/payment/create-payment-record-for-agent-onhand-orders'
+        : '/payment/create-payment-record';
+      const branchId = JwtUtil.getBranchId();
+      if (!branchId) {
+        throw new Error('Unable to resolve the active branch. Please sign in again and select a branch.');
+      }
+
+      const response = selectedPaymentType.value === 2
+        ? await axiosInstance.post<{ object?: number }>(endpoint, payload)
+        : await axiosInstance.post<{ object?: number }>(endpoint, { ...payload, branchId });
+
+      const paymentRecordId = response.data?.object;
+      if (!paymentRecordId || paymentRecordId <= 0) {
+        throw new Error('Payment record was created, but its ID was not returned for verification.');
+      }
+
+      await axiosInstance.post('/payment/update-payment-verification-status-or-delete', {
+        paymentRecordId,
+        verificationStatusId: 1,
+      });
 
       swalAlert('Success', 'Payment record created successfully.', 'success');
       setSelectedRows(new Set());
       setManualOrderRows([]);
       setManualUrgentRows([]);
+      setSelectedBankDetail(null);
       handleClosePaymentProofModal();
       await loadDataByAgent(agentId);
     } catch (error) {
@@ -726,6 +814,20 @@ function AgentPaymentHandover() {
             className="text-sm"
           />
         </div>
+
+        {!selectedAgent && (
+          <div className="mb-6 flex min-h-72 items-center justify-center rounded-2xl border-2 border-dashed border-orange-200 bg-white px-6 text-center shadow-sm">
+            <div className="max-w-md">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-[#F59B0F]">
+                <UserGroupIcon className="h-8 w-8" />
+              </div>
+              <h2 className="text-xl font-black text-gray-900">Select an agent</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Search and select an agent above to view on-hand orders, urgent jobs, and payment handover details.
+              </p>
+            </div>
+          </div>
+        )}
 
         {selectedAgent && (
           <>
@@ -861,7 +963,7 @@ function AgentPaymentHandover() {
               </label>
               <button
                 type="button"
-                onClick={() => setIsPaymentProofModalOpen(true)}
+                onClick={handleOpenPaymentProofModal}
                 disabled={selectedReferenceCount === 0 || isSubmitting}
                 className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#D17F0A] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -1082,6 +1184,9 @@ function AgentPaymentHandover() {
             selectedOrderRows={selectedPaymentOrderRows}
             selectedUrgentRows={selectedPaymentUrgentRows}
             selectedOrdersTotal={selectedOrdersTotal}
+            selectedEditedOrdersTotal={selectedOrdersTotal}
+            orderAmountEdits={{}}
+            onOrderAmountEdit={() => {}}
             onRemoveSelectedRow={handleRemoveSelectedRow}
             selectedUrgentJobsTotal={selectedUrgentJobsTotal}
             paymentProofFiles={paymentProofFiles}
@@ -1090,9 +1195,22 @@ function AgentPaymentHandover() {
             isSubmitting={isSubmitting}
             uploadProgress={uploadProgress}
             submitError={submitError}
+            collectivePrices={selectedOrdersTotal}
             formatCurrency={formatCurrency}
             isRecord={isRecord}
             str={str}
+            bankDetails={bankDetails}
+            selectedBankDetail={selectedBankDetail}
+            selectedPaymentType={selectedPaymentType}
+            onPaymentTypeChange={(option) => {
+              setSelectedPaymentType(option);
+              if (option.value !== 2) setSelectedBankDetail(null);
+              setSubmitError(null);
+            }}
+            onBankDetailChange={(option) => {
+              setSelectedBankDetail(option);
+              setSubmitError(null);
+            }}
           />
         </>
       )}

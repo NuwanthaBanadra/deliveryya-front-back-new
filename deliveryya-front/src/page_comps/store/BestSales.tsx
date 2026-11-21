@@ -224,7 +224,7 @@ function BestSales() {
                                 )}
                                 mediaFooterSlot={(
                                     <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-[#00BFA5]">
+                                        <div className="flex items-center gap-2 text-[#F59B0F]">
                                             <HiTrendingUp className="w-5 h-5" />
                                             <span className="text-sm font-bold">
                                                 {(product.stockQty ?? 0).toLocaleString()} available

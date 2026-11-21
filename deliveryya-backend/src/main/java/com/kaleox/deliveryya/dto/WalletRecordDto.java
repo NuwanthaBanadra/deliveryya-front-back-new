@@ -28,6 +28,8 @@ public class WalletRecordDto {
 
     private CommonIdNameDto paymentStatus;
 
+    private Integer paymentRecordId;
+
     private String code;
 
     private String ref;

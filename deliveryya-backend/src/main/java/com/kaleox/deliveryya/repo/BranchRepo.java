@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BranchRepo extends JpaRepository<Branch, Integer>, JpaSpecificationExecutor<Branch> {
-
+    java.util.Optional<Branch> findTopByOrderByIdDesc();
 }

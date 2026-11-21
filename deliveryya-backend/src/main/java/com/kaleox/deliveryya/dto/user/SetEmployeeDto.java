@@ -41,7 +41,6 @@ public class SetEmployeeDto implements Serializable {
     private CommonIdNameDto userRoles;
     @NotNull
     private CommonIdNameDto verificationStatus;
-    @NotNull
     private CommonIdNameDto branches;
     private CommonIdNameDto users;
 }

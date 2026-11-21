@@ -2,6 +2,11 @@ import { BoltIcon, CurrencyDollarIcon, ShoppingBagIcon, TrashIcon } from '@heroi
 import type { FormEvent, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { buildPdfFromImages } from '../../../util/PaymentProofUtil';
+import Select from 'react-select';
+import type { BankDetailOption } from '../../../services/BankDetailService';
+import { getCustomSelectFieldStyles } from './selectStyles';
+
+export type { BankDetailOption } from '../../../services/BankDetailService';
 
 interface PaymentProofDetailsProps {
   selectedOrderRows: Array<Record<string, unknown>>;
@@ -23,6 +28,16 @@ interface PaymentProofDetailsProps {
   formatCurrency: (value: number) => string;
   isRecord: (value: unknown) => value is Record<string, unknown>;
   str: (...vals: unknown[]) => string;
+  bankDetails: BankDetailOption[];
+  selectedBankDetail: BankDetailOption | null;
+  onBankDetailChange: (option: BankDetailOption | null) => void;
+  selectedPaymentType: PaymentTypeOption;
+  onPaymentTypeChange: (option: PaymentTypeOption) => void;
+}
+
+interface PaymentTypeOption {
+  value: number;
+  label: string;
 }
 
 interface StatCardProps {
@@ -69,6 +84,11 @@ function PaymentProofDetails({
   formatCurrency,
   isRecord,
   str,
+  bankDetails,
+  selectedBankDetail,
+  onBankDetailChange,
+  selectedPaymentType,
+  onPaymentTypeChange,
 }: PaymentProofDetailsProps) {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -78,6 +98,8 @@ function PaymentProofDetails({
   const resolvedUploadProgress = typeof uploadProgress === 'number'
     ? Math.min(100, Math.max(0, uploadProgress))
     : null;
+  const paymentTypeSelectStyles = getCustomSelectFieldStyles<PaymentTypeOption>();
+  const bankDetailSelectStyles = getCustomSelectFieldStyles<BankDetailOption>();
 
   const selectedRows = useMemo(() => {
     const orderRows = selectedOrderRows.map((order, idx) => {
@@ -239,6 +261,47 @@ function PaymentProofDetails({
           <p className="mt-2 text-xs text-gray-600">Selected On Hand Collective Prices: {formatCurrency(selectedOrdersTotal)}</p>
           <p className="mt-1 text-xs text-gray-600">Edited On Hand Amount Total: {formatCurrency(selectedEditedOrdersTotal)}</p>
           <p className="mt-1 text-xs font-semibold text-amber-700">Check: Keep edited order amounts aligned with collective prices.</p>
+        </div>
+
+        <div className="rounded-xl border border-orange-200 bg-orange-50/60 p-4">
+          <label className="mb-2 block text-sm font-bold text-gray-800">
+            Payment type <span className="text-red-500">*</span>
+          </label>
+          <Select<PaymentTypeOption>
+            options={[
+              { value: 1, label: 'Cash' },
+              { value: 2, label: 'Bank transfer' },
+            ]}
+            value={selectedPaymentType}
+            onChange={(option) => {
+              if (option) onPaymentTypeChange(option);
+            }}
+            isClearable={false}
+            isSearchable={false}
+            isDisabled={isSubmitting}
+            className="text-sm"
+            styles={paymentTypeSelectStyles}
+          />
+          {selectedPaymentType.value === 2 && (
+            <>
+              <label className="mb-2 mt-4 block text-sm font-bold text-gray-800">
+                Transfer money to bank account <span className="text-red-500">*</span>
+              </label>
+              <Select<BankDetailOption>
+                options={bankDetails}
+                value={selectedBankDetail}
+                onChange={(option) => onBankDetailChange(option)}
+                isClearable
+                isSearchable
+                placeholder="Select the company bank account..."
+                noOptionsMessage={() => 'No active company bank accounts found.'}
+                isDisabled={isSubmitting}
+                className="text-sm"
+                styles={bankDetailSelectStyles}
+              />
+              <p className="mt-2 text-xs text-gray-600">Only active company bank accounts are shown.</p>
+            </>
+          )}
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">

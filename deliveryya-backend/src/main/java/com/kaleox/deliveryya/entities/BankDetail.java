@@ -22,6 +22,10 @@ public class BankDetail {
     @Column(name = "acc_number", nullable = false, length = 20)
     private String accNumber;
 
+    @Builder.Default
+    @Column(name = "balance", nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
+    private Double balance = 0.0;
+
     @Column(name = "branch", nullable = false, length = 45)
     private String branch;
 
@@ -31,7 +35,7 @@ public class BankDetail {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private User  user;
+    private User user;
 
     @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
@@ -39,5 +43,7 @@ public class BankDetail {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isDeleted = false;
 
+    @Column(name = "is_company", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isCompany = false;
 
 }

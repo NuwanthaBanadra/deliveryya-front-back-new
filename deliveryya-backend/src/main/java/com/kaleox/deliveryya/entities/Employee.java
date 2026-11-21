@@ -37,10 +37,8 @@ public class Employee {
     @JoinColumn(name = "verification_status_id", nullable = false)
     private VerificationStatus verificationStatus;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "branches_id", nullable = false)
-    private Branch branches;
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.Set<BranchHasEmployee> branchHasEmployees = new java.util.HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "users_id", nullable = false)

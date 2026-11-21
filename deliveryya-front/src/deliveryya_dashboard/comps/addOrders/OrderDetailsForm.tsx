@@ -1,5 +1,6 @@
 import { BuildingOfficeIcon, CubeIcon, CurrencyDollarIcon, DocumentTextIcon, ScaleIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import axios from 'axios';
 import Select from 'react-select';
 import DeliveryAddressForm from './DeliveryAddressForm';
 import type { DeliveryAddress } from './DeliveryAddressForm';
@@ -36,6 +37,10 @@ interface CityOption {
     value: string;
     label: string;
     cityId: number;
+}
+
+interface DeliveryFeeErrorResponse {
+    desc?: unknown;
 }
 
 const OrderDetailsForm = ({ orderDetails, onOrderDetailsChange, deliveryAddress, onDeliveryAddressChange, orderErrors, deliveryErrors,
@@ -220,10 +225,16 @@ const OrderDetailsForm = ({ orderDetails, onOrderDetailsChange, deliveryAddress,
             });
         } catch (error) {
             console.error('Error fetching delivery cost:', error);
+            const errorData = axios.isAxiosError<DeliveryFeeErrorResponse>(error)
+                ? error.response?.data
+                : undefined;
+            const errorMessage = typeof errorData?.desc === 'string'
+                ? errorData.desc.replace(/\s+for city id:\s*\d+\s*$/i, '')
+                : 'Please try again after selecting the city and weight.';
             await Swal.fire({
                 icon: 'error',
                 title: 'Failed to fetch delivery fee',
-                text: 'Please try again after selecting the city and weight.',
+                text: errorMessage,
                 confirmButtonText: 'OK',
                 confirmButtonColor: swalColors.confirm,
                 iconColor: swalColors.error,

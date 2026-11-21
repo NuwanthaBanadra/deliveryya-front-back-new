@@ -5,6 +5,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CreditCardIcon,
+  CurrencyDollarIcon,
+  MagnifyingGlassIcon,
   ExclamationTriangleIcon,
   NoSymbolIcon,
   PencilSquareIcon,
@@ -37,6 +39,7 @@ type BankDetailRecord = {
   accNumber?: string | null;
   accountNumber?: string | null;
   branch?: string | null;
+  balance?: number | null;
   bank?: BankOption | null;
   bankId?: number | string | null;
   userId?: number | string | null;
@@ -61,6 +64,7 @@ type BankDetailViewModel = {
   name: string;
   accNumber: string;
   branch: string;
+  balance: number;
   bankId: number;
   bankName: string;
   userId: number;
@@ -72,6 +76,7 @@ type BankDetailFormState = {
   name: string;
   accNumber: string;
   branch: string;
+  balance: string;
   bankId: string;
   isActive: boolean;
 };
@@ -102,6 +107,7 @@ const EMPTY_FORM_STATE: BankDetailFormState = {
   name: '',
   accNumber: '',
   branch: '',
+  balance: '0',
   bankId: '',
   isActive: true,
 };
@@ -169,6 +175,11 @@ const extractItems = <T,>(value: unknown): T[] => {
   return [];
 };
 
+const toNonNegativeNumber = (value: unknown): number => {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+};
+
 const toPositiveInteger = (value: unknown): number | null => {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
@@ -204,7 +215,7 @@ const getStatusBadgeClass = (isActive: boolean) =>
 const getRootClassName = (variant: BankDetailsManagerVariant, className?: string) => {
   const base =
     variant === 'page'
-      ? 'rounded-3xl border border-orange-100 bg-white/95 p-5 shadow-lg shadow-orange-100/60 sm:p-6'
+      ? 'min-h-screen bg-gray-50 pb-12'
       : 'rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5';
 
   return [base, className].filter(Boolean).join(' ');
@@ -343,6 +354,7 @@ function BankDetailsManager({
             name: detail.name?.trim() || 'Unnamed account',
             accNumber: detail.accNumber?.trim() || detail.accountNumber?.trim() || 'N/A',
             branch: detail.branch?.trim() || 'N/A',
+            balance: toNonNegativeNumber(detail.balance),
             bankId,
             bankName: detail.bank?.name?.trim() || bankItems.find((bank) => bank.id === bankId)?.name || 'Unknown bank',
             userId: toPositiveInteger(detail.userId) ?? resolvedUserId,
@@ -381,6 +393,7 @@ function BankDetailsManager({
       total: totalCount,
       active,
       inactive: bankDetails.length - active,
+      balance: bankDetails.reduce((sum, detail) => sum + (detail.balance || 0), 0),
     };
   }, [bankDetails, totalCount]);
 
@@ -419,6 +432,7 @@ function BankDetailsManager({
       name: detail.name,
       accNumber: detail.accNumber,
       branch: detail.branch,
+      balance: String(detail.balance),
       bankId: String(detail.bankId || ''),
       isActive: detail.isActive,
     });
@@ -454,8 +468,14 @@ function BankDetailsManager({
       return;
     }
 
-    if (!formState.name.trim() || !formState.accNumber.trim() || !formState.branch.trim() || !formState.bankId) {
+    if (!formState.name.trim() || !formState.accNumber.trim() || !formState.branch.trim() || !formState.balance.trim() || !formState.bankId) {
       setFormError('Please fill in all required fields.');
+      return;
+    }
+
+    const balance = Number(formState.balance);
+    if (!Number.isFinite(balance) || balance < 0) {
+      setFormError('Balance must be a valid non-negative number.');
       return;
     }
 
@@ -472,6 +492,7 @@ function BankDetailsManager({
       name: formState.name.trim(),
       accNumber: formState.accNumber.trim(),
       branch: formState.branch.trim(),
+      balance,
       bank: {
         id: bank.id,
         name: bank.name,
@@ -639,15 +660,10 @@ function BankDetailsManager({
   return (
     <section className={getRootClassName(variant, className)}>
       {showHeader && (
-        <div className="flex flex-col gap-4 border-b border-orange-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#F59B0F] to-[#AC6C2A] text-white shadow-md">
-              <BanknotesIcon className="h-6 w-6" />
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">{title}</h2>
-              <p className="mt-1 text-sm font-medium text-gray-600">{subtitleText}</p>
-            </div>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="bg-linear-to-r from-[#F59B0F] via-[#D17F0A] to-[#AC6C2A] bg-clip-text text-3xl font-black text-transparent md:text-4xl">{title}</h1>
+            <p className="mt-1 text-sm text-gray-600 md:text-base">{subtitleText}</p>
           </div>
 
           {canCreateBankDetails && (
@@ -655,7 +671,7 @@ function BankDetailsManager({
               type="button"
               onClick={openCreateForm}
               disabled={!resolvedUserId || isLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#D17F0A] px-5 py-3 text-sm font-bold text-white shadow-md transition hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
             >
               <PlusIcon className="h-5 w-5" />
               Add Bank Detail
@@ -664,34 +680,65 @@ function BankDetailsManager({
         </div>
       )}
 
-      <div className={showHeader ? 'mt-5 space-y-5' : 'space-y-5'}>
-        <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-          <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-orange-100 bg-orange-50/50">
-            <div className="border-r border-orange-100 px-4 py-3">
-              <p className="text-xs font-medium uppercase text-gray-500">Total Matches</p>
-              <p className="mt-1 text-xl font-semibold text-gray-900">{stats.total}</p>
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: 'Total Accounts', value: String(stats.total), icon: BanknotesIcon, iconClass: 'from-orange-500 to-orange-600' },
+            { label: 'Active Accounts', value: String(stats.active), icon: CheckCircleIcon, iconClass: 'from-emerald-500 to-emerald-600' },
+            { label: 'Inactive Accounts', value: String(stats.inactive), icon: NoSymbolIcon, iconClass: 'from-gray-500 to-gray-600' },
+            { label: 'Visible Balance', value: `LKR ${stats.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: CurrencyDollarIcon, iconClass: 'from-blue-500 to-blue-600' },
+          ].map((card) => (
+            <div key={card.label} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div><p className="text-sm font-medium text-gray-600">{card.label}</p><p className="mt-1 text-2xl font-black text-gray-900">{card.value}</p></div>
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br ${card.iconClass} shadow-lg`}><card.icon className="h-7 w-7 text-white" /></div>
+              </div>
             </div>
-            <div className="border-r border-orange-100 px-4 py-3">
-              <p className="text-xs font-medium uppercase text-gray-500">Active Here</p>
-              <p className="mt-1 text-xl font-semibold text-emerald-700">{stats.active}</p>
-            </div>
-            <div className="px-4 py-3">
-              <p className="text-xs font-medium uppercase text-gray-500">Inactive Here</p>
-              <p className="mt-1 text-xl font-semibold text-gray-700">{stats.inactive}</p>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          <label className="block">
-            <span className="sr-only">Search bank details</span>
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6">
+          <div className="relative">
+            <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               type="search"
-              placeholder="Search bank, branch, account..."
-              className="h-full min-h-14 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 outline-none transition focus:border-[#F59B0F] focus:ring-4 focus:ring-orange-100"
+              placeholder="Search bank, branch, account holder or account number..."
+              className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3 pl-12 pr-4 text-sm font-semibold text-gray-800 outline-none transition-all focus:border-[#F59B0F] focus:bg-white"
             />
-          </label>
+          </div>
         </div>
+
+        {!isLoading && !error && totalCount > 0 && (
+          <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-bold text-gray-900">{showingRange.from}</span> to{' '}
+              <span className="font-bold text-gray-900">{showingRange.to}</span> of{' '}
+              <span className="font-bold text-gray-900">{totalCount}</span> accounts
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">Per page:</span>
+              <div className="w-28">
+                <Select
+                  options={PAGE_SIZE_OPTIONS}
+                  value={selectedPageSizeOption}
+                  onChange={(option: SingleValue<SelectOption>) => {
+                    setPage(0);
+                    setPageSize(option?.value ?? PAGE_SIZE_OPTIONS[0].value);
+                  }}
+                  styles={selectStyles}
+                  isSearchable={false}
+                  aria-label="Bank details per page"
+                  menuPortalTarget={document.body}
+                />
+              </div>
+              <button type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={page === 0 || isLoading} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gray-200 bg-white hover:border-[#F59B0F] hover:bg-orange-50 disabled:opacity-40" aria-label="Previous bank details page"><ChevronLeftIcon className="h-5 w-5 text-gray-700" /></button>
+              <div className="rounded-lg border-2 border-gray-200 bg-white px-4 py-1.5 text-sm font-bold text-gray-900">{page + 1} / {totalPages}</div>
+              <button type="button" onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))} disabled={page >= totalPages - 1 || isLoading} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gray-200 bg-white hover:border-[#F59B0F] hover:bg-orange-50 disabled:opacity-40" aria-label="Next bank details page"><ChevronRightIcon className="h-5 w-5 text-gray-700" /></button>
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 p-8 text-sm font-semibold text-gray-600">
@@ -728,7 +775,7 @@ function BankDetailsManager({
             No bank details match your search.
           </div>
         ) : (
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {bankDetails.map((detail) => (
               <article
                 key={detail.id}
@@ -798,7 +845,7 @@ function BankDetailsManager({
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
                     <p className="text-xs font-medium uppercase text-gray-500">Account Number</p>
                     <p className="mt-1 break-all font-mono text-sm font-semibold text-gray-900">{detail.accNumber}</p>
@@ -807,62 +854,13 @@ function BankDetailsManager({
                     <p className="text-xs font-medium uppercase text-gray-500">Branch</p>
                     <p className="mt-1 break-words text-sm font-semibold text-gray-900">{detail.branch}</p>
                   </div>
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3">
+                    <p className="text-xs font-medium uppercase text-emerald-600">Current Balance</p>
+                    <p className="mt-1 text-sm font-black text-emerald-800">LKR {detail.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
                 </div>
               </article>
             ))}
-          </div>
-        )}
-
-        {!isLoading && !error && totalCount > 0 && (
-          <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-semibold text-gray-600">
-              Showing <span className="font-semibold text-gray-900">{showingRange.from}</span> to{' '}
-              <span className="font-semibold text-gray-900">{showingRange.to}</span> of{' '}
-              <span className="font-semibold text-gray-900">{totalCount}</span>
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="min-w-36">
-                <Select
-                  options={PAGE_SIZE_OPTIONS}
-                  value={selectedPageSizeOption}
-                  onChange={(option: SingleValue<SelectOption>) => {
-                    const nextPageSize = option?.value ?? PAGE_SIZE_OPTIONS[0].value;
-
-                    setPage(0);
-                    setPageSize(nextPageSize);
-                  }}
-                  styles={selectStyles}
-                  isSearchable={false}
-                  aria-label="Bank details per page"
-                  menuPortalTarget={document.body}
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setPage((current) => Math.max(0, current - 1))}
-                disabled={page === 0 || isLoading}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 transition hover:border-[#F59B0F] hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Previous bank details page"
-                title="Previous page"
-              >
-                <ChevronLeftIcon className="h-5 w-5" />
-              </button>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800">
-                {page + 1} / {totalPages}
-              </div>
-              <button
-                type="button"
-                onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
-                disabled={page >= totalPages - 1 || isLoading}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 transition hover:border-[#F59B0F] hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Next bank details page"
-                title="Next page"
-              >
-                <ChevronRightIcon className="h-5 w-5" />
-              </button>
-            </div>
           </div>
         )}
       </div>
@@ -920,7 +918,7 @@ function BankDetailsManager({
                 </label>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <label className="space-y-2 text-sm font-medium text-gray-700">
                   <span>Account Number</span>
                   <input
@@ -941,6 +939,20 @@ function BankDetailsManager({
                     type="text"
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-[#F59B0F] focus:ring-4 focus:ring-orange-100"
                     placeholder="Branch name"
+                    disabled={isSaving || isSendingOtp}
+                  />
+                </label>
+
+                <label className="space-y-2 text-sm font-medium text-gray-700">
+                  <span>Current Balance</span>
+                  <input
+                    value={formState.balance}
+                    onChange={(event) => setFormState((current) => ({ ...current, balance: event.target.value }))}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-[#F59B0F] focus:ring-4 focus:ring-orange-100"
+                    placeholder="0.00"
                     disabled={isSaving || isSendingOtp}
                   />
                 </label>

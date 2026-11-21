@@ -56,14 +56,14 @@ const selectStyles: StylesConfig<SelectOption, false> = {
         minHeight: 48,
         borderRadius: 12,
         borderWidth: 2,
-        borderColor: state.isFocused ? "#5C6BC0" : "#e5e7eb",
-        boxShadow: state.isFocused ? "0 0 0 3px rgba(92, 107, 192, 0.12)" : "none",
-        ":hover": { borderColor: "#5C6BC0" },
+        borderColor: state.isFocused ? "#F59B0F" : "#e5e7eb",
+        boxShadow: state.isFocused ? "0 0 0 3px rgba(245, 155, 15, 0.12)" : "none",
+        ":hover": { borderColor: "#F59B0F" },
     }),
     menu: (base) => ({ ...base, zIndex: 50, borderRadius: 12, overflow: "hidden" }),
     option: (base, state) => ({
         ...base,
-        backgroundColor: state.isSelected ? "#5C6BC0" : state.isFocused ? "#f3f4f6" : "white",
+        backgroundColor: state.isSelected ? "#F59B0F" : state.isFocused ? "#FFF4EE" : "white",
         color: state.isSelected ? "white" : "#374151",
         fontWeight: state.isSelected ? 700 : 600,
     }),
@@ -180,9 +180,9 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                 <div className="text-center mb-10 space-y-4">
                     <div className="inline-block">
                         <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-2">
-                            All <span className="text-transparent bg-clip-text bg-linear-to-r from-[#5C6BC0] via-[#7986CB] to-[#9575CD]">Markets</span>
+                            All <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F59B0F] via-orange-500 to-[#AC6C2A]">Markets</span>
                         </h2>
-                        <div className="h-1.5 bg-linear-to-r from-[#5C6BC0] via-[#7986CB] to-[#9575CD] rounded-full"></div>
+                        <div className="h-1.5 bg-linear-to-r from-[#F59B0F] via-orange-500 to-[#AC6C2A] rounded-full"></div>
                     </div>
                     <p className="text-gray-600 text-lg max-w-2xl mx-auto">
                         Browse active markets — filter, search and explore verified stores.
@@ -200,7 +200,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                         <button
                             onClick={() => setShowFilters((c) => !c)}
-                            className="group flex items-center gap-2 bg-linear-to-r from-[#5C6BC0] to-[#7986CB] hover:from-[#4A5FB0] hover:to-[#6976BB] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
+                            className="group flex items-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-6 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:from-[#AC6C2A] hover:to-[#8B5A28] hover:shadow-lg"
                         >
                             <FaFilter className={`w-4 h-4 transition-transform ${showFilters ? "rotate-180" : ""}`} />
                             <span>{showFilters ? "Hide Filters" : "Show Filters"}</span>
@@ -211,7 +211,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                                     setSelectedMarketCategory(null);
                                     setFilterByBestMarket(false);
                                 }}
-                                className="text-sm font-semibold text-[#5C6BC0] hover:text-[#4A5FB0] flex items-center gap-2"
+                                className="flex items-center gap-2 text-sm font-semibold text-[#F59B0F] hover:text-[#AC6C2A]"
                             >
                                 <FaTimes className="w-4 h-4" />
                                 Clear Filters
@@ -240,7 +240,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                                             type="checkbox"
                                             checked={filterByBestMarket}
                                             onChange={(e) => setFilterByBestMarket(e.target.checked)}
-                                            className="w-5 h-5 rounded border-2 border-gray-300 text-[#5C6BC0] focus:ring-[#5C6BC0] cursor-pointer"
+                                            className="h-5 w-5 cursor-pointer rounded border-2 border-gray-300 text-[#F59B0F] focus:ring-[#F59B0F]"
                                         />
                                         <span className="text-sm font-semibold text-gray-800">Show Best Markets Only</span>
                                     </label>
@@ -259,7 +259,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                         {markets.map((m) => {
                             const rating = generateMarketRating(m.id);
                             return (
-                                <div key={m.id} className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-500 border border-gray-100 hover:border-[#7986CB]/30 transform hover:-translate-y-2">
+                                <div key={m.id} className="group relative transform overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:border-orange-200 hover:shadow-2xl">
                                     {/* Image Section */}
                                     <div className="relative h-48 overflow-hidden bg-gray-200">
                                         <img src={normalizeImageUrl(m.coverImgUrl || m.logoUrl)} alt={m.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -269,7 +269,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <button
                                                 onClick={() => navigate(`/market/${m.id}`)}
-                                                className="bg-white text-[#5C6BC0] font-bold py-2 px-6 rounded-full shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300"
+                                                className="transform rounded-full bg-white px-6 py-2 font-bold text-[#F59B0F] shadow-xl transition-transform duration-300 group-hover:scale-100"
                                             >
                                                 Quick View
                                             </button>
@@ -280,12 +280,12 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                                     <div className="p-5">
                                         {/* Market Name & Verified Badge */}
                                         <div className="flex items-start justify-between mb-3">
-                                            <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#5C6BC0] transition-colors flex-1">{m.name}</h3>
-                                            <MdVerified className="w-5 h-5 text-[#5C6BC0] shrink-0 mt-1" />
+                                            <h3 className="flex-1 text-lg font-bold text-gray-900 transition-colors group-hover:text-[#F59B0F]">{m.name}</h3>
+                                            <MdVerified className="mt-1 h-5 w-5 shrink-0 text-[#F59B0F]" />
                                         </div>
 
                                         {/* Category Badge */}
-                                        <span className="inline-block bg-linear-to-r from-indigo-50 to-purple-50 text-[#5C6BC0] text-xs font-semibold px-3 py-1 rounded-full mb-4 border border-[#7986CB]/20">
+                                        <span className="mb-4 inline-block rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-[#AC6C2A]">
                                             {m.marketCategory?.name || "Marketplace"}
                                         </span>
 
@@ -306,7 +306,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                                         <div className="flex items-center justify-between mb-4">
                                             <span className="text-sm text-gray-600">Delivery Fee</span>
                                             <div className="flex items-center gap-1">
-                                                <MdDeliveryDining className="w-5 h-5 text-[#7986CB]" />
+                                                <MdDeliveryDining className="h-5 w-5 text-[#F59B0F]" />
                                                 <span className="font-bold text-gray-900">Varies</span>
                                             </div>
                                         </div>
@@ -314,7 +314,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                                         {/* Visit Button */}
                                         <button
                                             onClick={() => navigate(`/market/${m.id}`)}
-                                            className="w-full bg-linear-to-r from-[#5C6BC0] to-[#7986CB] hover:from-[#4A5FB0] hover:to-[#6976BB] text-white font-bold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] py-3 font-bold text-white shadow-md transition-all duration-300 hover:from-[#AC6C2A] hover:to-[#8B5A28] hover:shadow-lg"
                                         >
                                             <span>Visit Store</span>
                                             <FaArrowRight className="w-4 h-4" />
@@ -337,7 +337,7 @@ function AllMarkets({ pageSize = DEFAULT_PAGE_SIZE }: { pageSize?: number }) {
                         <button onClick={() => setPageNumber((c) => Math.max(1, c - 1))} disabled={pageNumber <= 1} className="px-4 py-2 rounded-xl border">Previous</button>
                         <div className="flex items-center gap-2">
                             {visiblePages.map((p) => (
-                                <button key={p} onClick={() => setPageNumber(p)} className={`px-4 py-2 rounded-xl ${p === pageNumber ? 'bg-linear-to-r from-[#5C6BC0] to-[#7986CB] text-white' : 'bg-white border'}`}>{p}</button>
+                                <button key={p} onClick={() => setPageNumber(p)} className={`rounded-xl px-4 py-2 ${p === pageNumber ? 'bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] text-white' : 'border bg-white'}`}>{p}</button>
                             ))}
                         </div>
                         <button onClick={() => setPageNumber((c) => Math.min(totalPages, c + 1))} disabled={pageNumber >= totalPages} className="px-4 py-2 rounded-xl border">Next</button>

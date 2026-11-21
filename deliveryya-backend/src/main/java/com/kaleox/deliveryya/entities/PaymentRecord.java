@@ -1,5 +1,6 @@
 package com.kaleox.deliveryya.entities;
 
+import com.kaleox.deliveryya.enums.WalletType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -58,9 +59,26 @@ public class PaymentRecord {
     @JoinColumn(name = "payment_category_id")
     private PaymentCategory paymentCategory;
 
+    @Column(name = "branch_id")
+    private Integer branchId;
+
     @NotNull
     @Column(name = "is_return", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isReturn;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "from_wallet", length = 20)
+    private WalletType fromWallet;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "to_wallet", length = 20)
+    private WalletType toWallet;
+
+    @Column(name = "from_user_id")
+    private Integer fromUserId;
+
+    @Column(name = "to_user_id")
+    private Integer toUserId;
 
     @CreatedDate
     @Column(updatable = false)

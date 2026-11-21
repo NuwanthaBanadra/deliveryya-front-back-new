@@ -1019,7 +1019,10 @@ function PlacedOrders() {
   ]);
   const [isCustomReportExpanded, setIsCustomReportExpanded] = useState(false);
   const [isTableColumnsOpen, setIsTableColumnsOpen] = useState(false);
+  const [isReportTypeOpen, setIsReportTypeOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const tableColumnsMenuRef = useRef<HTMLDivElement | null>(null);
+  const reportTypeMenuRef = useRef<HTMLDivElement | null>(null);
 
   const currentUserRoleId = getCurrentUserRoleId();
   const userId = getCurrentUserId();
@@ -2520,6 +2523,10 @@ function PlacedOrders() {
       if (!tableColumnsMenuRef.current.contains(event.target as Node)) {
         setIsTableColumnsOpen(false);
       }
+      if (!reportTypeMenuRef.current) return;
+      if (!reportTypeMenuRef.current.contains(event.target as Node)) {
+        setIsReportTypeOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -2635,77 +2642,101 @@ function PlacedOrders() {
               />
             </div>
 
-            {isDeliveryCompanySide && (
-              <div ref={searchScopeMenuRef} className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsSearchScopeOpen((prev) => !prev)}
-                  className="inline-flex h-12.5 w-full lg:w-auto items-center justify-between gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white"
-                >
-                  <span className="flex items-center gap-2">
-                    <ChevronDownIcon className={`h-4 w-4 transition-transform ${isSearchScopeOpen ? 'rotate-180' : ''}`} />
-                    <span>Scopes</span>
-                  </span>
-                  <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-orange-700">
-                    {activeSearchScopeCount}
-                  </span>
-                </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsFiltersExpanded((prev) => !prev)}
+                className="inline-flex h-12.5 items-center justify-between gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white"
+              >
+                <span className="flex items-center gap-2">
+                  <ChevronDownIcon className={`h-4 w-4 transition-transform ${isFiltersExpanded ? 'rotate-180' : ''}`} />
+                  <span>Filters</span>
+                </span>
+              </button>
 
-                {isSearchScopeOpen && (
-                  <div className="absolute right-0 z-50 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
-                    <div className="border-b border-gray-100 px-4 py-3">
-                      <p className="text-sm font-bold text-gray-900">Search scope</p>
-                      <p className="text-xs text-gray-500">Toggle the fields included in the query</p>
+              <button
+                type="button"
+                onClick={() => setIsReportModalOpen(true)}
+                className="inline-flex h-12.5 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white"
+              >
+                <DocumentArrowDownIcon className="w-4 h-4" />
+                <span>Report</span>
+              </button>
+
+              {isDeliveryCompanySide && (
+                <div ref={searchScopeMenuRef} className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsSearchScopeOpen((prev) => !prev)}
+                    className="inline-flex h-12.5 items-center justify-between gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white"
+                  >
+                    <span className="flex items-center gap-2">
+                      <ChevronDownIcon className={`h-4 w-4 transition-transform ${isSearchScopeOpen ? 'rotate-180' : ''}`} />
+                      <span>Scopes</span>
+                    </span>
+                    <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-orange-700">
+                      {activeSearchScopeCount}
+                    </span>
+                  </button>
+
+                  {isSearchScopeOpen && (
+                    <div className="absolute right-0 z-50 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
+                      <div className="border-b border-gray-100 px-4 py-3">
+                        <p className="text-sm font-bold text-gray-900">Search scope</p>
+                        <p className="text-xs text-gray-500">Toggle the fields included in the query</p>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto p-2">
+                        {SEARCH_SCOPE_OPTIONS.map((option) => {
+                          const enabled = searchScopes[option.key];
+                          return (
+                            <button
+                              key={option.key}
+                              type="button"
+                              onClick={() => setSearchScopes((prev) => ({ ...prev, [option.key]: !prev[option.key] }))}
+                              className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${enabled ? 'bg-orange-50/70' : 'hover:bg-gray-50'}`}
+                            >
+                              <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 text-[11px] font-black ${enabled ? 'border-[#F59B0F] bg-[#F59B0F] text-white' : 'border-gray-300 bg-white text-transparent'}`}>
+                                ✓
+                              </span>
+                              <span className="min-w-0">
+                                <span className="block text-sm font-semibold text-gray-900">{option.label}</span>
+                                <span className="block text-xs leading-5 text-gray-500">{option.description}</span>
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="max-h-80 overflow-y-auto p-2">
-                      {SEARCH_SCOPE_OPTIONS.map((option) => {
-                        const enabled = searchScopes[option.key];
-                        return (
-                          <button
-                            key={option.key}
-                            type="button"
-                            onClick={() => setSearchScopes((prev) => ({ ...prev, [option.key]: !prev[option.key] }))}
-                            className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${enabled ? 'bg-orange-50/70' : 'hover:bg-gray-50'}`}
-                          >
-                            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 text-[11px] font-black ${enabled ? 'border-[#F59B0F] bg-[#F59B0F] text-white' : 'border-gray-300 bg-white text-transparent'}`}>
-                              ✓
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold text-gray-900">{option.label}</span>
-                              <span className="block text-xs leading-5 text-gray-500">{option.description}</span>
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {canFilterSendingUsers && (
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Sending User</p>
-              <AsyncSelect<UserFilterOption, false>
-                cacheOptions
-                defaultOptions
-                loadOptions={loadSendingUserOptions}
-                value={selectedSendingUser}
-                onChange={(option) => {
-                  setSelectedSendingUser(option ?? null);
-                  setPage(0);
-                }}
-                styles={customSelectFieldStyles}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                instanceId="placed-orders-sending-user"
-                placeholder="All sending users"
-                isClearable
-              />
-            </div>
-          )}
+          {isFiltersExpanded && (
+            <>
+            {canFilterSendingUsers && (
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Sending User</p>
+                <AsyncSelect<UserFilterOption, false>
+                  cacheOptions
+                  defaultOptions
+                  loadOptions={loadSendingUserOptions}
+                  value={selectedSendingUser}
+                  onChange={(option) => {
+                    setSelectedSendingUser(option ?? null);
+                    setPage(0);
+                  }}
+                  styles={customSelectFieldStyles}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  instanceId="placed-orders-sending-user"
+                  placeholder="All sending users"
+                  isClearable
+                />
+              </div>
+            )}
 
           {/* Status Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -2858,92 +2889,8 @@ function PlacedOrders() {
               Reset Filters
             </button>
           </div>
-        </div>
-
-        {/* Report Generation Section */}
-        <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 space-y-4">
-          <div className="flex flex-col gap-2 mb-2">
-            <h2 className="text-xl font-bold text-gray-900">Report Generation</h2>
-            <p className="text-sm text-gray-600">Generate settlement and custom reports for your orders</p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Settlement Report</p>
-              <button
-                type="button"
-                onClick={() => handleGenerateSettlementReport('download')}
-                disabled={isGeneratingSettlementReport || !selectedMonth}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <DocumentArrowDownIcon className="w-4 h-4" />
-                {isGeneratingSettlementReport ? 'Generating...' : 'Generate Report'}
-              </button>
-            </div>
-
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Custom Report</p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleGenerateCommonReport('download')}
-                  disabled={isGeneratingCommonReport}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <DocumentArrowDownIcon className="w-4 h-4" />
-                  {isGeneratingCommonReport ? 'Generating...' : 'Generate'}
-                </button>
-                <div ref={tableColumnsMenuRef} className="relative shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setIsTableColumnsOpen((prev) => !prev)}
-                    className="inline-flex h-12.5 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-white"
-                  >
-                    <span className="flex items-center gap-2">
-                      <ChevronDownIcon className={`h-4 w-4 transition-transform ${isTableColumnsOpen ? 'rotate-180' : ''}`} />
-                      <span>Columns</span>
-                    </span>
-                    <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-orange-700">
-                      {customReportColumns.length}
-                    </span>
-                  </button>
-
-                  {isTableColumnsOpen && (
-                    <div className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
-                      <div className="border-b border-gray-100 px-4 py-3">
-                        <p className="text-sm font-bold text-gray-900">Report Columns</p>
-                        <p className="text-xs text-gray-500">Select columns to include in custom report</p>
-                      </div>
-                      <div className="max-h-80 overflow-y-auto p-2">
-                        {TABLE_COLUMN_DEFS.map((column) => {
-                          const enabled = customReportColumns.includes(column.key);
-                          return (
-                            <button
-                              key={column.key}
-                              type="button"
-                              onClick={() => {
-                                setCustomReportColumns((prev) =>
-                                  enabled
-                                    ? prev.filter((col) => col !== column.key)
-                                    : [...prev, column.key]
-                                );
-                              }}
-                              className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left transition-colors ${enabled ? 'bg-orange-50/70' : 'hover:bg-gray-50'}`}
-                            >
-                              <span className="text-sm font-semibold text-gray-900">{column.label}</span>
-                              <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 text-[11px] font-black ${enabled ? 'border-[#F59B0F] bg-[#F59B0F] text-white' : 'border-gray-300 bg-white text-transparent'}`}>
-                                ✓
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Pagination Controls Top */}
@@ -3383,6 +3330,164 @@ function PlacedOrders() {
         isSubmitting={isBankSlipSubmitting}
         marketId={bankSlipMarketId ?? undefined}
       />
+
+      <Transition show={isReportModalOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setIsReportModalOpen(false)}>
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-200"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm" />
+          </TransitionChild>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-200"
+                enterFrom="opacity-0 translate-y-4 scale-[0.98]"
+                enterTo="opacity-100 translate-y-0 scale-100"
+                leave="ease-in duration-150"
+                leaveFrom="opacity-100 translate-y-0 scale-100"
+                leaveTo="opacity-0 translate-y-4 scale-[0.98]"
+              >
+                <DialogPanel
+                  className="w-full max-w-4xl overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-2xl"
+                  style={{ background: 'linear-gradient(180deg, #FFF8F2 0%, #FFFFFF 55%, #FFFFFF 100%)' }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#F59B0F] to-[#AC6C2A]" />
+
+                  <div className="flex items-start justify-between gap-4 border-b border-orange-100 px-5 py-4 md:px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-[#F59B0F] to-[#AC6C2A] text-white shadow-lg shadow-orange-500/25">
+                        <DocumentArrowDownIcon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <DialogTitle className="text-xl font-black text-slate-900">
+                          Report Generation
+                        </DialogTitle>
+                        <p className="mt-1 text-sm text-slate-500">
+                          Generate settlement and custom reports for your orders
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setIsReportModalOpen(false)}
+                      className="rounded-xl border border-orange-100 bg-white p-2 text-slate-500 transition hover:border-orange-200 hover:text-slate-900"
+                      title="Close"
+                      aria-label="Close report modal"
+                    >
+                      <MdOutlineClear className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-5 px-5 py-5 md:px-6">
+                    <div className="grid grid-cols-1 gap-5 lg:grid-cols-1">
+                      {/* Custom Report Section */}
+                      <div className="rounded-2xl border border-orange-200 bg-white/95 p-5 shadow-sm">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+                            <DocumentArrowDownIcon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <h3 className="text-base font-bold text-gray-900">Custom Report</h3>
+                            <p className="text-sm text-gray-500">Generate reports with custom columns</p>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div ref={tableColumnsMenuRef} className="relative">
+                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+                              Select Columns
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setIsTableColumnsOpen((prev) => !prev)}
+                              className="w-full inline-flex items-center justify-between gap-2 rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-[#F59B0F] hover:bg-orange-50"
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>{customReportColumns.length} columns selected</span>
+                              </span>
+                              <ChevronDownIcon className={`h-4 w-4 transition-transform ${isTableColumnsOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isTableColumnsOpen && (
+                              <div className="absolute right-0 left-0 z-[100] mt-2 w-[min(22rem,calc(100vw-3rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
+                                <div className="border-b border-gray-100 px-4 py-3">
+                                  <p className="text-sm font-bold text-gray-900">Report Columns</p>
+                                  <p className="text-xs text-gray-500">Select columns to include in custom report</p>
+                                </div>
+                                <div className="max-h-80 overflow-y-auto p-2">
+                                  {TABLE_COLUMN_DEFS.map((column) => {
+                                    const enabled = customReportColumns.includes(column.key);
+                                    return (
+                                      <button
+                                        key={column.key}
+                                        type="button"
+                                        onClick={() => {
+                                          setCustomReportColumns((prev) =>
+                                            enabled
+                                              ? prev.filter((col) => col !== column.key)
+                                              : [...prev, column.key]
+                                          );
+                                        }}
+                                        className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${enabled ? 'bg-orange-50/70' : 'hover:bg-gray-50'}`}
+                                      >
+                                        <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 text-[11px] font-black ${enabled ? 'border-[#F59B0F] bg-[#F59B0F] text-white' : 'border-gray-300 bg-white text-transparent'}`}>
+                                          ✓
+                                        </span>
+                                        <span className="min-w-0">
+                                          <span className="block text-sm font-semibold text-gray-900">{column.label}</span>
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleGenerateCommonReport('download')}
+                            disabled={isGeneratingCommonReport}
+                            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-[#AC6C2A]/25 transition hover:from-[#AC6C2A] hover:to-[#F59B0F] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isGeneratingCommonReport ? (
+                              <>
+                                <ArrowPathIcon className="h-4 w-4 animate-spin" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <DocumentArrowDownIcon className="h-4 w-4" />
+                                Download Custom Report
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-3">
+                      <div className="flex items-start gap-3 text-sm text-orange-900">
+                        <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#D17F0A]" />
+                        <p>
+                          Reports are generated based on your current filter settings. Ensure your filters are correctly applied before downloading.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
 
       <Transition show={isTimelineModalOpen} as={Fragment}>
         <Dialog as="div" className="relative z-100" onClose={closeTimelineModal}>

@@ -92,6 +92,17 @@ public interface WalletService {
      */
     WalletRecordDto initializeCompanyWallet();
 
+    WalletRecordDto initializeBranchWallet(Integer branchId);
+
+    Double getBranchWalletCurrentBalance(Integer branchId);
+
+    List<WalletRecordDto> getBranchWalletHistory(Integer branchId);
+
+    ResponseDto<PaginatedWalletHistoryDto> getBranchWalletHistoryPaginated(
+            Integer branchId, PaginatedWalletHistoryDto request);
+
+    ResponseDto<WalletRecordDto> getBranchWalletOperationDetail(Integer branchId, Integer operationId);
+
     /**
      * Activate or deactivate agent wallet
      * @param agentId the agent user ID

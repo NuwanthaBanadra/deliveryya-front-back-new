@@ -42,4 +42,7 @@ public interface MarketService {
     MarketDto getMarketsDetailsByMarketOrderId(Integer marketOrderId);
 
     List<CommonIdNameDto> getMarketCategories(Integer id);
+
+
+
 }

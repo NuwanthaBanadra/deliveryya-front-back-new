@@ -2,6 +2,12 @@ import { DocumentCheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import type { FormEvent } from 'react';
 import { useEffect } from 'react';
 import PaymentProofDetails from './PaymentProofDetails';
+import type { BankDetailOption } from './PaymentProofDetails';
+
+interface PaymentTypeOption {
+  value: number;
+  label: string;
+}
 
 interface PaymentProofModalProps {
   isOpen: boolean;
@@ -24,6 +30,11 @@ interface PaymentProofModalProps {
   formatCurrency: (value: number) => string;
   isRecord: (value: unknown) => value is Record<string, unknown>;
   str: (...vals: unknown[]) => string;
+  bankDetails: BankDetailOption[];
+  selectedBankDetail: BankDetailOption | null;
+  onBankDetailChange: (option: BankDetailOption | null) => void;
+  selectedPaymentType: PaymentTypeOption;
+  onPaymentTypeChange: (option: PaymentTypeOption) => void;
 }
 
 function PaymentProofModal({
@@ -47,6 +58,11 @@ function PaymentProofModal({
   formatCurrency,
   isRecord,
   str,
+  bankDetails,
+  selectedBankDetail,
+  onBankDetailChange,
+  selectedPaymentType,
+  onPaymentTypeChange,
 }: PaymentProofModalProps) {
   const resolvedSelectedEditedOrdersTotal =
     typeof selectedEditedOrdersTotal === 'number' ? selectedEditedOrdersTotal : selectedOrdersTotal;
@@ -155,6 +171,11 @@ function PaymentProofModal({
           formatCurrency={formatCurrency}
           isRecord={isRecord}
           str={str}
+          bankDetails={bankDetails}
+          selectedBankDetail={selectedBankDetail}
+          onBankDetailChange={onBankDetailChange}
+          selectedPaymentType={selectedPaymentType}
+          onPaymentTypeChange={onPaymentTypeChange}
         />
       </div>
     </div>

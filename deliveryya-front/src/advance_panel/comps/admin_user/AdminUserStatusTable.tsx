@@ -708,6 +708,10 @@ function AdminUserStatusTable() {
     navigate('/deliverYya-cloud-console/discounts', { state: { userId: user.id, userName: user.name } });
   };
 
+  const handleSettlementReport = (user: UserData) => {
+    navigate('/deliverYya-cloud-console/user-monthly-orders', { state: { userId: user.id, userName: user.name } });
+  };
+
   const handleRegisterAsEmployee = (user: UserData) => {
     navigate('/deliverYya-cloud-console/career', {
       state: {
@@ -1428,6 +1432,15 @@ function AdminUserStatusTable() {
                           <BellIcon className="w-5 h-5 text-gray-700" />
                         </button> */}
                         <Menu as="div" className="relative">
+                          <button
+                            type="button"
+                            onClick={() => handleSettlementReport(user)}
+                            className="mr-2 rounded-lg border-2 border-gray-200 bg-white p-2 transition-all hover:border-[#F59B0F] hover:bg-orange-50"
+                            title="View Settlement Report"
+                            aria-label={`View settlement report for ${user.name}`}
+                          >
+                            <EyeIcon className="h-5 w-5 text-gray-700" />
+                          </button>
                           <MenuButton className="p-2 rounded-lg border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-[#F59B0F] transition-all">
                             <EllipsisVerticalIcon className="w-5 h-5 text-gray-700" />
                           </MenuButton>
@@ -1469,6 +1482,15 @@ function AdminUserStatusTable() {
                                 >
                                   <TagIcon className="w-4 h-4" />
                                   View Discounts
+                                </button>
+                              </MenuItem>
+                              <MenuItem>
+                                <button
+                                  onClick={() => handleSettlementReport(user)}
+                                  className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 rounded-lg transition"
+                                >
+                                  <DocumentArrowDownIcon className="w-4 h-4" />
+                                  Settlement Report
                                 </button>
                               </MenuItem>
                               {!isCompanySideRole(user.userRoleId) && (

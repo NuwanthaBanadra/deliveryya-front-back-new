@@ -40,6 +40,10 @@ public class OrderSpec {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("paymentStatus").get("id"), dto.getPaymentStatusId()));
         }
 
+        if (dto.getExcludedDeliveryStatusIds() != null && !dto.getExcludedDeliveryStatusIds().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.not(root.get("deliveryStatus").get("id").in(dto.getExcludedDeliveryStatusIds())));
+        }
+
         if (dto.getPaymentTypeId() != null && dto.getPaymentTypeId() != 0) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("paymentType").get("id"), dto.getPaymentTypeId()));
         }

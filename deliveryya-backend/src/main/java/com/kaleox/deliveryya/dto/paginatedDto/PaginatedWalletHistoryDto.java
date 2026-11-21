@@ -29,6 +29,11 @@ public class PaginatedWalletHistoryDto {
     Double minAmount;
     Double maxAmount;
 
+    Integer paymentCategoryId;
+    Integer paymentStatusId;
+    Integer branchId;
+    Boolean isExpense;
+
     String search;
     List<?> items;
 }

@@ -5,11 +5,14 @@ import { TbTruckDelivery } from 'react-icons/tb';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../page_comps/auth/AuthLayout';
 import axiosInstance from '../util/AxiosUtil';
-import { swalAlert } from '../util/SwalUtil';
+import { swalAlert, swalSuccessModal } from '../util/SwalUtil';
 import { getToken } from 'firebase/messaging';
 import { messaging } from '../util/FireBase';
 import JwtUtil from '../util/JwtUtil';
 import Swal from 'sweetalert2';
+import { getMyEmployeeBranches } from '../util/BranchApi';
+import type { Branch } from '../types/BranchTypes';
+import EmployeeBranchSelectionModal from './EmployeeBranchSelectionModal';
 
 const FCM_VAPID_KEY = 'BA0SSrBhGwG19kyaojWnp5VzGR-f4HssZHUWMRZLEwYxD5iQpM58LMDQBjF0L6RT2YJSzMCtpgy-y1gRcaas6xg';
 const DEVICE_ID_STORAGE_KEY = 'deliveryya_device_id';
@@ -19,6 +22,7 @@ type LoginExData = {
     token?: string;
     userId?: string | number;
     email?: string;
+    isEmployee?: boolean | string;
     roleId?: unknown;
     userRoleId?: unknown;
     user_role_id?: unknown;
@@ -258,6 +262,9 @@ function SignIn() {
     const [isSendingForgotPassword, setIsSendingForgotPassword] = useState(false);
     const [forgotPasswordError, setForgotPasswordError] = useState('');
     const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState('');
+    const [employeeBranches, setEmployeeBranches] = useState<Branch[]>([]);
+    const [isBranchSelectionOpen, setIsBranchSelectionOpen] = useState(false);
+    const [pendingReturnTo, setPendingReturnTo] = useState('/home');
     const navigate = useNavigate();
     const location = useLocation();
     const [formData, setFormData] = useState({
@@ -657,6 +664,7 @@ function SignIn() {
         localStorage.removeItem('jwtToken');
         localStorage.removeItem('userId');
         localStorage.removeItem('userEmail');
+        JwtUtil.clearBranchId();
     };
 
     const persistLoginSession = (
@@ -685,15 +693,70 @@ function SignIn() {
         }
     };
 
-    const completeSuccessfulLogin = (
+    const prepareEmployeeBranch = async (
+        decodedData: ReturnType<typeof JwtUtil.decodeToken>,
+        exData: LoginExData,
+        destination: string,
+    ): Promise<boolean> => {
+        const decodedEmployeeValue = decodedData
+            ? (decodedData as unknown as { isEmployee?: boolean | string; is_employee?: boolean | string })
+                .isEmployee
+                ?? (decodedData as unknown as { isEmployee?: boolean | string; is_employee?: boolean | string })
+                    .is_employee
+            : undefined;
+        const isEmployee = decodedEmployeeValue === true
+            || decodedEmployeeValue === 'true'
+            || exData.isEmployee === true
+            || exData.isEmployee === 'true';
+
+        // Only check for assigned branches if the user is an employee
+        if (!isEmployee) {
+            JwtUtil.clearBranchId();
+            return true;
+        }
+
+        try {
+            const branches = await getMyEmployeeBranches();
+            if (branches.length === 0) {
+                clearAuthenticatedSession();
+                await swalAlert("Branch Required", "Your employee account is not assigned to a branch.", "error");
+                return false;
+            }
+            if (branches.length === 1) {
+                JwtUtil.setBranchId(branches[0].id);
+            } else {
+                setEmployeeBranches(branches);
+                setPendingReturnTo(destination);
+                setIsBranchSelectionOpen(true);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Failed to load employee branches', error);
+            clearAuthenticatedSession();
+            await swalAlert("Login unavailable", "We could not load your assigned branches. Please try again.", "error");
+            return false;
+        }
+    };
+
+    const completeSuccessfulLogin = async (
         token: string,
         exData: LoginExData,
         decodedData: ReturnType<typeof JwtUtil.decodeToken>
-    ) => {
+    ): Promise<void> => {
         persistLoginSession(token, exData, decodedData);
-        void swalAlert("Success", "User Login Successful", "success");
         const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
-        navigate(returnTo && returnTo.startsWith('/') ? returnTo : "/home", { replace: true });
+        const destination = returnTo && returnTo.startsWith('/') ? returnTo : "/home";
+
+        await swalSuccessModal("Welcome back", "You have signed in successfully.");
+        navigate(destination, { replace: true });
+    };
+
+    const handleEmployeeBranchSelected = async (branch: Branch) => {
+        JwtUtil.setBranchId(branch.id);
+        setIsBranchSelectionOpen(false);
+        await swalSuccessModal("Welcome back", "You have signed in successfully.");
+        navigate(pendingReturnTo, { replace: true });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -729,6 +792,13 @@ function SignIn() {
 
                     localStorage.setItem('jwtToken', token);
 
+                    const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
+                    const destination = returnTo && returnTo.startsWith('/') ? returnTo : "/home";
+                    const branchReady = await prepareEmployeeBranch(decodedData, exData, destination);
+                    if (!branchReady) {
+                        return;
+                    }
+
                     if (notificationPermission !== 'granted') {
                         notificationPermission = await showNotificationPermissionPrompt(notificationPermission);
                     }
@@ -741,7 +811,7 @@ function SignIn() {
                         }
                     }
 
-                    completeSuccessfulLogin(token, exData, decodedData);
+                    await completeSuccessfulLogin(token, exData, decodedData);
                 } else {
                     setFieldErrors(prev => ({
                         ...prev,
@@ -1068,6 +1138,11 @@ function SignIn() {
                 </div>,
                 document.body,
             )}
+            <EmployeeBranchSelectionModal
+                isOpen={isBranchSelectionOpen}
+                branches={employeeBranches}
+                onSelect={(branch) => void handleEmployeeBranchSelected(branch)}
+            />
         </>
     );
 }

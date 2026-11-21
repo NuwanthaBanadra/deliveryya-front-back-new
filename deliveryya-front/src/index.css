@@ -1,5 +1,22 @@
 @import 'tailwindcss';
 
+/* Keep form focus styling on the app theme instead of browser black outlines. */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  outline-offset: 0 !important;
+  border-color: #F59B0F !important;
+  box-shadow: 0 0 0 3px rgba(245, 155, 15, 0.12) !important;
+}
+
+.react-select-container input:focus,
+.react-select__input-container input:focus {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
 /* Custom animations */
 @keyframes slideDown {
   from {
