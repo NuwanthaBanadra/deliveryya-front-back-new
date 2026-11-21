@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               8.0.46 - MySQL Community Server - GPL
--- Server OS:                    Win64
+-- Host:                         kaleox-server-t1-kaleoxsoftwaresolutions-a60a.d.aivencloud.com
+-- Server version:               8.4.11 - Source distribution
+-- Server OS:                    Linux
 -- HeidiSQL Version:             12.19.0.7314
 -- --------------------------------------------------------
 
@@ -15,12 +15,12 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
--- Dumping database structure for deliveryya
-DROP DATABASE IF EXISTS `deliveryya`;
-CREATE DATABASE IF NOT EXISTS `deliveryya` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `deliveryya`;
+-- Dumping database structure for deliveryya1
+DROP DATABASE IF EXISTS `deliveryya1`;
+CREATE DATABASE IF NOT EXISTS `deliveryya1` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `deliveryya1`;
 
--- Dumping structure for table deliveryya.access
+-- Dumping structure for table deliveryya1.access
 DROP TABLE IF EXISTS `access`;
 CREATE TABLE IF NOT EXISTS `access` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `access` (
   CONSTRAINT `FKsa9xkmrj4add8ynyecdql2lp2` FOREIGN KEY (`access_level_id`) REFERENCES `access_level` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.access: ~71 rows (approximately)
+-- Dumping data for table deliveryya1.access: ~78 rows (approximately)
 INSERT INTO `access` (`id`, `name`, `desc`, `access_level_id`, `access_type_id`) VALUES
 	(25, 'Dashboard Route Access', 'Open the dashboard route shell', 2, 7),
 	(26, 'Placed Orders', 'View and manage placed orders', 1, 15),
@@ -116,7 +116,7 @@ INSERT INTO `access` (`id`, `name`, `desc`, `access_level_id`, `access_type_id`)
 	(101, 'Order Analytics Sending User Filter', 'Filter analytics by sending user', 2, 17),
 	(102, 'Promote User', 'Promoting User to new User role', 1, 9);
 
--- Dumping structure for table deliveryya.access_has_apis
+-- Dumping structure for table deliveryya1.access_has_apis
 DROP TABLE IF EXISTS `access_has_apis`;
 CREATE TABLE IF NOT EXISTS `access_has_apis` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -128,9 +128,9 @@ CREATE TABLE IF NOT EXISTS `access_has_apis` (
   KEY `FKoxog8trl3osubdlwcr6uy5ttm` (`api_id`) USING BTREE,
   CONSTRAINT `FKca5juc5lldxw082f3tqpgyyqn` FOREIGN KEY (`access_id`) REFERENCES `access` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKoxog8trl3osubdlwcr6uy5ttm` FOREIGN KEY (`api_id`) REFERENCES `apis` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=269 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=270 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.access_has_apis: ~262 rows (approximately)
+-- Dumping data for table deliveryya1.access_has_apis: ~263 rows (approximately)
 INSERT INTO `access_has_apis` (`id`, `api_feature_ids`, `access_id`, `api_id`) VALUES
 	(1, NULL, 44, 29),
 	(2, NULL, 44, 36),
@@ -393,9 +393,10 @@ INSERT INTO `access_has_apis` (`id`, `api_feature_ids`, `access_id`, `api_id`) V
 	(265, NULL, 99, 189),
 	(266, NULL, 99, 190),
 	(267, NULL, 99, 191),
-	(268, NULL, 99, 192);
+	(268, NULL, 99, 192),
+	(269, '[]', 102, 103);
 
--- Dumping structure for table deliveryya.access_has_user_roles
+-- Dumping structure for table deliveryya1.access_has_user_roles
 DROP TABLE IF EXISTS `access_has_user_roles`;
 CREATE TABLE IF NOT EXISTS `access_has_user_roles` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -412,7 +413,7 @@ CREATE TABLE IF NOT EXISTS `access_has_user_roles` (
   CONSTRAINT `FKivj97dny1ja0qj5593votjov8` FOREIGN KEY (`access_id`) REFERENCES `access` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1838 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.access_has_user_roles: ~509 rows (approximately)
+-- Dumping data for table deliveryya1.access_has_user_roles: ~519 rows (approximately)
 INSERT INTO `access_has_user_roles` (`id`, `access_id`, `user_roles_id`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 	(1, 25, 1, '2026-05-10 13:22:41.719237', 'system', NULL, NULL),
 	(13, 26, 1, '2026-05-10 13:22:41.719237', 'system', NULL, NULL),
@@ -821,7 +822,6 @@ INSERT INTO `access_has_user_roles` (`id`, `access_id`, `user_roles_id`, `create
 	(1682, 47, 2, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
 	(1683, 51, 2, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
 	(1684, 53, 2, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
-	(1685, 55, 2, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
 	(1686, 59, 2, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
 	(1687, 51, 3, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
 	(1688, 53, 3, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
@@ -935,7 +935,7 @@ INSERT INTO `access_has_user_roles` (`id`, `access_id`, `user_roles_id`, `create
 	(1836, 81, 15, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL),
 	(1837, 82, 15, '2026-11-02 18:36:42.137013', 'seed', NULL, NULL);
 
--- Dumping structure for table deliveryya.access_level
+-- Dumping structure for table deliveryya1.access_level
 DROP TABLE IF EXISTS `access_level`;
 CREATE TABLE IF NOT EXISTS `access_level` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -943,13 +943,13 @@ CREATE TABLE IF NOT EXISTS `access_level` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.access_level: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.access_level: ~3 rows (approximately)
 INSERT INTO `access_level` (`id`, `name`) VALUES
 	(1, 'Top Level'),
 	(2, 'Mid Level'),
 	(3, 'Low Level');
 
--- Dumping structure for table deliveryya.access_tokens
+-- Dumping structure for table deliveryya1.access_tokens
 DROP TABLE IF EXISTS `access_tokens`;
 CREATE TABLE IF NOT EXISTS `access_tokens` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -964,9 +964,9 @@ CREATE TABLE IF NOT EXISTS `access_tokens` (
   CONSTRAINT `FKpi7fe1yjsb7qm575iugy7hj2c` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKpydt4xr17p3rdv9mplwv6t9ls` FOREIGN KEY (`token_type_id`) REFERENCES `gender` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKqcojnsr8qck87a1rf307lpa7f` FOREIGN KEY (`token_type_id`) REFERENCES `token_type` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1009 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.access_tokens: ~7 rows (approximately)
+-- Dumping data for table deliveryya1.access_tokens: ~13 rows (approximately)
 INSERT INTO `access_tokens` (`id`, `exp_at`, `token`, `token_type_id`, `users_id`, `device_id`) VALUES
 	(7, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 1, NULL),
 	(8, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 5, NULL),
@@ -974,9 +974,15 @@ INSERT INTO `access_tokens` (`id`, `exp_at`, `token`, `token_type_id`, `users_id
 	(10, NULL, 'dHMmtckKRNyfRFwjTKN_Wm:APA91bG2mPOBy39ld6dr6hqM3MJkRaIbd46QYDa4NL1oBHbXQGyrFzwJqLhe-c4AqEHolZrog9Jyf0SRBgTc9YujNWnMTtXb5mtIPcHUpE6-ApO-PET2cmk', 2, 1, NULL),
 	(11, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 6, '5c2e6ac8-e5e5-464c-b196-6e3f5e44f9b1'),
 	(1001, '2027-12-31 00:00:00.000000', 'fcm-qa-web-token-agent-1007', 1, 1007, 'qa-device-01'),
-	(1002, '2027-12-31 00:00:00.000000', 'fcm-qa-android-token-customer-1006', 2, 1006, 'qa-device-02');
+	(1002, '2027-12-31 00:00:00.000000', 'fcm-qa-android-token-customer-1006', 2, 1006, 'qa-device-02'),
+	(1003, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 4, '5c2e6ac8-e5e5-464c-b196-6e3f5e44f9b1'),
+	(1004, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 3, '5c2e6ac8-e5e5-464c-b196-6e3f5e44f9b1'),
+	(1005, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 1016, '5c2e6ac8-e5e5-464c-b196-6e3f5e44f9b1'),
+	(1006, NULL, 'eetdz-bRjjqrZtEGn_HgEr:APA91bFROvl3vr-E_RaCq0IfZGSTvSLtcREu1HXCbbBl_GVzTatis4D9DgG3mqypkEjtK1nopqzZMbiUfSIfnlVa9gcH3SvMzkssKJTUdQurSOYccvc2Nj4', 1, 1, '51411211-96b6-41cc-8845-a4cd633ced11'),
+	(1007, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 4, 'b8a65efc-6519-46fa-be03-b55159387777'),
+	(1008, NULL, 'cyyh0kdaicvQUmU9Avvjm3:APA91bG00okH7c6jbvqR2SEfpcErAqtsNrJvc2UUKvy_O-usj8uD2Fb99CX21R5s5ilr-UWhryMs4qgMON-K7i9RgUZ6cNjpodjikWz5kfOBigNcpDCAd-c', 1, 1016, 'b8a65efc-6519-46fa-be03-b55159387777');
 
--- Dumping structure for table deliveryya.access_types
+-- Dumping structure for table deliveryya1.access_types
 DROP TABLE IF EXISTS `access_types`;
 CREATE TABLE IF NOT EXISTS `access_types` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -984,7 +990,7 @@ CREATE TABLE IF NOT EXISTS `access_types` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.access_types: ~27 rows (approximately)
+-- Dumping data for table deliveryya1.access_types: ~28 rows (approximately)
 INSERT INTO `access_types` (`id`, `name`) VALUES
 	(1, 'Profile Panel'),
 	(2, 'Verify Documents'),
@@ -1015,7 +1021,7 @@ INSERT INTO `access_types` (`id`, `name`) VALUES
 	(27, 'User Requests'),
 	(28, 'Wallets');
 
--- Dumping structure for table deliveryya.agent_job_tasks
+-- Dumping structure for table deliveryya1.agent_job_tasks
 DROP TABLE IF EXISTS `agent_job_tasks`;
 CREATE TABLE IF NOT EXISTS `agent_job_tasks` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1029,14 +1035,14 @@ CREATE TABLE IF NOT EXISTS `agent_job_tasks` (
   CONSTRAINT `FK9mcpk278d943vc3pnkyim3axq` FOREIGN KEY (`agent_job_id`) REFERENCES `agent_jobs` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.agent_job_tasks: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.agent_job_tasks: ~4 rows (approximately)
 INSERT INTO `agent_job_tasks` (`id`, `is_complete`, `location`, `task`, `agent_job_id`, `be_at`) VALUES
 	(2, 0, 'https://www.google.com/maps/place/?q=place_id:ChIJqb1pWila4joRBzOGhBB2zug', 'Test 01', 2, '2026-05-11 21:32:00.000000'),
 	(3, 0, 'https://www.google.com/maps/place/?q=place_id:ChIJef29dZNf4joRQ8n9egnj2tQ', 'Test 02', 2, '2026-05-11 21:33:00.000000'),
 	(4, 0, 'https://www.google.com/maps?q=6.92820632146045,79.91587414855957', 'dsfdsfs fdsfdsfdsf ggds\nQty: 1\nApprox Weight: 11', 4, NULL),
 	(1001, 0, 'No 5, Kelaniya Rd, Gampaha', 'Scan QR at GamiTech warehouse desk', 1002, '2026-11-03 10:30:00.000000');
 
--- Dumping structure for table deliveryya.agent_jobs
+-- Dumping structure for table deliveryya1.agent_jobs
 DROP TABLE IF EXISTS `agent_jobs`;
 CREATE TABLE IF NOT EXISTS `agent_jobs` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1058,7 +1064,7 @@ CREATE TABLE IF NOT EXISTS `agent_jobs` (
   CONSTRAINT `FKovtc2pueo0ncvoqkb4607qbxm` FOREIGN KEY (`urgent_jobs_id`) REFERENCES `urgent_jobs` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.agent_jobs: ~6 rows (approximately)
+-- Dumping data for table deliveryya1.agent_jobs: ~6 rows (approximately)
 INSERT INTO `agent_jobs` (`id`, `accepted`, `created_at`, `created_by`, `deliver_to`, `go_to`, `task`, `updated_at`, `updated_by`, `employees_id`, `urgent_jobs_id`, `is_complete`) VALUES
 	(2, b'0', '2026-05-11 21:33:24.054093', '1', NULL, NULL, 'Test', '2026-05-11 21:33:24.054093', '1', 1, NULL, 0),
 	(4, b'1', '2026-05-12 01:18:15.424377', '1', NULL, NULL, 'Pickup requests assignment (1)', '2026-05-12 01:19:48.010203', '1', 1, NULL, 0),
@@ -1067,7 +1073,7 @@ INSERT INTO `agent_jobs` (`id`, `accepted`, `created_at`, `created_by`, `deliver
 	(1001, b'1', '2026-11-02 18:36:42.137013', 'seed', 'Negombo Bus Stand counter', 'Colombo Fort Railway Station parcel office', 'Collect documents and deliver to Negombo', '2026-11-02 21:07:42.592183', '1007', 1001, 1001, 0),
 	(1002, b'1', '2026-11-02 18:36:42.137013', 'seed', 'No 121, Lake House Rd, Slave Island', 'No 7, Main St, Nugegoda', 'Pick up spare power banks and deliver to customer', '2026-11-02 18:36:42.137013', 'seed', 1001, NULL, 0);
 
--- Dumping structure for table deliveryya.agent_wallet
+-- Dumping structure for table deliveryya1.agent_wallet
 DROP TABLE IF EXISTS `agent_wallet`;
 CREATE TABLE IF NOT EXISTS `agent_wallet` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1086,20 +1092,26 @@ CREATE TABLE IF NOT EXISTS `agent_wallet` (
   `other_reason` varchar(255) DEFAULT NULL,
   `note` varchar(500) DEFAULT NULL,
   `to_or_from` int DEFAULT NULL,
+  `payment_record_id` int DEFAULT NULL,
+  `amount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_agent_wallet_agent_id` (`agent_id`),
   KEY `fk_agent_wallet_payment_category` (`payment_category_id`),
   KEY `fk_agent_wallet_payment_status` (`payment_status_id`),
+  KEY `FKtqwy3arnvky5ajnfr4ssvnsy` (`payment_record_id`),
   CONSTRAINT `fk_agent_wallet_agent` FOREIGN KEY (`agent_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_agent_wallet_payment_category` FOREIGN KEY (`payment_category_id`) REFERENCES `payment_categories` (`id`),
-  CONSTRAINT `fk_agent_wallet_payment_status` FOREIGN KEY (`payment_status_id`) REFERENCES `payment_status` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+  CONSTRAINT `fk_agent_wallet_payment_status` FOREIGN KEY (`payment_status_id`) REFERENCES `payment_status` (`id`),
+  CONSTRAINT `FKtqwy3arnvky5ajnfr4ssvnsy` FOREIGN KEY (`payment_record_id`) REFERENCES `payment_records` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.agent_wallet: ~1 rows (approximately)
-INSERT INTO `agent_wallet` (`id`, `agent_id`, `balance`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_expense`, `payment_category_id`, `payment_status_id`, `code`, `ref`, `other_reason`, `note`, `to_or_from`) VALUES
-	(1001, 1007, 0, 1, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 8, 2, 'WALLET-AGENT-1007', 'SEED:AGENT:1007', NULL, 'COD 74,850 collected for ORD-1005-001 and handed over (PR-1002)', NULL);
+-- Dumping data for table deliveryya1.agent_wallet: ~3 rows (approximately)
+INSERT INTO `agent_wallet` (`id`, `agent_id`, `balance`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_expense`, `payment_category_id`, `payment_status_id`, `code`, `ref`, `other_reason`, `note`, `to_or_from`, `payment_record_id`, `amount`) VALUES
+	(1001, 1007, 0, 1, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 8, 2, 'WALLET-AGENT-1007', 'SEED:AGENT:1007', NULL, 'COD 74,850 collected for ORD-1005-001 and handed over (PR-1002)', NULL, NULL, 0),
+	(1002, 1016, 0, 1, '2026-11-08 13:39:18.881754', '1', '2026-11-08 13:39:18.881754', '1', 0, NULL, NULL, NULL, NULL, NULL, 'Wallet initialized', NULL, NULL, 0),
+	(1003, 1016, 15000, 1, '2026-11-20 16:38:22.930083', '1', '2026-11-20 16:38:22.930083', '1', 0, 3, 2, 'DASDDDSADA', 'PAYMENT_RECORD_WALLET:1021:TO', NULL, 'PaymentRecord to wallet transfer', NULL, 1021, 15000);
 
--- Dumping structure for table deliveryya.api_features
+-- Dumping structure for table deliveryya1.api_features
 DROP TABLE IF EXISTS `api_features`;
 CREATE TABLE IF NOT EXISTS `api_features` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1112,11 +1124,11 @@ CREATE TABLE IF NOT EXISTS `api_features` (
   CONSTRAINT `FKm0hlesoxynu4rs79nkess8q32` FOREIGN KEY (`api_id`) REFERENCES `apis` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.api_features: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.api_features: ~0 rows (approximately)
 INSERT INTO `api_features` (`id`, `desc`, `name`, `api_id`) VALUES
 	(1, 'Creating return payment', 'createReturnPayment', 18);
 
--- Dumping structure for table deliveryya.api_methods
+-- Dumping structure for table deliveryya1.api_methods
 DROP TABLE IF EXISTS `api_methods`;
 CREATE TABLE IF NOT EXISTS `api_methods` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1124,7 +1136,7 @@ CREATE TABLE IF NOT EXISTS `api_methods` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.api_methods: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.api_methods: ~5 rows (approximately)
 INSERT INTO `api_methods` (`id`, `name`) VALUES
 	(1, 'DELETE'),
 	(2, 'POST'),
@@ -1132,7 +1144,7 @@ INSERT INTO `api_methods` (`id`, `name`) VALUES
 	(4, 'ANY'),
 	(5, 'PUT');
 
--- Dumping structure for table deliveryya.apis
+-- Dumping structure for table deliveryya1.apis
 DROP TABLE IF EXISTS `apis`;
 CREATE TABLE IF NOT EXISTS `apis` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1144,7 +1156,7 @@ CREATE TABLE IF NOT EXISTS `apis` (
   CONSTRAINT `FKtmhmr5lysinucth4uq9n7jlwu` FOREIGN KEY (`api_method_id`) REFERENCES `api_methods` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.apis: ~192 rows (approximately)
+-- Dumping data for table deliveryya1.apis: ~200 rows (approximately)
 INSERT INTO `apis` (`id`, `desc`, `name`, `api_method_id`) VALUES
 	(1, 'OrderController#getOrders', '/api/v1/orders/get-orders', 2),
 	(2, 'OrderController#getOrderCodeRequests', '/api/v1/orders/get-order-code-requests', 2),
@@ -1347,7 +1359,7 @@ INSERT INTO `apis` (`id`, `desc`, `name`, `api_method_id`) VALUES
 	(199, 'UserController#previewForceDeleteUser', '/api/v1/users/preview-force-delete-user', 3),
 	(200, 'UserController#forceDeleteUser', '/api/v1/users/force-delete-user', 1);
 
--- Dumping structure for table deliveryya.bank
+-- Dumping structure for table deliveryya1.bank
 DROP TABLE IF EXISTS `bank`;
 CREATE TABLE IF NOT EXISTS `bank` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1355,12 +1367,12 @@ CREATE TABLE IF NOT EXISTS `bank` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.bank: ~2 rows (approximately)
+-- Dumping data for table deliveryya1.bank: ~2 rows (approximately)
 INSERT INTO `bank` (`id`, `name`) VALUES
 	(1, 'BOC'),
 	(2, 'People Bank');
 
--- Dumping structure for table deliveryya.bank_details
+-- Dumping structure for table deliveryya1.bank_details
 DROP TABLE IF EXISTS `bank_details`;
 CREATE TABLE IF NOT EXISTS `bank_details` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1371,7 +1383,8 @@ CREATE TABLE IF NOT EXISTS `bank_details` (
   `user_id` int NOT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
-  `market_id` int NOT NULL,
+  `is_company` tinyint(1) NOT NULL DEFAULT '0',
+  `balance` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK91jt310frmtao2ygcg5nfbep4` (`bank_id`) USING BTREE,
   KEY `FKqkekmr716vpixkah9ufxbun81` (`user_id`) USING BTREE,
@@ -1379,15 +1392,34 @@ CREATE TABLE IF NOT EXISTS `bank_details` (
   CONSTRAINT `FKqkekmr716vpixkah9ufxbun81` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.bank_details: ~5 rows (approximately)
-INSERT INTO `bank_details` (`id`, `acc_number`, `branch`, `name`, `bank_id`, `user_id`, `is_active`, `is_deleted`, `market_id`) VALUES
-	(1, '78948261', 'super branch', 'Hansara', 1, 1, 1, 0, 0),
-	(4, '100100100', 'Colombo', 'Nuwantha', 2, 5, 1, 0, 0),
-	(5, '1000100060009000', 'Colombo, test', 'Test', 1, 6, 1, 0, 0),
-	(1001, '1234567890', 'Colombo Fort', 'Kaleox Electronics (Pvt) Ltd', 1, 1008, 1, 0, 1001),
-	(1002, '9876543210', 'Pettah', 'Island Mobile Hub', 2, 1005, 1, 0, 1002);
+-- Dumping data for table deliveryya1.bank_details: ~5 rows (approximately)
+INSERT INTO `bank_details` (`id`, `acc_number`, `branch`, `name`, `bank_id`, `user_id`, `is_active`, `is_deleted`, `is_company`, `balance`) VALUES
+	(1, '78948261', 'super branch', 'Hansara', 1, 1, 1, 0, 1, 0),
+	(4, '100100100', 'Colombo', 'Nuwantha', 2, 5, 1, 0, 1, 0),
+	(5, '1000100060009000', 'Colombo, test', 'Test', 1, 6, 1, 0, 1, 0),
+	(1001, '1234567890', 'Colombo Fort', 'Kaleox Electronics (Pvt) Ltd', 1, 1008, 1, 0, 0, 0),
+	(1002, '9876543210', 'Pettah', 'Island Mobile Hub', 2, 1005, 1, 0, 0, 0);
 
--- Dumping structure for table deliveryya.branches
+-- Dumping structure for table deliveryya1.branch_has_employee
+DROP TABLE IF EXISTS `branch_has_employee`;
+CREATE TABLE IF NOT EXISTS `branch_has_employee` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `branch_id` int NOT NULL,
+  `employee_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKntsq7m5y75ego1hdvhmuqw1u8` (`branch_id`),
+  KEY `FK9pl5tx2lgv1ulr35woifmrggu` (`employee_id`),
+  CONSTRAINT `FK9pl5tx2lgv1ulr35woifmrggu` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
+  CONSTRAINT `FKntsq7m5y75ego1hdvhmuqw1u8` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table deliveryya1.branch_has_employee: ~3 rows (approximately)
+INSERT INTO `branch_has_employee` (`id`, `branch_id`, `employee_id`) VALUES
+	(1, 2, 1005),
+	(2, 1, 1005),
+	(3, 1, 1);
+
+-- Dumping structure for table deliveryya1.branches
 DROP TABLE IF EXISTS `branches`;
 CREATE TABLE IF NOT EXISTS `branches` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1400,14 +1432,14 @@ CREATE TABLE IF NOT EXISTS `branches` (
   CONSTRAINT `FKmd2yu5dpmev0w3unqnmk1cfyb` FOREIGN KEY (`cites_id`) REFERENCES `cities` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.branches: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.branches: ~4 rows (approximately)
 INSERT INTO `branches` (`id`, `name`, `location`, `cites_id`, `main_line`) VALUES
 	(1, 'Main Branch', '', 1, ''),
 	(2, 'East Branch', '', 2, ''),
 	(3, 'West Branch', '', 3, ''),
-	(4, 'must not be null', 'Test Locaiton', 3, '');
+	(4, 'RT', 'Test Locaiton', 3, '');
 
--- Dumping structure for table deliveryya.brands
+-- Dumping structure for table deliveryya1.brands
 DROP TABLE IF EXISTS `brands`;
 CREATE TABLE IF NOT EXISTS `brands` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1421,7 +1453,7 @@ CREATE TABLE IF NOT EXISTS `brands` (
   CONSTRAINT `FKxihp9na3nev2ds5fgyxly9gj` FOREIGN KEY (`markets_id`) REFERENCES `markets` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.brands: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.brands: ~5 rows (approximately)
 INSERT INTO `brands` (`id`, `name`, `market_id`, `is_active`, `is_deleted`, `markets_id`) VALUES
 	(1, 'Prodiet', NULL, b'1', b'0', 1),
 	(1001, 'SampathTel', NULL, b'1', b'0', 1001),
@@ -1429,7 +1461,7 @@ INSERT INTO `brands` (`id`, `name`, `market_id`, `is_active`, `is_deleted`, `mar
 	(1003, 'LankaMobiles', NULL, b'1', b'0', 1002),
 	(1004, 'DiveoTab', NULL, b'1', b'0', 1003);
 
--- Dumping structure for table deliveryya.category
+-- Dumping structure for table deliveryya1.category
 DROP TABLE IF EXISTS `category`;
 CREATE TABLE IF NOT EXISTS `category` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1443,7 +1475,7 @@ CREATE TABLE IF NOT EXISTS `category` (
   CONSTRAINT `fk_category_markets1` FOREIGN KEY (`markets_id`) REFERENCES `markets` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.category: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.category: ~5 rows (approximately)
 INSERT INTO `category` (`id`, `name`, `markets_id`, `img`, `is_active`, `is_deleted`) VALUES
 	(2, 'Cat food', 1, 'temporary/2026-10-31/2430efd5-8b53-44ec-822f-37c810325ea2.png', b'1', b'0'),
 	(1001, 'Smartphones', 1001, '', b'1', b'0'),
@@ -1451,7 +1483,7 @@ INSERT INTO `category` (`id`, `name`, `markets_id`, `img`, `is_active`, `is_dele
 	(1003, 'Smartphones', 1002, '', b'1', b'0'),
 	(1004, 'Tablets', 1003, '', b'1', b'0');
 
--- Dumping structure for table deliveryya.cities
+-- Dumping structure for table deliveryya1.cities
 DROP TABLE IF EXISTS `cities`;
 CREATE TABLE IF NOT EXISTS `cities` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1463,7 +1495,7 @@ CREATE TABLE IF NOT EXISTS `cities` (
   CONSTRAINT `FKt9g7nme079b7qh8yl8d4a36jj` FOREIGN KEY (`district_id`) REFERENCES `district` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.cities: ~72 rows (approximately)
+-- Dumping data for table deliveryya1.cities: ~72 rows (approximately)
 INSERT INTO `cities` (`id`, `name`, `district_id`) VALUES
 	(1, 'Colombo Fort', 1),
 	(2, 'Slave Island', 1),
@@ -1538,7 +1570,7 @@ INSERT INTO `cities` (`id`, `name`, `district_id`) VALUES
 	(71, 'Kahawa', 7),
 	(72, 'Induruwa', 7);
 
--- Dumping structure for table deliveryya.client_market_owner_wallet
+-- Dumping structure for table deliveryya1.client_market_owner_wallet
 DROP TABLE IF EXISTS `client_market_owner_wallet`;
 CREATE TABLE IF NOT EXISTS `client_market_owner_wallet` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1557,23 +1589,28 @@ CREATE TABLE IF NOT EXISTS `client_market_owner_wallet` (
   `other_reason` varchar(255) DEFAULT NULL,
   `note` varchar(500) DEFAULT NULL,
   `to_or_from` int DEFAULT NULL,
+  `payment_record_id` int DEFAULT NULL,
+  `amount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_client_market_owner_wallet_user_id` (`user_id`),
   KEY `fk_client_market_owner_wallet_payment_category` (`payment_category_id`),
   KEY `fk_client_market_owner_wallet_payment_status` (`payment_status_id`),
+  KEY `FKreb3574wshx2ox8jsfyuguc9h` (`payment_record_id`),
   CONSTRAINT `fk_client_market_owner_wallet_payment_category` FOREIGN KEY (`payment_category_id`) REFERENCES `payment_categories` (`id`),
   CONSTRAINT `fk_client_market_owner_wallet_payment_status` FOREIGN KEY (`payment_status_id`) REFERENCES `payment_status` (`id`),
-  CONSTRAINT `fk_client_market_owner_wallet_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+  CONSTRAINT `fk_client_market_owner_wallet_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `FKreb3574wshx2ox8jsfyuguc9h` FOREIGN KEY (`payment_record_id`) REFERENCES `payment_records` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.client_market_owner_wallet: ~4 rows (approximately)
-INSERT INTO `client_market_owner_wallet` (`id`, `user_id`, `balance`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_expense`, `payment_category_id`, `payment_status_id`, `code`, `ref`, `other_reason`, `note`, `to_or_from`) VALUES
-	(1, 1, 1000, 1, '2026-10-05 13:41:34.000000', NULL, '2026-10-05 13:41:34.000000', NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	(2, 6, 2500, 1, '2026-10-06 17:52:16.000000', 'system', '2026-10-06 17:52:16.000000', 'system', 0, NULL, NULL, 'INITIAL_BALANCE', 'INIT', NULL, 'Initial wallet balance', NULL),
-	(1001, 1005, 74500, 1, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 1, 3, 'WALLET-CMO-1005', 'SEED:CMO:1005', NULL, 'Net of COD sale ORD-1005-001', NULL),
-	(1002, 1008, 0, 1, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, NULL, NULL, 'WALLET-CMO-1008', 'SEED:CMO:1008', NULL, 'Opening balance — credit expected after PR-1001 verification', NULL);
+-- Dumping data for table deliveryya1.client_market_owner_wallet: ~5 rows (approximately)
+INSERT INTO `client_market_owner_wallet` (`id`, `user_id`, `balance`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_expense`, `payment_category_id`, `payment_status_id`, `code`, `ref`, `other_reason`, `note`, `to_or_from`, `payment_record_id`, `amount`) VALUES
+	(1, 1, 1000, 1, '2026-10-05 13:41:34.000000', NULL, '2026-10-05 13:41:34.000000', NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+	(2, 6, 2500, 1, '2026-10-06 17:52:16.000000', 'system', '2026-10-06 17:52:16.000000', 'system', 0, NULL, NULL, 'INITIAL_BALANCE', 'INIT', NULL, 'Initial wallet balance', NULL, NULL, 0),
+	(1001, 1005, 74500, 1, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 1, 3, 'WALLET-CMO-1005', 'SEED:CMO:1005', NULL, 'Net of COD sale ORD-1005-001', NULL, NULL, 0),
+	(1002, 1008, 0, 1, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, NULL, NULL, 'WALLET-CMO-1008', 'SEED:CMO:1008', NULL, 'Opening balance â€” credit expected after PR-1001 verification', NULL, NULL, 0),
+	(1003, 1, 2100, 1, '2026-11-08 10:34:31.362399', '1', '2026-11-08 10:34:31.362399', '1', 0, NULL, 2, 'ORD-001-006', 'PAYMENT_RECORD_ITEM_CLIENT:1005', NULL, 'Verified PaymentRecord credit for order: ORD-001-006', NULL, NULL, 0);
 
--- Dumping structure for table deliveryya.company_wallet
+-- Dumping structure for table deliveryya1.company_wallet
 DROP TABLE IF EXISTS `company_wallet`;
 CREATE TABLE IF NOT EXISTS `company_wallet` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1591,18 +1628,35 @@ CREATE TABLE IF NOT EXISTS `company_wallet` (
   `other_reason` varchar(255) DEFAULT NULL,
   `note` varchar(500) DEFAULT NULL,
   `to_or_from` int DEFAULT NULL,
+  `payment_record_id` int DEFAULT NULL,
+  `branch_id` int NOT NULL,
+  `amount` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `fk_company_wallet_payment_category` (`payment_category_id`),
   KEY `fk_company_wallet_payment_status` (`payment_status_id`),
+  KEY `FK6ra8vpsgh5ghaos0dgj17xjxy` (`payment_record_id`),
+  KEY `FKp0o8aee1r2r97v54xlayhlnsw` (`branch_id`),
+  CONSTRAINT `FK6ra8vpsgh5ghaos0dgj17xjxy` FOREIGN KEY (`payment_record_id`) REFERENCES `payment_records` (`id`),
   CONSTRAINT `fk_company_wallet_payment_category` FOREIGN KEY (`payment_category_id`) REFERENCES `payment_categories` (`id`),
-  CONSTRAINT `fk_company_wallet_payment_status` FOREIGN KEY (`payment_status_id`) REFERENCES `payment_status` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+  CONSTRAINT `fk_company_wallet_payment_status` FOREIGN KEY (`payment_status_id`) REFERENCES `payment_status` (`id`),
+  CONSTRAINT `FKp0o8aee1r2r97v54xlayhlnsw` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.company_wallet: ~0 rows (approximately)
-INSERT INTO `company_wallet` (`id`, `balance`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_expense`, `payment_category_id`, `payment_status_id`, `code`, `ref`, `other_reason`, `note`, `to_or_from`) VALUES
-	(1, 74850, 1, '2026-10-06 12:28:21.000000', NULL, '2026-11-02 18:36:42.137013', 'seed', 0, 1, 2, 'WALLET-COMPANY', 'SEED:COMPANY', NULL, 'Includes agent COD handover PR-1002', NULL);
+-- Dumping data for table deliveryya1.company_wallet: ~11 rows (approximately)
+INSERT INTO `company_wallet` (`id`, `balance`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_expense`, `payment_category_id`, `payment_status_id`, `code`, `ref`, `other_reason`, `note`, `to_or_from`, `payment_record_id`, `branch_id`, `amount`) VALUES
+	(1, 74850, 1, '2026-10-06 12:28:21.000000', NULL, '2026-11-02 18:36:42.137013', 'seed', 0, 1, 2, 'WALLET-COMPANY', 'SEED:COMPANY', NULL, 'Includes agent COD handover PR-1002', NULL, NULL, 1, 0),
+	(9, 79150, 1, '2026-11-14 19:09:21.926934', '1', '2026-11-14 19:09:21.926934', '1', 0, NULL, 2, NULL, 'PAYMENT_RECORD_WALLET:1005:TO', NULL, 'PaymentRecord to wallet transfer', NULL, 1005, 1, 0),
+	(10, 74850, 1, '2026-11-14 20:28:32.885854', '1', '2026-11-14 20:28:32.885854', '1', 1, NULL, 2, NULL, 'PAYMENT_RECORD_WALLET:1005:TO:REVERSAL', NULL, 'Reversal of PaymentRecord to wallet transfer', NULL, 1005, 1, 0),
+	(11, 79150, 1, '2026-11-14 21:17:07.698438', '1', '2026-11-14 21:17:07.698438', '1', 0, NULL, 2, NULL, 'PAYMENT_RECORD_WALLET:1006:TO', NULL, 'PaymentRecord to wallet transfer', NULL, 1006, 1, 0),
+	(12, 87750, 1, '2026-11-14 21:19:51.511079', '1', '2026-11-14 21:19:51.511079', '1', 0, NULL, 2, NULL, 'PAYMENT_RECORD_WALLET:1007:TO', NULL, 'PaymentRecord to wallet transfer', NULL, 1007, 1, 0),
+	(14, 79150, 1, '2026-11-14 21:20:14.709583', '1', '2026-11-14 21:20:14.709583', '1', 1, NULL, 2, NULL, 'PAYMENT_RECORD_WALLET:1007:TO:REVERSAL', NULL, 'Reversal of PaymentRecord to wallet transfer', NULL, 1007, 1, 0),
+	(15, 0, 1, NULL, NULL, '2026-11-15 08:54:48.000000', NULL, 0, 1, 2, NULL, NULL, NULL, 'Initial Wallet Record', NULL, NULL, 2, 0),
+	(16, 87750, 1, '2026-11-18 14:25:13.298050', '1', '2026-11-18 18:18:50.026489', '1', 0, 8, 2, NULL, 'PAYMENT_RECORD_WALLET:1014:TO', NULL, 'PaymentRecord to wallet transfer', NULL, NULL, 1, 0),
+	(18, 79150, 1, '2026-11-18 18:18:49.971370', '1', '2026-11-18 18:18:50.028170', '1', 1, 8, 2, NULL, 'PAYMENT_RECORD_WALLET:1014:TO:REVERSAL', NULL, 'Reversal of PaymentRecord to wallet transfer', NULL, NULL, 1, 8600),
+	(19, 87750, 1, '2026-11-18 22:13:44.833800', '1', '2026-11-18 22:13:44.833800', '1', 0, 8, 2, NULL, 'PAYMENT_RECORD_WALLET:1017:TO', NULL, 'PaymentRecord to wallet transfer', NULL, 1017, 1, 8600),
+	(20, 72750, 1, '2026-11-20 16:38:22.876309', '1', '2026-11-20 16:38:22.876309', '1', 1, 3, 2, 'DASDDDSADA', 'PAYMENT_RECORD_WALLET:1021:FROM', NULL, 'PaymentRecord from wallet transfer', NULL, 1021, 1, 15000);
 
--- Dumping structure for table deliveryya.complain_status
+-- Dumping structure for table deliveryya1.complain_status
 DROP TABLE IF EXISTS `complain_status`;
 CREATE TABLE IF NOT EXISTS `complain_status` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1610,7 +1664,7 @@ CREATE TABLE IF NOT EXISTS `complain_status` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.complain_status: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.complain_status: ~5 rows (approximately)
 INSERT INTO `complain_status` (`id`, `name`) VALUES
 	(1, 'Pending'),
 	(2, 'In Progress'),
@@ -1618,7 +1672,7 @@ INSERT INTO `complain_status` (`id`, `name`) VALUES
 	(4, 'Rejected'),
 	(5, 'Closed');
 
--- Dumping structure for table deliveryya.complain_type
+-- Dumping structure for table deliveryya1.complain_type
 DROP TABLE IF EXISTS `complain_type`;
 CREATE TABLE IF NOT EXISTS `complain_type` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1626,7 +1680,7 @@ CREATE TABLE IF NOT EXISTS `complain_type` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.complain_type: ~10 rows (approximately)
+-- Dumping data for table deliveryya1.complain_type: ~10 rows (approximately)
 INSERT INTO `complain_type` (`id`, `name`) VALUES
 	(1, 'Product Quality'),
 	(2, 'Delivery Issue'),
@@ -1639,7 +1693,7 @@ INSERT INTO `complain_type` (`id`, `name`) VALUES
 	(9, 'Damaged Product'),
 	(10, 'Other');
 
--- Dumping structure for table deliveryya.complains
+-- Dumping structure for table deliveryya1.complains
 DROP TABLE IF EXISTS `complains`;
 CREATE TABLE IF NOT EXISTS `complains` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1662,7 +1716,7 @@ CREATE TABLE IF NOT EXISTS `complains` (
   CONSTRAINT `FKn81fdhbu4b6k68gcuqkiuphsb` FOREIGN KEY (`complain_type_id`) REFERENCES `complain_type` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.complains: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.complains: ~5 rows (approximately)
 INSERT INTO `complains` (`id`, `code`, `complain`, `created_at`, `created_by`, `is_solve`, `response`, `subject`, `updated_at`, `updated_by`, `complain_status_id`, `complain_type_id`, `orders_id`) VALUES
 	(1, 'ORD-004-002', 'gfdgfg dfgdfgd fgdfg fd', '2026-05-06 01:52:10.720199', 'anonymousUser', 0, NULL, 'dasadasd asdasd asdasd', '2026-05-06 01:52:10.720199', 'anonymousUser', 1, 1, 0),
 	(2, 'UJC-0002', 'Test 01', '2026-05-11 23:11:21.339799', 'anonymousUser', 0, NULL, 'Missing', '2026-05-11 23:11:21.339799', 'anonymousUser', 1, 4, 0),
@@ -1670,7 +1724,7 @@ INSERT INTO `complains` (`id`, `code`, `complain`, `created_at`, `created_by`, `
 	(4, 'ORD-001-014', 'Complain', '2026-05-13 01:00:50.114188', 'anonymousUser', 0, NULL, 'Test Complain', '2026-05-13 01:00:50.114188', 'anonymousUser', 1, 1, 0),
 	(1001, 'ORD-1008-001', 'Parcel was not dispatched on the promised day even though the payment slip was submitted. Please expedite.', '2026-11-02 18:36:42.137013', '1006', 0, NULL, 'Late dispatch on ORD-1008-001', '2026-11-02 18:36:42.137013', 'seed', 1, 2, 1001);
 
--- Dumping structure for table deliveryya.deliveries
+-- Dumping structure for table deliveryya1.deliveries
 DROP TABLE IF EXISTS `deliveries`;
 CREATE TABLE IF NOT EXISTS `deliveries` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1687,15 +1741,22 @@ CREATE TABLE IF NOT EXISTS `deliveries` (
   CONSTRAINT `fk_deliveries_delivery_status1` FOREIGN KEY (`delivery_status_id`) REFERENCES `delivery_status` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_deliveries_employees1` FOREIGN KEY (`employees_id`) REFERENCES `employees` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_deliveries_orders1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1011 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.deliveries: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.deliveries: ~10 rows (approximately)
 INSERT INTO `deliveries` (`id`, `note`, `orders_id`, `employees_id`, `delivery_status_id`, `created_at`, `updated_at`) VALUES
 	(1001, 'Picked parcel from Island Mobile Hub', 1003, 1001, 2, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013'),
-	(1002, 'En route — B46 highway', 1003, 1001, 5, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013'),
-	(1003, 'Handed cash to company accounts', 1003, 1001, 7, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013');
+	(1002, 'En route â€” B46 highway', 1003, 1001, 5, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013'),
+	(1003, 'Handed cash to company accounts', 1003, 1001, 7, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013'),
+	(1004, NULL, 1004, 1, 4, '2026-11-08 10:11:31.050893', '2026-11-08 10:11:31.050893'),
+	(1005, NULL, 1004, 1, 10, '2026-11-08 13:11:24.278527', '2026-11-08 13:11:24.278527'),
+	(1006, NULL, 1004, 1005, 10, '2026-11-08 13:40:55.253922', '2026-11-08 13:40:55.253922'),
+	(1007, NULL, 1004, 1005, 8, '2026-11-08 13:41:22.232185', '2026-11-08 13:41:22.232185'),
+	(1008, NULL, 1004, 1005, 10, '2026-11-08 13:41:41.989366', '2026-11-08 13:41:41.989366'),
+	(1009, NULL, 1005, 1005, 5, '2026-11-13 19:46:23.311839', '2026-11-13 19:46:23.311839'),
+	(1010, NULL, 1006, 1005, 3, '2026-11-14 19:01:38.314878', '2026-11-14 19:01:38.314878');
 
--- Dumping structure for table deliveryya.delivery_details
+-- Dumping structure for table deliveryya1.delivery_details
 DROP TABLE IF EXISTS `delivery_details`;
 CREATE TABLE IF NOT EXISTS `delivery_details` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1715,7 +1776,7 @@ CREATE TABLE IF NOT EXISTS `delivery_details` (
   CONSTRAINT `fk_delivery_details_cities1` FOREIGN KEY (`cities_id`) REFERENCES `cities` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.delivery_details: ~7 rows (approximately)
+-- Dumping data for table deliveryya1.delivery_details: ~7 rows (approximately)
 INSERT INTO `delivery_details` (`id`, `address`, `permanent`, `users_id`, `primary_mobile`, `secondary_mobile`, `whatsapp`, `cities_id`, `location`, `tag`) VALUES
 	(1, 'fdsf dsfdfdsfdsfdsfdsf,fds fds,dsfds fds', b'1', 4, '0785474125', '0785474125', '0785474125', 15, 'dfds dsffdsf', 'Home'),
 	(2, 'fdfdsdsfff', b'1', 1, '0784875172', '0784875172', '0784875172', 1, 'fdsfsdfdsfdsf', 'fffdsF'),
@@ -1725,7 +1786,7 @@ INSERT INTO `delivery_details` (`id`, `address`, `permanent`, `users_id`, `prima
 	(1002, 'Level 3, World Trade Center, Colombo 01', b'0', 1006, '0712345678', '0713456789', '0712345678', 1, NULL, 'Office'),
 	(1003, 'No 7, Main St, Nugegoda', b'1', 1008, '0774567890', '0774567891', '0774567890', 1, NULL, 'Shop');
 
--- Dumping structure for table deliveryya.delivery_fees
+-- Dumping structure for table deliveryya1.delivery_fees
 DROP TABLE IF EXISTS `delivery_fees`;
 CREATE TABLE IF NOT EXISTS `delivery_fees` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1737,7 +1798,7 @@ CREATE TABLE IF NOT EXISTS `delivery_fees` (
   CONSTRAINT `FKr06eb98i345needw48ibv3ghd` FOREIGN KEY (`cites_id`) REFERENCES `cities` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.delivery_fees: ~7 rows (approximately)
+-- Dumping data for table deliveryya1.delivery_fees: ~7 rows (approximately)
 INSERT INTO `delivery_fees` (`id`, `fee`, `cites_id`, `additional_fee`) VALUES
 	(1, 600, 25, 80),
 	(2, 4100, 2, 10),
@@ -1747,7 +1808,7 @@ INSERT INTO `delivery_fees` (`id`, `fee`, `cites_id`, `additional_fee`) VALUES
 	(1002, 400, 2, 150),
 	(1003, 380, 3, 120);
 
--- Dumping structure for table deliveryya.delivery_status
+-- Dumping structure for table deliveryya1.delivery_status
 DROP TABLE IF EXISTS `delivery_status`;
 CREATE TABLE IF NOT EXISTS `delivery_status` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1755,7 +1816,7 @@ CREATE TABLE IF NOT EXISTS `delivery_status` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.delivery_status: ~12 rows (approximately)
+-- Dumping data for table deliveryya1.delivery_status: ~11 rows (approximately)
 INSERT INTO `delivery_status` (`id`, `name`) VALUES
 	(1, 'Processing'),
 	(2, 'Ready To Pickup'),
@@ -1763,14 +1824,13 @@ INSERT INTO `delivery_status` (`id`, `name`) VALUES
 	(4, 'Verifing in Company'),
 	(5, 'On the way'),
 	(6, 'At Your Doorstep'),
-	(7, 'Delivered By Agent'),
+	(7, 'Delivered'),
 	(8, 'Returning'),
 	(9, 'Returned'),
-	(10, 'Accepted By Customer'),
-	(11, 'Recheduling'),
-	(12, 'Holding At Branch');
+	(10, 'Recheduling'),
+	(11, 'Holding At Branch');
 
--- Dumping structure for table deliveryya.delivery_to
+-- Dumping structure for table deliveryya1.delivery_to
 DROP TABLE IF EXISTS `delivery_to`;
 CREATE TABLE IF NOT EXISTS `delivery_to` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1790,15 +1850,18 @@ CREATE TABLE IF NOT EXISTS `delivery_to` (
   CONSTRAINT `FK9j95ocr2o47uellqlui2dow49` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKceekhjrw0cdpplugbcfqcc7qu` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKlgpf7abh0rxf4mjelfx93xyri` FOREIGN KEY (`cites_id`) REFERENCES `cities` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1007 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.delivery_to: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.delivery_to: ~6 rows (approximately)
 INSERT INTO `delivery_to` (`id`, `address`, `full_name`, `location`, `primary_mobile`, `secondary_mobile`, `whatsapp`, `cites_id`, `orders_id`, `users_id`) VALUES
 	(1001, 'Level 3, World Trade Center, Colombo 01', 'Nuwan Customer', NULL, '0712345678', '0713456789', '0712345678', 1, 1001, 1006),
 	(1002, 'No 2A, Temples Rd, Colombo 04', 'Nimal Perera', NULL, '0723456780', '0723456781', '0723456780', 1, 1002, 1006),
-	(1003, 'Level 3, World Trade Center, Colombo 01', 'Nuwan Customer', NULL, '0712345678', '0713456789', '0712345678', 1, 1003, 1006);
+	(1003, 'Level 3, World Trade Center, Colombo 01', 'Nuwan Customer', NULL, '0712345678', '0713456789', '0712345678', 1, 1003, 1006),
+	(1004, 'dsfds fssd sdfdsdsds', '0783061492', 'https://www.google.com/maps/place/?q=place_id:ChIJfS1klRRX4joRMGOEFwf56ic', '0783061492', '0783061492', '0783061492', 5, 1004, NULL),
+	(1005, 'df dsfsfds \nfds fdsfdsfdsfdsfdsfdsd\nfddsdsds', 'Hasnara', NULL, '0783061492', '0783061492', '0783061492', 25, 1005, NULL),
+	(1006, 'ddf ddfdsfdsfds', 'asd asd', NULL, '0783061492', '0783061492', '0783061492', 25, 1006, NULL);
 
--- Dumping structure for table deliveryya.discount
+-- Dumping structure for table deliveryya1.discount
 DROP TABLE IF EXISTS `discount`;
 CREATE TABLE IF NOT EXISTS `discount` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1816,14 +1879,14 @@ CREATE TABLE IF NOT EXISTS `discount` (
   CONSTRAINT `FKqtqlgtn5oeeyg1r9fwpw8m4mk` FOREIGN KEY (`cities_id`) REFERENCES `cities` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table deliveryya.discount: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.discount: ~4 rows (approximately)
 INSERT INTO `discount` (`id`, `users_id`, `cities_id`, `discount`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 	(36, 5, 1, 1000, NULL, NULL, NULL, NULL),
 	(37, 5, 6, 1000, NULL, NULL, NULL, NULL),
 	(38, 6, 43, 1500, NULL, NULL, NULL, NULL),
 	(1001, 1008, 1, 10.5, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed');
 
--- Dumping structure for table deliveryya.district
+-- Dumping structure for table deliveryya1.district
 DROP TABLE IF EXISTS `district`;
 CREATE TABLE IF NOT EXISTS `district` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1831,7 +1894,7 @@ CREATE TABLE IF NOT EXISTS `district` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.district: ~25 rows (approximately)
+-- Dumping data for table deliveryya1.district: ~25 rows (approximately)
 INSERT INTO `district` (`id`, `name`) VALUES
 	(1, 'Colombo'),
 	(2, 'Gampaha'),
@@ -1859,7 +1922,7 @@ INSERT INTO `district` (`id`, `name`) VALUES
 	(24, 'Ratnapura'),
 	(25, 'Kegalle');
 
--- Dumping structure for table deliveryya.doc_type
+-- Dumping structure for table deliveryya1.doc_type
 DROP TABLE IF EXISTS `doc_type`;
 CREATE TABLE IF NOT EXISTS `doc_type` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1867,7 +1930,7 @@ CREATE TABLE IF NOT EXISTS `doc_type` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.doc_type: ~9 rows (approximately)
+-- Dumping data for table deliveryya1.doc_type: ~9 rows (approximately)
 INSERT INTO `doc_type` (`id`, `name`) VALUES
 	(1, 'NIC Front'),
 	(2, 'NIC Back'),
@@ -1879,7 +1942,7 @@ INSERT INTO `doc_type` (`id`, `name`) VALUES
 	(8, 'Gs Certificate'),
 	(9, 'Other');
 
--- Dumping structure for table deliveryya.employees
+-- Dumping structure for table deliveryya1.employees
 DROP TABLE IF EXISTS `employees`;
 CREATE TABLE IF NOT EXISTS `employees` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1899,17 +1962,18 @@ CREATE TABLE IF NOT EXISTS `employees` (
   CONSTRAINT `FK23fhb0mbcsrcp9l4ovspx6qq7` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKmwa7q9yx7fh2ynhn7jx6fqgb7` FOREIGN KEY (`verification_status_id`) REFERENCES `verification_status` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKolk5fhf9so7cs9mwrom1etbe5` FOREIGN KEY (`branches_id`) REFERENCES `branches` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1006 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.employees: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.employees: ~6 rows (approximately)
 INSERT INTO `employees` (`id`, `location`, `branches_id`, `users_id`, `verification_status_id`, `created_at`, `updated_at`, `mobile`, `whatsapp`, `live_location`) VALUES
 	(1, '6.1878185, 80.3395819', 1, 1, 1, '2026-05-06 00:19:02.783129', '2026-10-27 11:23:23.713697', '+94783061492', '+94783061492', 'dada dssasa'),
 	(2, 'saa dadsd asdasda ddas ', 2, 5, 1, '2026-05-11 20:39:18.765017', '2026-05-11 20:39:18.765017', '+94783061492', '+94783061492', 'saa dadsd asdasda ddas '),
 	(3, 'https://www.google.com/maps/place/?q=place_id:ChIJf5ytxCFb4joR-dTfG-IDti0', 1, 6, 1, '2026-10-09 08:49:53.000000', NULL, '0764200632', '0764200632', 'https://www.google.com/maps/place/?q=place_id:ChIJf5ytxCFb4joR-dTfG-IDti0'),
 	(1001, 'Colombo Fort Hub', 1, 1007, 1, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', '0723456780', '0723456780', NULL),
-	(1002, 'Pettah Hub', 2, 1004, 1, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', '0112345007', '0112345007', NULL);
+	(1002, 'Pettah Hub', 2, 1004, 1, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', '0112345007', '0112345007', NULL),
+	(1005, 'xzfdsdsfds fdsfds', 1, 1016, 1, '2026-11-08 13:39:18.791228', '2026-11-08 13:39:18.791228', '+94707129806', '+94707129806', 'xzfdsdsfds fdsfds');
 
--- Dumping structure for table deliveryya.feedbacks
+-- Dumping structure for table deliveryya1.feedbacks
 DROP TABLE IF EXISTS `feedbacks`;
 CREATE TABLE IF NOT EXISTS `feedbacks` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1929,14 +1993,14 @@ CREATE TABLE IF NOT EXISTS `feedbacks` (
   CONSTRAINT `feedbacks_chk_1` CHECK (((`rating` <= 5) and (`rating` >= 1)))
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.feedbacks: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.feedbacks: ~4 rows (approximately)
 INSERT INTO `feedbacks` (`id`, `comment`, `created_at`, `created_by`, `rating`, `updated_at`, `updated_by`, `product_id`, `user_id`) VALUES
 	(1, 'fdfdsfdfd', '2026-05-08 00:47:23.199167', '1', 3, '2026-05-08 00:47:23.199167', '1', 2, 1),
 	(2, 'sdfsd DFs F fFff', '2026-05-08 00:47:49.046085', '1', 3, '2026-05-08 00:47:49.046085', '1', 2, 1),
 	(1001, 'Arrived quickly, packaging solid, battery great.', '2026-11-02 18:36:42.137013', 'seed', 5, '2026-11-02 18:36:42.137013', 'seed', 1001, 1006),
 	(1002, 'Good phone for the price; box slightly dented.', '2026-11-02 18:36:42.137013', 'seed', 4, '2026-11-02 18:36:42.137013', 'seed', 1003, 1006);
 
--- Dumping structure for table deliveryya.gender
+-- Dumping structure for table deliveryya1.gender
 DROP TABLE IF EXISTS `gender`;
 CREATE TABLE IF NOT EXISTS `gender` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1944,12 +2008,12 @@ CREATE TABLE IF NOT EXISTS `gender` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.gender: ~2 rows (approximately)
+-- Dumping data for table deliveryya1.gender: ~2 rows (approximately)
 INSERT INTO `gender` (`id`, `name`) VALUES
 	(1, 'Male'),
 	(2, 'Female');
 
--- Dumping structure for table deliveryya.job_status
+-- Dumping structure for table deliveryya1.job_status
 DROP TABLE IF EXISTS `job_status`;
 CREATE TABLE IF NOT EXISTS `job_status` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1957,7 +2021,7 @@ CREATE TABLE IF NOT EXISTS `job_status` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.job_status: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.job_status: ~5 rows (approximately)
 INSERT INTO `job_status` (`id`, `name`) VALUES
 	(1, 'pedding'),
 	(2, 'accectped '),
@@ -1965,7 +2029,7 @@ INSERT INTO `job_status` (`id`, `name`) VALUES
 	(4, 'rejected'),
 	(5, 'canceled');
 
--- Dumping structure for table deliveryya.log
+-- Dumping structure for table deliveryya1.log
 DROP TABLE IF EXISTS `log`;
 CREATE TABLE IF NOT EXISTS `log` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1976,9 +2040,9 @@ CREATE TABLE IF NOT EXISTS `log` (
   CONSTRAINT `fk_log_users1` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.log: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.log: ~0 rows (approximately)
 
--- Dumping structure for table deliveryya.market_category
+-- Dumping structure for table deliveryya1.market_category
 DROP TABLE IF EXISTS `market_category`;
 CREATE TABLE IF NOT EXISTS `market_category` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -1986,12 +2050,12 @@ CREATE TABLE IF NOT EXISTS `market_category` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.market_category: ~2 rows (approximately)
+-- Dumping data for table deliveryya1.market_category: ~2 rows (approximately)
 INSERT INTO `market_category` (`id`, `name`) VALUES
 	(1, 'Mobile Store'),
 	(2, 'Electronics Store');
 
--- Dumping structure for table deliveryya.market_order_items
+-- Dumping structure for table deliveryya1.market_order_items
 DROP TABLE IF EXISTS `market_order_items`;
 CREATE TABLE IF NOT EXISTS `market_order_items` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2006,13 +2070,13 @@ CREATE TABLE IF NOT EXISTS `market_order_items` (
   CONSTRAINT `FKbry3h3se6fx49uy3e71p0xf40` FOREIGN KEY (`stock_id`) REFERENCES `stock` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.market_order_items: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.market_order_items: ~3 rows (approximately)
 INSERT INTO `market_order_items` (`id`, `price`, `qty`, `market_orders_id`, `stock_id`) VALUES
 	(1001, 98500, 1, 1001, 1001),
 	(1002, 1850, 1, 1001, 1003),
 	(1003, 74500, 1, 1002, 1004);
 
--- Dumping structure for table deliveryya.market_orders
+-- Dumping structure for table deliveryya1.market_orders
 DROP TABLE IF EXISTS `market_orders`;
 CREATE TABLE IF NOT EXISTS `market_orders` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2025,12 +2089,12 @@ CREATE TABLE IF NOT EXISTS `market_orders` (
   CONSTRAINT `FK6dbt0b1mmg4s4fxtxri8389b6` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.market_orders: ~2 rows (approximately)
+-- Dumping data for table deliveryya1.market_orders: ~2 rows (approximately)
 INSERT INTO `market_orders` (`id`, `price`, `qty`, `users_id`, `discount`) VALUES
 	(1001, 100350, 2, 1006, 0),
 	(1002, 74500, 1, 1006, 0);
 
--- Dumping structure for table deliveryya.markets
+-- Dumping structure for table deliveryya1.markets
 DROP TABLE IF EXISTS `markets`;
 CREATE TABLE IF NOT EXISTS `markets` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2059,14 +2123,14 @@ CREATE TABLE IF NOT EXISTS `markets` (
   CONSTRAINT `fk_markets_market_category1` FOREIGN KEY (`market_category_id`) REFERENCES `market_category` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.markets: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.markets: ~4 rows (approximately)
 INSERT INTO `markets` (`id`, `name`, `location`, `logo_url`, `cover_img_url`, `desc`, `users_id`, `info_message`, `market_category_id`, `is_active`, `created_at`, `updated_at`, `created_by`, `updated_by`, `address`, `first_num`, `second_num`, `whats_app`, `is_deleted`) VALUES
 	(1, 'DeliveryYa', 'https://www.google.com/maps/place/?q=place_id:ChIJBRektp9Z4joR1D6pSk53wP0', 'market/fc3af632-595c-4018-b831-fb6b6644ddf4.png', 'market/9e9f871f-6ead-42ab-bdaf-be3f7562b51a.png', 'fn jkfbadshabs fhjasahjsb ajshbdashjdashjdasjhbasid basjkdabshdbashkn asjhasbjhsab jasdfhjasd ashjdbasjhdasjdbaskjds iu', 6, '', 1, b'1', '2026-10-30 23:09:49.894875', '2026-10-30 23:10:21.333700', '6', '6', 'dsfdsf dsfdsdsfdsfdsffd sadsd sadasdasdsadsadsadas asdas asdsadasdsa', '0783061492', '0783061492', '0783061492', b'0'),
 	(1001, 'Kaleox Electronics', 'Nugegoda', 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 'Certified electronics & mobile accessories with island-wide delivery.', 1008, NULL, 2, b'1', '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', 'seed', 'seed', 'No 7, Main St, Nugegoda', '0774567890', '0774567891', '0774567890', b'0'),
 	(1002, 'Island Mobile Hub', 'Colombo Fort', 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', NULL, 'Latest smartphones with official warranty. EMI on selected models.', 1005, 'Call before visiting.', 1, b'1', '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', 'seed', 'seed', 'No 3, Galle Rd, Colombo 03', '0761234501', '0761234502', '0761234501', b'0'),
-	(1003, 'Pending Seller Demo', 'Colombo 02', NULL, NULL, 'Demo store pending approval — test data for Become-Seller flow.', 1006, NULL, 2, b'0', '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', 'seed', 'seed', 'No 121, Lake House Rd, Slave Island', '0712345678', '0713456789', '0712345678', b'0');
+	(1003, 'Pending Seller Demo', 'Colombo 02', NULL, NULL, 'Demo store pending approval â€” test data for Become-Seller flow.', 1006, NULL, 2, b'0', '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', 'seed', 'seed', 'No 121, Lake House Rd, Slave Island', '0712345678', '0713456789', '0712345678', b'0');
 
--- Dumping structure for table deliveryya.notifications
+-- Dumping structure for table deliveryya1.notifications
 DROP TABLE IF EXISTS `notifications`;
 CREATE TABLE IF NOT EXISTS `notifications` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2081,16 +2145,17 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FKqnglqgfoheb8hbegdbhrv6l2a` (`users_id`) USING BTREE,
   CONSTRAINT `FKqnglqgfoheb8hbegdbhrv6l2a` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1006 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.notifications: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.notifications: ~5 rows (approximately)
 INSERT INTO `notifications` (`id`, `is_read`, `message`, `title`, `users_id`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 	(1001, b'0', 'Order ORD-1008-001 (2 items, LKR 100,700) placed by Nuwan Customer.', 'New order received', 1008, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed'),
 	(1002, b'0', 'Your order ORD-1005-001 was delivered. Thanks for shopping at Island Mobile Hub!', 'Order delivered', 1006, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed'),
-	(1003, b'1', 'Job for UJC-9001 (Document courier Colombo→Negombo) is awaiting your acceptance.', 'New agent job assigned', 1007, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 21:06:50.492609', '1007'),
-	(1004, b'0', '1 payment record (PR-1001, LKR 100,700) needs verification.', 'Payment verification pending', 1002, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed');
+	(1003, b'1', 'Job for UJC-9001 (Document courier Colomboâ†’Negombo) is awaiting your acceptance.', 'New agent job assigned', 1007, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 21:06:50.492609', '1007'),
+	(1004, b'0', '1 payment record (PR-1001, LKR 100,700) needs verification.', 'Payment verification pending', 1002, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed'),
+	(1005, b'1', 'asdassa', 'sadas', 1, '2026-11-08 10:17:27.162529', '1', '2026-11-08 10:19:02.621154', '1');
 
--- Dumping structure for table deliveryya.order_code_requests
+-- Dumping structure for table deliveryya1.order_code_requests
 DROP TABLE IF EXISTS `order_code_requests`;
 CREATE TABLE IF NOT EXISTS `order_code_requests` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2108,12 +2173,12 @@ CREATE TABLE IF NOT EXISTS `order_code_requests` (
   CONSTRAINT `FKcv9qot6dthkaefh9e2v1m3xm` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.order_code_requests: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.order_code_requests: ~2 rows (approximately)
 INSERT INTO `order_code_requests` (`id`, `created_at`, `created_by`, `printed`, `printed_bracodes_needed`, `qty`, `updated_at`, `updated_by`, `user_id`, `is_generated`) VALUES
 	(1001, '2026-11-02 18:36:42.137013', NULL, 0, 0, 5, '2026-11-02 18:36:42.137013', NULL, 1008, 0),
-	(1002, '2026-11-15 10:48:20.999679', '1001', 0, 1, 10, '2026-11-15 10:48:20.999679', '1001', 1001, 0);
+	(1002, '2026-11-08 10:00:25.647792', '1', 0, 1, 10, '2026-11-08 10:05:52.879584', '1', 1, 1);
 
--- Dumping structure for table deliveryya.order_codes
+-- Dumping structure for table deliveryya1.order_codes
 DROP TABLE IF EXISTS `order_codes`;
 CREATE TABLE IF NOT EXISTS `order_codes` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2127,9 +2192,9 @@ CREATE TABLE IF NOT EXISTS `order_codes` (
   KEY `FK36r9ret93r75i1jqcb4j89kyt` (`order_code_request`) USING BTREE,
   CONSTRAINT `FK36r9ret93r75i1jqcb4j89kyt` FOREIGN KEY (`order_code_request`) REFERENCES `order_code_requests` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKtcpdggcv9i8x9ifjs4cjngww6` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1009 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1019 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.order_codes: ~8 rows (approximately)
+-- Dumping data for table deliveryya1.order_codes: ~18 rows (approximately)
 INSERT INTO `order_codes` (`id`, `code`, `field`, `users_id`, `order_code_request`) VALUES
 	(1001, 'ORD-1008-001', b'1', 1008, NULL),
 	(1002, 'ORD-1008-002', b'0', 1008, NULL),
@@ -2138,9 +2203,19 @@ INSERT INTO `order_codes` (`id`, `code`, `field`, `users_id`, `order_code_reques
 	(1005, 'ORD-1006-002', b'0', 1006, NULL),
 	(1006, 'ORD-1005-001', b'1', 1005, NULL),
 	(1007, 'ORD-1005-002', b'0', 1005, NULL),
-	(1008, 'ORD-1006-003', b'0', 1006, NULL);
+	(1008, 'ORD-1006-003', b'0', 1006, NULL),
+	(1009, 'ORD-001-001', b'1', 1, 1002),
+	(1010, 'ORD-001-002', b'1', 1, 1002),
+	(1011, 'ORD-001-003', b'0', 1, 1002),
+	(1012, 'ORD-001-004', b'0', 1, 1002),
+	(1013, 'ORD-001-005', b'0', 1, 1002),
+	(1014, 'ORD-001-006', b'1', 1, 1002),
+	(1015, 'ORD-001-007', b'0', 1, 1002),
+	(1016, 'ORD-001-008', b'0', 1, 1002),
+	(1017, 'ORD-001-009', b'0', 1, 1002),
+	(1018, 'ORD-001-010', b'0', 1, 1002);
 
--- Dumping structure for table deliveryya.orders
+-- Dumping structure for table deliveryya1.orders
 DROP TABLE IF EXISTS `orders`;
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2174,24 +2249,27 @@ CREATE TABLE IF NOT EXISTS `orders` (
   CONSTRAINT `FKk0t04i21clr69w02bbbx8p3d` FOREIGN KEY (`third_party_senders_id`) REFERENCES `third_party_senders` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKkjikwmb0tw4hjqa4o77y5vs5v` FOREIGN KEY (`market_orders_id`) REFERENCES `market_orders` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKms7s8ff07rgr45wpriwfqynri` FOREIGN KEY (`order_codes_id`) REFERENCES `order_codes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1007 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.orders: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.orders: ~6 rows (approximately)
 INSERT INTO `orders` (`id`, `collective_price`, `delivery_fee`, `desc`, `discount`, `qty`, `total_price`, `weight`, `delivery_status_id`, `market_orders_id`, `order_codes_id`, `payment_status_id`, `payment_type_id`, `created_at`, `dontCollectDeliveryFeeFromCustomer`, `paid_amount`, `third_party_senders_id`, `is_deleted`) VALUES
-	(1001, 100700, 350, '<p>Deliver after 5 PM please.</p>', 0, 2, 100350, 0.25, 1, 1001, 1001, 1, 1, '2026-11-02 18:36:42.137013', b'0', 0, NULL, 0),
-	(1002, 25550, 550, NULL, 0, 1, 25000, 2.5, 2, NULL, 1004, 1, 2, '2026-11-02 18:36:42.137013', b'1', 0, 1001, 0),
-	(1003, 74850, 350, NULL, 0, 1, 74500, 0.22, 7, 1002, 1006, 4, 1, '2026-11-02 18:36:42.137013', b'0', 74850, NULL, 0);
+	(1001, 100700, 350, '<p>Deliver after 5 PM please.</p>', 0, 2, 100350, 0.25, 7, 1001, 1001, 2, 1, '2026-11-02 18:36:42.137013', b'0', 0, NULL, 0),
+	(1002, 25550, 550, NULL, 0, 1, 25000, 2.5, 7, NULL, 1004, 2, 2, '2026-11-02 18:36:42.137013', b'1', 0, 1001, 0),
+	(1003, 74850, 350, NULL, 0, 1, 74500, 0.22, 7, 1002, 1006, 2, 1, '2026-11-02 18:36:42.137013', b'0', 74850, NULL, 0),
+	(1004, 0, 690, '<p>dsfds sdfdsf dsds dsbdhsbfdjshfbdshjfbdshjfbdshjfbdshjfbdsjhfbdshjfbdshjfbdshjfdshjb</p>', 0, 1, 1100, 10, 9, NULL, 1014, 2, 1, '2026-11-08 10:08:46.014509', b'1', 0, NULL, 0),
+	(1005, 0, 600, '<p>dsf fdsfd sds</p><p>f dsfdsdsf</p><p>dsf dsfdsfdsf </p><p>dsfdsds </p>', 0, 1, 1000, 1, 7, NULL, 1010, 2, 1, '2026-11-13 19:44:58.640186', b'0', 0, NULL, 0),
+	(1006, 0, 600, '<p>asdsa sad h dhsadhi asbdhijasb daksbdahjksdashjdasjhdbashjdabsdas hj hjbhjs ajsdahjsd bhjdashj</p>', 0, 1, 1000, 1, 9, NULL, 1009, 2, 1, '2026-11-14 19:00:58.809016', b'0', 0, NULL, 0);
 
--- Dumping structure for table deliveryya.payment_categories
+-- Dumping structure for table deliveryya1.payment_categories
 DROP TABLE IF EXISTS `payment_categories`;
 CREATE TABLE IF NOT EXISTS `payment_categories` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_payment_categories_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.payment_categories: ~8 rows (approximately)
+-- Dumping data for table deliveryya1.payment_categories: ~10 rows (approximately)
 INSERT INTO `payment_categories` (`id`, `name`) VALUES
 	(1, 'COD'),
 	(2, 'SALE'),
@@ -2200,9 +2278,11 @@ INSERT INTO `payment_categories` (`id`, `name`) VALUES
 	(5, 'REFUND'),
 	(6, 'WITHDRAWAL'),
 	(7, 'EXPENSE'),
-	(8, 'HANDOVER');
+	(8, 'HANDOVER'),
+	(9, 'Settlement Payment'),
+	(10, 'OTHER');
 
--- Dumping structure for table deliveryya.payment_recode
+-- Dumping structure for table deliveryya1.payment_recode
 DROP TABLE IF EXISTS `payment_recode`;
 CREATE TABLE IF NOT EXISTS `payment_recode` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2235,11 +2315,11 @@ CREATE TABLE IF NOT EXISTS `payment_recode` (
   CONSTRAINT `FKoifunnq5cplqniv8ubql818f7` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table deliveryya.payment_recode: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.payment_recode: ~0 rows (approximately)
 INSERT INTO `payment_recode` (`id`, `acc_number`, `amount`, `bank_id`, `created_at`, `created_by`, `desc`, `is_return`, `proof_url`, `references`, `updated_at`, `updated_by`, `bank_details_id`, `order_id`, `payment_type_id`, `urgent_jobs_id`, `verification_status_id`) VALUES
 	(1001, '1234567890', 100700, 1, '2026-11-02 18:36:42.137013', '1006', 'Bank slip for ORD-1008-001', b'0', 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', 'ORD-1008-001', '2026-11-02 18:36:42.137013', 'seed', 1001, 1001, 2, NULL, 3);
 
--- Dumping structure for table deliveryya.payment_record_items
+-- Dumping structure for table deliveryya1.payment_record_items
 DROP TABLE IF EXISTS `payment_record_items`;
 CREATE TABLE IF NOT EXISTS `payment_record_items` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2251,18 +2331,56 @@ CREATE TABLE IF NOT EXISTS `payment_record_items` (
   KEY `FKkiaae1rq4x696dgx2ke05cjwy` (`payment_record_id`) USING BTREE,
   CONSTRAINT `FKkiaae1rq4x696dgx2ke05cjwy` FOREIGN KEY (`payment_record_id`) REFERENCES `payment_records` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `payment_record_items_chk_1` CHECK ((`amount` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1061 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.payment_record_items: ~6 rows (approximately)
+-- Dumping data for table deliveryya1.payment_record_items: ~44 rows (approximately)
 INSERT INTO `payment_record_items` (`id`, `amount`, `code`, `note`, `payment_record_id`) VALUES
 	(3, 1000, 'ORD-004-002', 'Agent handover order payment', 1),
 	(4, 14190, 'ORD-001-003', 'Agent handover order payment', 1),
 	(5, 1000, 'UJC-0003', 'Agent handover urgent job payment', 2),
 	(6, 2000, 'UJC-0004', 'Agent handover urgent job payment', 3),
 	(1001, 100700, 'ORD-1008-001', 'Full settlement incl. delivery fee', 1001),
-	(1002, 74850, 'ORD-1005-001', 'COD collected at doorstep', 1002);
+	(1002, 74850, 'ORD-1005-001', 'COD collected at doorstep', 1002),
+	(1005, 1100, 'ORD-001-006', 'Agent handover order payment', 1003),
+	(1008, 1100, 'ORD-001-006', 'On-hand order payment', 1004),
+	(1009, 1600, 'ORD-001-002', 'On-hand order payment', 1004),
+	(1013, 1100, 'ORD-001-006', 'On-hand order payment', 1005),
+	(1014, 1600, 'ORD-001-002', 'On-hand order payment', 1005),
+	(1015, 1600, 'ORD-001-001', 'On-hand order payment', 1005),
+	(1016, 1100, 'ORD-001-006', 'On-hand order payment', 1006),
+	(1017, 1600, 'ORD-001-002', 'On-hand order payment', 1006),
+	(1018, 1600, 'ORD-001-001', 'On-hand order payment', 1006),
+	(1019, 2200, 'ORD-001-006', 'On-hand order payment', 1007),
+	(1020, 3200, 'ORD-001-002', 'On-hand order payment', 1007),
+	(1021, 3200, 'ORD-001-001', 'On-hand order payment', 1007),
+	(1022, 2200, 'ORD-001-006', 'On-hand order payment', 1008),
+	(1023, 3200, 'ORD-001-002', 'On-hand order payment', 1008),
+	(1024, 3200, 'ORD-001-001', 'On-hand order payment', 1008),
+	(1025, 2200, 'ORD-001-006', 'On-hand order payment', 1009),
+	(1026, 3200, 'ORD-001-002', 'On-hand order payment', 1009),
+	(1027, 3200, 'ORD-001-001', 'On-hand order payment', 1009),
+	(1031, 2200, 'ORD-001-006', 'On-hand order payment', 1010),
+	(1032, 3200, 'ORD-001-002', 'On-hand order payment', 1010),
+	(1033, 3200, 'ORD-001-001', 'On-hand order payment', 1010),
+	(1034, 2200, 'ORD-001-006', 'On-hand order payment', 1011),
+	(1035, 3200, 'ORD-001-002', 'On-hand order payment', 1011),
+	(1036, 3200, 'ORD-001-001', 'On-hand order payment', 1011),
+	(1037, 2200, 'ORD-001-006', 'On-hand order payment', 1012),
+	(1038, 3200, 'ORD-001-002', 'On-hand order payment', 1012),
+	(1039, 3200, 'ORD-001-001', 'On-hand order payment', 1012),
+	(1040, 2200, 'ORD-001-006', 'On-hand order payment', 1013),
+	(1041, 3200, 'ORD-001-002', 'On-hand order payment', 1013),
+	(1042, 3200, 'ORD-001-001', 'On-hand order payment', 1013),
+	(1053, 2200, 'ORD-001-006', 'Agent handover order payment', 1017),
+	(1054, 3200, 'ORD-001-002', 'Agent handover order payment', 1017),
+	(1055, 3200, 'ORD-001-001', 'Agent handover order payment', 1017),
+	(1056, 1000, 'SDSA-DASD', 'das sada', 1018),
+	(1057, 1000, 'ASD SD', 'asd aasa', 1018),
+	(1058, 2000, 'DADASDASD', 'asdasdasdsa', 1019),
+	(1059, 1000, 'DASDAD SAD', 'sadsadsa', 1020),
+	(1060, 15000, 'DASDDDSADA', 'dadasdd asdas', 1021);
 
--- Dumping structure for table deliveryya.payment_records
+-- Dumping structure for table deliveryya1.payment_records
 DROP TABLE IF EXISTS `payment_records`;
 CREATE TABLE IF NOT EXISTS `payment_records` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2280,6 +2398,11 @@ CREATE TABLE IF NOT EXISTS `payment_records` (
   `payment_type_id` int NOT NULL,
   `verification_status_id` int NOT NULL,
   `payment_category_id` int DEFAULT NULL,
+  `from_wallet` enum('AGENT','CLIENT','COMPANY','CUSTOMER') DEFAULT NULL,
+  `to_wallet` enum('AGENT','CLIENT','COMPANY','CUSTOMER') DEFAULT NULL,
+  `branch_id` int DEFAULT NULL,
+  `to_user_id` int DEFAULT NULL,
+  `from_user_id` int DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FKrqe7rejogon8pw4qlas8nnip` (`bank_details_id`) USING BTREE,
   KEY `FKoee3k6kthou8wgv8d332cflo9` (`payment_type_id`) USING BTREE,
@@ -2289,17 +2412,33 @@ CREATE TABLE IF NOT EXISTS `payment_records` (
   CONSTRAINT `FKoixlhpyurr6lciuhppedtp3ak` FOREIGN KEY (`payment_category_id`) REFERENCES `payment_categories` (`id`),
   CONSTRAINT `FKrqe7rejogon8pw4qlas8nnip` FOREIGN KEY (`bank_details_id`) REFERENCES `bank_details` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKtje5av87t55l6igu0i3ix9er7` FOREIGN KEY (`verification_status_id`) REFERENCES `verification_status` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1022 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.payment_records: ~5 rows (approximately)
-INSERT INTO `payment_records` (`id`, `acc_number`, `amount`, `bank_id`, `created_at`, `created_by`, `desc`, `is_return`, `proof_url`, `updated_at`, `updated_by`, `bank_details_id`, `payment_type_id`, `verification_status_id`, `payment_category_id`) VALUES
-	(1, NULL, 15190, NULL, '2026-05-13 12:36:33.528160', '1', 'Branch handover from Hansara Hettiarachchi (agent-handover-proof-1778655993151.pdf)', 0, 'payment-profs/17df0c22-f30b-41b7-9f4a-56aaf1bb0c97.pdf', '2026-05-13 21:24:38.625625', '1', NULL, 1, 1, NULL),
-	(2, NULL, 1000, NULL, '2026-10-09 09:05:16.816459', '6', 'Branch handover from Nuwantha Heshan (invoice - trendify 2026-06.pdf)', 0, 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', '2026-10-09 09:06:45.632883', '6', NULL, 1, 1, NULL),
-	(3, NULL, 2000, NULL, '2026-10-09 13:20:04.268156', '6', 'Branch handover from Nuwantha Heshan (invoice - trendify 2026-06.pdf)', 0, 'payment-profs/7da3026b-3a3b-42f6-955c-c8e385cfcd85.pdf', '2026-10-09 13:21:39.989446', '6', NULL, 1, 1, NULL),
-	(1001, '1234567890', 100700, 1, '2026-11-02 18:36:42.137013', '1006', 'Bank transfer for ORD-1008-001 (Kaleox order) — awaiting verification', 0, 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', '2026-11-02 18:36:42.137013', 'seed', 1001, 2, 3, 2),
-	(1002, NULL, 74850, NULL, '2026-11-02 18:36:42.137013', '1007', 'COD handover to company — ORD-1005-001', 0, 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', '2026-11-02 18:36:42.137013', 'seed', NULL, 4, 1, 8);
+-- Dumping data for table deliveryya1.payment_records: ~21 rows (approximately)
+INSERT INTO `payment_records` (`id`, `acc_number`, `amount`, `bank_id`, `created_at`, `created_by`, `desc`, `is_return`, `proof_url`, `updated_at`, `updated_by`, `bank_details_id`, `payment_type_id`, `verification_status_id`, `payment_category_id`, `from_wallet`, `to_wallet`, `branch_id`, `to_user_id`, `from_user_id`) VALUES
+	(1, NULL, 15190, NULL, '2026-05-13 12:36:33.528160', '1', 'Branch handover from Hansara Hettiarachchi (agent-handover-proof-1778655993151.pdf)', 0, 'payment-profs/17df0c22-f30b-41b7-9f4a-56aaf1bb0c97.pdf', '2026-05-13 21:24:38.625625', '1', NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+	(2, NULL, 1000, NULL, '2026-10-09 09:05:16.816459', '6', 'Branch handover from Nuwantha Heshan (invoice - trendify 2026-06.pdf)', 0, 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', '2026-10-09 09:06:45.632883', '6', NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+	(3, NULL, 2000, NULL, '2026-10-09 13:20:04.268156', '6', 'Branch handover from Nuwantha Heshan (invoice - trendify 2026-06.pdf)', 0, 'payment-profs/7da3026b-3a3b-42f6-955c-c8e385cfcd85.pdf', '2026-10-09 13:21:39.989446', '6', NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+	(1001, '1234567890', 100700, 1, '2026-11-02 18:36:42.137013', '1006', 'Bank transfer for ORD-1008-001 (Kaleox order) â€” awaiting verification', 0, 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', '2026-11-02 18:36:42.137013', 'seed', 1001, 2, 3, 2, NULL, NULL, NULL, NULL, NULL),
+	(1002, NULL, 74850, NULL, '2026-11-02 18:36:42.137013', '1007', 'COD handover to company â€” ORD-1005-001', 0, 'payment-profs/3d9045f3-135e-4e07-9ef7-a17a55295842.pdf', '2026-11-02 18:36:42.137013', 'seed', NULL, 4, 1, 8, NULL, NULL, NULL, NULL, NULL),
+	(1003, NULL, 1100, NULL, '2026-11-08 10:14:41.240512', '1', 'Branch handover from Hansara Hettiarachchi (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/2469ceab-a4fe-4642-aec7-83f91951610c.png', '2026-11-08 10:34:31.379851', '1', 1, 2, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+	(1004, NULL, 2700, NULL, '2026-11-13 19:47:02.918352', '1016', 'On-hand payment handover (666d5d32-f4cf-4001-b525-ce5ca3bd1deb.png)', 0, 'payment-profs/ccabb26c-d50d-4148-8cbe-bb11813ab281.png', '2026-11-13 19:48:21.300948', '1', 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+	(1005, NULL, 4300, NULL, '2026-11-14 19:02:15.244861', '1016', 'On-hand payment handover (on-hand-proof-1794663134922.pdf)', 0, 'payment-profs/181f1671-8e7f-4984-be76-403494967d7f.pdf', '2026-11-14 21:03:58.739511', '1', 1, 1, 1, NULL, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1006, NULL, 4300, NULL, '2026-11-14 21:16:46.627405', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/ae52ab18-d4d0-443b-af8f-f7395d575e2b.png', '2026-11-14 21:17:07.705742', '1', NULL, 1, 1, NULL, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1007, NULL, 8600, NULL, '2026-11-14 21:19:26.036844', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/856db05a-3c46-4ad7-8991-13d74d80b9ac.png', '2026-11-14 21:20:14.713958', '1', NULL, 1, 2, NULL, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1008, NULL, 8600, NULL, '2026-11-15 20:54:43.502975', '1016', 'On-hand payment handover (7a9b7266-c103-4aca-964a-fda13df6756c.png)', 0, 'payment-profs/d1ee62a4-288a-422d-9322-e251b80fc6c1.png', '2026-11-15 20:54:43.502975', '1016', 4, 1, 3, NULL, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1009, NULL, 8600, NULL, '2026-11-15 21:28:12.402357', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/12dd51ac-048c-4913-808f-fcad034315c3.png', '2026-11-15 21:28:12.402357', '1016', NULL, 1, 3, NULL, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1010, NULL, 8600, NULL, '2026-11-15 21:55:14.876506', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/4a21d3ac-123f-4d02-ba75-d0a444303c3d.png', '2026-11-15 22:02:04.920851', '1', 1, 1, 3, NULL, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1011, NULL, 8600, NULL, '2026-11-15 22:03:44.365922', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/bac56dc5-0069-4542-97b8-e5ad92fb6f88.png', '2026-11-15 22:03:44.365922', '1016', NULL, 1, 3, 8, NULL, 'COMPANY', 2, NULL, NULL),
+	(1012, NULL, 8600, NULL, '2026-11-18 14:05:06.051535', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/208e6777-2dae-49fd-b46c-5347f1719b37.png', '2026-11-18 14:05:06.051535', '1016', NULL, 1, 3, 8, NULL, 'COMPANY', 1, NULL, NULL),
+	(1013, NULL, 8600, NULL, '2026-11-18 14:06:45.433075', '1016', 'On-hand payment handover (e1ae0655-8fbe-4794-b73e-b31ee2e99076.png)', 0, 'payment-profs/dea8e956-22a4-4fc5-9488-b9e81389415c.png', '2026-11-18 14:06:45.433075', '1016', NULL, 1, 3, 8, NULL, 'COMPANY', 1, NULL, NULL),
+	(1017, NULL, 8600, NULL, '2026-11-18 22:13:44.730574', '1', 'Branch handover from dasdass adasasdasd (River Portrait Collage in Greenery.png)', 0, 'payment-profs/ae7003da-3b47-49f7-a895-8e3065a28bd2.png', '2026-11-18 22:13:44.839543', '1', NULL, 1, 1, 8, NULL, 'COMPANY', 1, NULL, NULL),
+	(1018, NULL, 2000, NULL, '2026-11-20 12:34:37.608672', '1', 'sadass da as dasd\nd asdasd\nasd asd\nasdasdas', 0, 'payment-profs/a236b913-8637-40cc-ae91-116975fbdbc5.pdf', '2026-11-20 12:34:37.608672', '1', NULL, 1, 3, 3, 'AGENT', 'COMPANY', NULL, NULL, 1016),
+	(1019, NULL, 2000, NULL, '2026-11-20 12:36:09.707927', '1', 'asdsa dsadas d', 0, 'payment-profs/89ab52bd-dd8f-49ef-a8fd-1bc3884c3592.png', '2026-11-20 12:36:09.707927', '1', NULL, 1, 3, 3, 'COMPANY', 'AGENT', NULL, 1016, NULL),
+	(1020, NULL, 1000, NULL, '2026-11-20 12:36:59.342324', '1', 'asdd ad', 0, 'payment-profs/fb44ea46-00ca-4f16-878d-38a1276f4dee.png', '2026-11-20 12:36:59.342324', '1', NULL, 1, 3, 4, NULL, 'COMPANY', NULL, NULL, NULL),
+	(1021, NULL, 15000, NULL, '2026-11-20 16:38:09.434293', '1', 'das asdadasd a', 1, 'payment-profs/3c36eb77-e03d-4fea-ad30-8935606e0407.png', '2026-11-20 16:38:22.947237', '1', NULL, 1, 1, 3, 'COMPANY', 'AGENT', 1, 1016, NULL);
 
--- Dumping structure for table deliveryya.payment_status
+-- Dumping structure for table deliveryya1.payment_status
 DROP TABLE IF EXISTS `payment_status`;
 CREATE TABLE IF NOT EXISTS `payment_status` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2307,14 +2446,14 @@ CREATE TABLE IF NOT EXISTS `payment_status` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.payment_status: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.payment_status: ~4 rows (approximately)
 INSERT INTO `payment_status` (`id`, `name`) VALUES
 	(1, 'Pennding'),
 	(2, 'Completed'),
 	(3, 'Paid By Cutomer'),
 	(4, 'Paid By Agent');
 
--- Dumping structure for table deliveryya.payment_type
+-- Dumping structure for table deliveryya1.payment_type
 DROP TABLE IF EXISTS `payment_type`;
 CREATE TABLE IF NOT EXISTS `payment_type` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2322,14 +2461,14 @@ CREATE TABLE IF NOT EXISTS `payment_type` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.payment_type: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.payment_type: ~4 rows (approximately)
 INSERT INTO `payment_type` (`id`, `name`) VALUES
 	(1, 'COD'),
 	(2, 'Brank Transfer'),
 	(3, 'Online Payment'),
 	(4, 'Cash');
 
--- Dumping structure for table deliveryya.pickup_requests
+-- Dumping structure for table deliveryya1.pickup_requests
 DROP TABLE IF EXISTS `pickup_requests`;
 CREATE TABLE IF NOT EXISTS `pickup_requests` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2348,12 +2487,12 @@ CREATE TABLE IF NOT EXISTS `pickup_requests` (
   CONSTRAINT `FK4eds5rokwqlmjwagybfeabiwi` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.pickup_requests: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.pickup_requests: ~2 rows (approximately)
 INSERT INTO `pickup_requests` (`id`, `is_accepted`, `is_completed`, `location`, `message`, `user_id`, `created_at`, `created_by`, `is_deleted`, `updated_at`, `updated_by`) VALUES
 	(1, 0, 0, 'https://www.google.com/maps?q=6.92820632146045,79.91587414855957', 'dsfdsfs fdsfdsfdsf ggds\nQty: 1\nApprox Weight: 11', 4, '2026-05-06 00:12:15.443511', '4', 0, '2026-05-06 00:12:15.443511', '4'),
-	(1001, 0, 0, 'No 121, Lake House Rd, Slave Island', 'Extra charger boxes to collect tomorrow 9 AM — ask for Nuwan', 1006, '2026-11-02 18:36:42.137013', 'seed', 0, '2026-11-02 18:36:42.137013', 'seed');
+	(1001, 0, 0, 'No 121, Lake House Rd, Slave Island', 'Extra charger boxes to collect tomorrow 9 AM â€” ask for Nuwan', 1006, '2026-11-02 18:36:42.137013', 'seed', 0, '2026-11-02 18:36:42.137013', 'seed');
 
--- Dumping structure for table deliveryya.product_images
+-- Dumping structure for table deliveryya1.product_images
 DROP TABLE IF EXISTS `product_images`;
 CREATE TABLE IF NOT EXISTS `product_images` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2365,14 +2504,14 @@ CREATE TABLE IF NOT EXISTS `product_images` (
   CONSTRAINT `fk_product_images_products1` FOREIGN KEY (`products_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.product_images: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.product_images: ~4 rows (approximately)
 INSERT INTO `product_images` (`id`, `url`, `products_id`, `is_default`) VALUES
 	(1001, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 1001, 1),
 	(1002, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 1002, 1),
 	(1003, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 1003, 1),
 	(1004, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 1004, 1);
 
--- Dumping structure for table deliveryya.products
+-- Dumping structure for table deliveryya1.products
 DROP TABLE IF EXISTS `products`;
 CREATE TABLE IF NOT EXISTS `products` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2394,7 +2533,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   CONSTRAINT `fk_products_brands1` FOREIGN KEY (`brands_id`) REFERENCES `brands` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.products: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.products: ~5 rows (approximately)
 INSERT INTO `products` (`id`, `name`, `code`, `brands_id`, `desc`, `created_at`, `created_by`, `updated_at`, `updated_by`, `is_deleted`, `is_active`, `category_id`) VALUES
 	(1, 'Prodiet - cat food', 'PROD - 0001', 1, '<p>test product description</p>', '2026-10-31 23:00:37.067433', '6', '2026-10-31 23:13:12.960713', '6', 0, 1, 2),
 	(1001, 'SampathTel X5 128GB', 'SKU-KLEX-001', 1001, '<p>6.1-inch AMOLED, 128GB, 5000mAh. Local 2-year warranty.</p>', '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 1, 1001),
@@ -2402,7 +2541,7 @@ INSERT INTO `products` (`id`, `name`, `code`, `brands_id`, `desc`, `created_at`,
 	(1003, 'LankaMobiles LM-7 5G', 'SKU-IMH-001', 1003, '<p>Budget 5G handset with 90Hz display.</p>', '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 1, 1003),
 	(1004, 'SampathTel PowerBank 20K', 'SKU-KLEX-003', 1002, '<p>20,000mAh PD power bank, 22.5W.</p>', '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed', 0, 1, 1002);
 
--- Dumping structure for table deliveryya.sizes
+-- Dumping structure for table deliveryya1.sizes
 DROP TABLE IF EXISTS `sizes`;
 CREATE TABLE IF NOT EXISTS `sizes` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2414,13 +2553,13 @@ CREATE TABLE IF NOT EXISTS `sizes` (
   CONSTRAINT `FKsrn993e7128b6estiym0nd654` FOREIGN KEY (`markets_id`) REFERENCES `markets` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.sizes: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.sizes: ~3 rows (approximately)
 INSERT INTO `sizes` (`id`, `name`, `user_id`, `markets_id`) VALUES
 	(1001, '6.1 inch', 1008, 1001),
 	(1002, '6.7 inch', 1008, 1001),
 	(1003, '6.5 inch', 1005, 1002);
 
--- Dumping structure for table deliveryya.stock
+-- Dumping structure for table deliveryya1.stock
 DROP TABLE IF EXISTS `stock`;
 CREATE TABLE IF NOT EXISTS `stock` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2447,7 +2586,7 @@ CREATE TABLE IF NOT EXISTS `stock` (
   CONSTRAINT `fk_stock_unit1` FOREIGN KEY (`unit_id`) REFERENCES `unit` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1007 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.stock: ~7 rows (approximately)
+-- Dumping data for table deliveryya1.stock: ~7 rows (approximately)
 INSERT INTO `stock` (`id`, `desc`, `cost`, `showing_price`, `selling_price`, `qty`, `unit_id`, `products_id`, `emi`, `color`, `sizes_id`, `wpu`, `is_active`, `is_deleted`, `hidden`) VALUES
 	(1, NULL, 900, NULL, 1000, 100, 2, 1, '', '#000000', NULL, 2, 1, 0, 0),
 	(1001, '128GB Black', 91000, 99990, 98500, 49, 1, 1001, NULL, 'Black', 1001, 0.2, 1, 0, 0),
@@ -2457,7 +2596,7 @@ INSERT INTO `stock` (`id`, `desc`, `cost`, `showing_price`, `selling_price`, `qt
 	(1005, 'Grey 20K', 17000, 22900, 21000, 5, 1, 1004, NULL, 'Grey', NULL, 0.4, 1, 0, 0),
 	(1006, 'Navy 20K', 17000, 22000, 20500, 25, 1, 1004, NULL, 'Navy', NULL, 0.4, 1, 0, 1);
 
--- Dumping structure for table deliveryya.third_party_senders
+-- Dumping structure for table deliveryya1.third_party_senders
 DROP TABLE IF EXISTS `third_party_senders`;
 CREATE TABLE IF NOT EXISTS `third_party_senders` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2476,11 +2615,11 @@ CREATE TABLE IF NOT EXISTS `third_party_senders` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.third_party_senders: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.third_party_senders: ~0 rows (approximately)
 INSERT INTO `third_party_senders` (`id`, `address`, `created_at`, `created_by`, `first_mob`, `name`, `nic`, `note`, `sec_mob`, `updated_at`, `updated_by`, `whatsapp`, `is_deleted`) VALUES
 	(1001, 'No 22, Chennai Ct, Colombo 01', '2026-11-02 18:36:42.137013', 'seed', '0112345678', 'GreenX Courier (Third Party)', '199512345678', 'Handles out-of-district bulk parcels.', '0112345679', '2026-11-02 18:36:42.137013', 'seed', '0112345678', b'0');
 
--- Dumping structure for table deliveryya.token_type
+-- Dumping structure for table deliveryya1.token_type
 DROP TABLE IF EXISTS `token_type`;
 CREATE TABLE IF NOT EXISTS `token_type` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2488,13 +2627,13 @@ CREATE TABLE IF NOT EXISTS `token_type` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.token_type: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.token_type: ~3 rows (approximately)
 INSERT INTO `token_type` (`id`, `name`) VALUES
 	(1, 'Firebase Web Token'),
 	(2, 'Firebase Android Token'),
 	(3, 'Firebase IOS Token');
 
--- Dumping structure for table deliveryya.unit
+-- Dumping structure for table deliveryya1.unit
 DROP TABLE IF EXISTS `unit`;
 CREATE TABLE IF NOT EXISTS `unit` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2502,12 +2641,12 @@ CREATE TABLE IF NOT EXISTS `unit` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.unit: ~2 rows (approximately)
+-- Dumping data for table deliveryya1.unit: ~2 rows (approximately)
 INSERT INTO `unit` (`id`, `name`) VALUES
 	(1, 'SPC'),
 	(2, 'KG');
 
--- Dumping structure for table deliveryya.urgent_job_items
+-- Dumping structure for table deliveryya1.urgent_job_items
 DROP TABLE IF EXISTS `urgent_job_items`;
 CREATE TABLE IF NOT EXISTS `urgent_job_items` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2525,7 +2664,7 @@ CREATE TABLE IF NOT EXISTS `urgent_job_items` (
   CONSTRAINT `fk_urgent_job_items_urgent_jobs1` FOREIGN KEY (`urgent_jobs_id`) REFERENCES `urgent_jobs` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.urgent_job_items: ~8 rows (approximately)
+-- Dumping data for table deliveryya1.urgent_job_items: ~10 rows (approximately)
 INSERT INTO `urgent_job_items` (`id`, `location`, `task`, `be_at`, `expected_time_duration`, `spent_duration`, `urgent_jobs_id`, `job_status_id`) VALUES
 	(1, 'https://www.google.com/maps/place/?q=place_id:ChIJC46ViHtZ4joRCya8Jp8IxcE', 'Pick up package', NULL, 10, NULL, 1, 1),
 	(2, 'https://www.google.com/maps/place/?q=place_id:ChIJBfNyajlZ4joRbxOUv8Ykfl4', 'Deliver package', NULL, 10, NULL, 1, 1),
@@ -2538,7 +2677,7 @@ INSERT INTO `urgent_job_items` (`id`, `location`, `task`, `be_at`, `expected_tim
 	(1001, 'Colombo Fort Railway Station', 'Collect signed documents from parcel office', '2026-11-03 09:00:00', 30, NULL, 1001, 1),
 	(1002, 'Negombo Bus Stand', 'Hand over to Mr. Fernando', '2026-11-03 12:30:00', 20, NULL, 1001, 1);
 
--- Dumping structure for table deliveryya.urgent_jobs
+-- Dumping structure for table deliveryya1.urgent_jobs
 DROP TABLE IF EXISTS `urgent_jobs`;
 CREATE TABLE IF NOT EXISTS `urgent_jobs` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2578,15 +2717,15 @@ CREATE TABLE IF NOT EXISTS `urgent_jobs` (
   CONSTRAINT `fk_urgent_jobs_verification_status1` FOREIGN KEY (`verification_status_id`) REFERENCES `verification_status` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.urgent_jobs: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.urgent_jobs: ~5 rows (approximately)
 INSERT INTO `urgent_jobs` (`id`, `job`, `desc`, `mobile`, `job_status_id`, `vehicle_id`, `username`, `nic`, `verification_status_id`, `cost`, `trip`, `job_code`, `email`, `vehicle_type_id`, `message`, `payment_status_id`, `payment_type_id`, `created_at`, `updated_at`, `created_by`, `updated_by`) VALUES
 	(1, 'Emergency Delivery', 'Test', '0740447504', 1, NULL, 'Heshan', '200602201734', 1, NULL, 0, 'UJC-0001', 'test@gmail.com', 1, NULL, NULL, NULL, '2026-05-11 22:41:05.369622', '2026-05-11 22:41:05.369622', 'anonymousUser', 'anonymousUser'),
 	(2, 'Emergency Delivery', 'Test 02', '0740447506', 1, NULL, 'Heshan', '200604201466', 1, 100, 0, 'UJC-0002', 'heshan@gmail.com', 1, 'Test 02', NULL, NULL, '2026-05-11 22:43:55.276319', '2026-05-11 23:26:42.464442', 'anonymousUser', '1'),
 	(3, 'Emergency Delivery', 'Test wallet', '0740447508', 3, NULL, 'Nuwantha Heshan', '200605201595', 1, 1000, 0, 'UJC-0003', 'nuwantha.bandara@kaleox.com', 1, 'Test wallet', 2, 1, '2026-10-09 08:44:01.929560', '2026-10-09 08:46:25.760105', 'anonymousUser', '6'),
 	(4, 'Emergency Delivery', 'Test wallet 2', '0740447508', 3, NULL, 'Nuwantha Heshan', '200605201595', 1, 2000, 0, 'UJC-0004', 'nuwantha.bandara@kaleox.com', 1, 'Test wallet 2', 2, 1, '2026-10-09 11:50:08.551725', '2026-10-09 11:56:17.055118', 'anonymousUser', '6'),
-	(1001, 'Document courier Colombo→Negombo', 'Pick up signed documents from Colombo Fort railway parcel office and deliver to Negombo bus stand before 5 PM.', '0712345678', 1, 1001, 'Nuwan Customer', '199609256789V', 4, NULL, 2, 'UJC-9001', 'customer@qa.deliveryya.test', 1, 'Call on arrival and ask for Mr. Fernando.', 1, 1, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', 'seed', 'seed');
+	(1001, 'Document courier Colomboâ†’Negombo', 'Pick up signed documents from Colombo Fort railway parcel office and deliver to Negombo bus stand before 5 PM.', '0712345678', 1, 1001, 'Nuwan Customer', '199609256789V', 4, NULL, 2, 'UJC-9001', 'customer@qa.deliveryya.test', 1, 'Call on arrival and ask for Mr. Fernando.', 1, 1, '2026-11-02 18:36:42.137013', '2026-11-02 18:36:42.137013', 'seed', 'seed');
 
--- Dumping structure for table deliveryya.user_data
+-- Dumping structure for table deliveryya1.user_data
 DROP TABLE IF EXISTS `user_data`;
 CREATE TABLE IF NOT EXISTS `user_data` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2605,7 +2744,7 @@ CREATE TABLE IF NOT EXISTS `user_data` (
   CONSTRAINT `fk_user_data_users1` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1016 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table deliveryya.user_data: ~16 rows (approximately)
+-- Dumping data for table deliveryya1.user_data: ~16 rows (approximately)
 INSERT INTO `user_data` (`id`, `primary_mobile`, `secondary_mobile`, `whatsapp`, `postal_code`, `users_id`, `cities_id`, `address`, `is_pno_verified`) VALUES
 	(2, '0741531384', '0741531384', '0741531384', '10280', 6, 38, NULL, b'0'),
 	(1001, '0112345001', '0112345002', '0112345001', '00700', 1001, 1, 'No 45, Independence Ave, Colombo 07', b'1'),
@@ -2624,7 +2763,7 @@ INSERT INTO `user_data` (`id`, `primary_mobile`, `secondary_mobile`, `whatsapp`,
 	(1014, '0112345019', '0112345020', '0112345019', '00700', 1014, 1, 'No 31, Ward Place, Colombo 07', b'1'),
 	(1015, '0112345021', '0112345022', '0112345021', '10300', 1015, 1, 'No 60, Colombo Rd, Dehiwala', b'1');
 
--- Dumping structure for table deliveryya.user_has_access
+-- Dumping structure for table deliveryya1.user_has_access
 DROP TABLE IF EXISTS `user_has_access`;
 CREATE TABLE IF NOT EXISTS `user_has_access` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2642,12 +2781,12 @@ CREATE TABLE IF NOT EXISTS `user_has_access` (
   CONSTRAINT `FKng1xfmai572dg60f1juy3ijpo` FOREIGN KEY (`users_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.user_has_access: ~0 rows (approximately)
+-- Dumping data for table deliveryya1.user_has_access: ~2 rows (approximately)
 INSERT INTO `user_has_access` (`id`, `exp`, `access_id`, `users_id`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 	(1, '2027-05-12 15:50:00.000000', 43, 5, '2026-05-12 15:31:21.812851', '1', '2026-05-12 15:31:21.812851', '1'),
 	(1001, '2027-12-31 00:00:00.000000', 43, 1006, '2026-11-02 18:36:42.137013', 'seed', '2026-11-02 18:36:42.137013', 'seed');
 
--- Dumping structure for table deliveryya.user_request_types
+-- Dumping structure for table deliveryya1.user_request_types
 DROP TABLE IF EXISTS `user_request_types`;
 CREATE TABLE IF NOT EXISTS `user_request_types` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2655,13 +2794,13 @@ CREATE TABLE IF NOT EXISTS `user_request_types` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.user_request_types: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.user_request_types: ~3 rows (approximately)
 INSERT INTO `user_request_types` (`id`, `name`) VALUES
 	(1, 'Become Seller'),
 	(2, 'Become Client'),
 	(3, 'Other');
 
--- Dumping structure for table deliveryya.user_requests
+-- Dumping structure for table deliveryya1.user_requests
 DROP TABLE IF EXISTS `user_requests`;
 CREATE TABLE IF NOT EXISTS `user_requests` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2685,7 +2824,7 @@ CREATE TABLE IF NOT EXISTS `user_requests` (
   CONSTRAINT `FKrykq90x6m2rwtong6on5sgs5x` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.user_requests: ~6 rows (approximately)
+-- Dumping data for table deliveryya1.user_requests: ~7 rows (approximately)
 INSERT INTO `user_requests` (`id`, `accepted`, `desc`, `is_deleted`, `read`, `title`, `verification_data_ids`, `user_id`, `user_request_type_id`, `created_at`, `created_by`, `doc_urls`, `updated_at`, `updated_by`) VALUES
 	(1, 0, 'Test description', 1, 0, 'Test request', NULL, 5, 2, '2026-05-12 14:29:17.716255', '5', '[]', '2026-05-12 15:11:36.797838', '5'),
 	(2, 1, 'Test description', 1, 1, 'Test request 1', NULL, 5, 2, '2026-05-12 15:12:12.276366', '5', '[]', '2026-05-12 20:19:51.694375', '1'),
@@ -2693,9 +2832,9 @@ INSERT INTO `user_requests` (`id`, `accepted`, `desc`, `is_deleted`, `read`, `ti
 	(4, 0, 'Test 01', 1, 0, 'Test 01', NULL, 1, 1, '2026-05-12 20:20:22.522390', '1', '[]', '2026-05-12 20:21:25.913749', '1'),
 	(5, 0, 'Test request description', 1, 0, 'Test Request 1', NULL, 5, 1, '2026-05-12 20:46:38.766480', '5', '[]', '2026-05-12 21:49:27.760606', '5'),
 	(6, 1, 'dadasdsa', 0, 1, 'I need to create market at your store', NULL, 6, 1, '2026-10-30 23:02:20.102939', '6', '["user-request-docs/6173ae9a-53a3-4c2f-a590-f5741dcbfdd3.png", "user-request-docs/979f3616-315a-4596-9640-2b68578e50d5.png", "user-request-docs/817e7240-c3ae-409b-90f1-91aadf0a3d6b.png"]', '2026-10-30 23:02:56.511468', '6'),
-	(1001, 0, 'I want to register my shop Kaleox Gadgets as a seller (mobiles & accessories).', 0, 0, 'Become Seller – Kaleox Gadgets', NULL, 1006, 1, '2026-11-02 18:36:42.137013', 'seed', '["users/791b8d1d-b96a-4697-b884-3655d1158862.jpg"]', '2026-11-02 18:36:42.137013', 'seed');
+	(1001, 0, 'I want to register my shop Kaleox Gadgets as a seller (mobiles & accessories).', 0, 0, 'Become Seller â€“ Kaleox Gadgets', NULL, 1006, 1, '2026-11-02 18:36:42.137013', 'seed', '["users/791b8d1d-b96a-4697-b884-3655d1158862.jpg"]', '2026-11-02 18:36:42.137013', 'seed');
 
--- Dumping structure for table deliveryya.user_roles
+-- Dumping structure for table deliveryya1.user_roles
 DROP TABLE IF EXISTS `user_roles`;
 CREATE TABLE IF NOT EXISTS `user_roles` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2705,7 +2844,7 @@ CREATE TABLE IF NOT EXISTS `user_roles` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.user_roles: ~15 rows (approximately)
+-- Dumping data for table deliveryya1.user_roles: ~15 rows (approximately)
 INSERT INTO `user_roles` (`id`, `name`, `session_duration`, `level`) VALUES
 	(1, 'super admin', 10000, 1),
 	(2, 'admin', 10000, 2),
@@ -2723,7 +2862,7 @@ INSERT INTO `user_roles` (`id`, `name`, `session_duration`, `level`) VALUES
 	(14, 'HR assistant', 10000, 17),
 	(15, 'Markets Manager', 10000, 15);
 
--- Dumping structure for table deliveryya.users
+-- Dumping structure for table deliveryya1.users
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2753,33 +2892,34 @@ CREATE TABLE IF NOT EXISTS `users` (
   CONSTRAINT `FK2ku6yhrpoydnovgp9hxpf2pa6` FOREIGN KEY (`verification_status_id`) REFERENCES `verification_status` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKo0h29eo9e4y4wvd5yh0sn03rp` FOREIGN KEY (`gender_id`) REFERENCES `gender` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKsy1luwgtc2qas77si4xlrkjtl` FOREIGN KEY (`user_role_id`) REFERENCES `user_roles` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1016 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1017 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.users: ~21 rows (approximately)
+-- Dumping data for table deliveryya1.users: ~22 rows (approximately)
 INSERT INTO `users` (`id`, `created_at`, `created_by`, `dob`, `email`, `email_verified`, `first_name`, `has_market`, `is_active`, `is_employee`, `last_name`, `nic`, `password`, `profile_img`, `updated_at`, `updated_by`, `gender_id`, `user_role_id`, `verification_status_id`, `is_deleted`) VALUES
-	(1, '2026-05-01 12:21:12.924736', 'anonymousUser', '2026-05-01', 'hansarasasanka@gmail.com', b'1', 'Hansara', b'1', b'1', b'1', 'Hettiarachchi', '200320011252', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', '2026-09-25 19:55:42.359644', '1', 1, 1, 4, b'0'),
-	(2, '2026-05-04 13:57:36.090206', 'anonymousUser', '2026-04-29', 'dsdsa@gmail.com', b'0', 'Sashaware', b'0', b'1', b'0', 'sadaasdas', '000000000000', '$2a$10$6mU4kVHSTSU8cksRwXw/tu26U2v0tg9ewt08N7aoCM25NdnzDTFOi', '', '2026-05-11 18:04:47.871523', '1', NULL, 6, 1, b'1'),
-	(3, '2026-05-04 14:29:33.404240', 'anonymousUser', '2026-04-29', 'dsdsad@gmail.com', b'0', 'Sashaware', b'0', b'1', b'0', 'sadaasdas', NULL, '$2a$10$dFwnj5iP/WqAx.cMDyTEEusbRfRp.tp1ixtoBfR9I/lGUawnanqdy', '', '2026-05-13 19:47:16.304734', '1', NULL, 7, 4, b'0'),
-	(4, '2026-05-05 16:26:17.522315', 'anonymousUser', '2026-04-26', 'hansarasasankaasasdasdsa@gmail.com', b'0', 'fdsfdsdsfs', b'1', b'1', b'0', 'dsfdsfdsfdsfds', '200320011784', '$2a$10$oNunIlX2QUcu4.HKWtq/0.J7Z9CxZZxoE8WazcXzAu/4d5H7ERkPG', '', '2026-05-05 21:24:31.409418', '1', NULL, 3, 4, b'0'),
-	(5, '2026-05-11 13:08:46.191849', 'anonymousUser', '2006-02-21', 'nuwanthaban@gmail.com', b'0', 'Nuwantha', b'1', b'1', b'1', 'Heshan', '200605201596', '$2a$10$E0BZlWRsZZeBtGEXmIABuOiPjM1RB1pWm7UNVT2mtbuOSz2nx1zEu', '', '2026-05-13 20:32:15.459880', '1', NULL, 2, 4, b'0'),
-	(6, '2026-09-26 16:05:12.731298', 'anonymousUser', '2006-02-21', 'nuwantha.bandara@kaleox.com', b'1', 'Nuwantha', b'1', b'1', b'0', 'Heshan', '200605201595', '$2a$10$W4cAkPhsNyD7kZ3ebC.63ugiLU6f..5JtP3jxtBBAiev7GPWQD9.2', 'users/791b8d1d-b96a-4697-b884-3655d1158862.jpg', '2026-10-30 23:10:21.335597', '6', 1, 1, 4, b'0'),
-	(1001, '2026-11-02 18:36:42.137013', 'seed', '1988-04-12', 'superadmin@qa.deliveryya.test', b'1', 'Super', b'0', b'1', b'1', 'Admin', '198804123456V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 1, 1, b'0'),
-	(1002, '2026-11-02 18:36:42.137013', 'seed', '1990-07-01', 'admin@qa.deliveryya.test', b'1', 'Admin', b'0', b'1', b'1', 'Perera', '199007012345V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 2, 1, b'0'),
-	(1003, '2026-11-02 18:36:42.137013', 'seed', '1985-02-20', 'owner@qa.deliveryya.test', b'1', 'Office', b'0', b'1', b'1', 'Owner', '198502203456V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 3, 1, b'0'),
-	(1004, '2026-11-02 18:36:42.137013', 'seed', '1989-11-05', 'manager@qa.deliveryya.test', b'1', 'Nimal', b'0', b'1', b'1', 'Manager', '198911054567V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 4, 1, b'0'),
-	(1005, '2026-11-02 18:36:42.137013', 'seed', '1991-03-18', 'client@qa.deliveryya.test', b'1', 'Kumara', b'1', b'1', b'0', 'Client', '199103185678V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 5, 1, b'0'),
-	(1006, '2026-11-02 18:36:42.137013', 'seed', '1996-09-25', 'customer@qa.deliveryya.test', b'1', 'Nuwan', b'0', b'1', b'0', 'Customer', '199609256789V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 6, 4, b'0'),
-	(1007, '2026-11-02 18:36:42.137013', 'seed', '1993-06-14', 'agent@qa.deliveryya.test', b'1', 'Sunil', b'0', b'1', b'1', 'Agent', '199306147890V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 7, 1, b'0'),
-	(1008, '2026-11-02 18:36:42.137013', 'seed', '1987-12-02', 'marketowner@qa.deliveryya.test', b'1', 'Ruwan', b'1', b'1', b'0', 'Silva', '198712028901V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 8, 1, b'0'),
-	(1009, '2026-11-02 18:36:42.137013', 'seed', '1980-01-30', 'ceo@qa.deliveryya.test', b'1', 'Dilani', b'0', b'1', b'1', 'Fernando', '198001309012V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 9, 1, b'0'),
-	(1010, '2026-11-02 18:36:42.137013', 'seed', '1992-05-21', 'secretory@qa.deliveryya.test', b'1', 'Kamala', b'0', b'1', b'1', 'Nandini', '199205210123V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 10, 1, b'0'),
-	(1011, '2026-11-02 18:36:42.137013', 'seed', '1990-08-08', 'accounts.manager@qa.deliveryya.test', b'1', 'Priya', b'0', b'1', b'1', 'Jayasuriya', '199008081234V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 11, 1, b'0'),
-	(1012, '2026-11-02 18:36:42.137013', 'seed', '1995-04-16', 'accounts.assistant@qa.deliveryya.test', b'1', 'Ravi', b'0', b'1', b'1', 'Bandara', '199504162345V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 12, 1, b'0'),
-	(1013, '2026-11-02 18:36:42.137013', 'seed', '1991-10-11', 'hr.manager@qa.deliveryya.test', b'1', 'Ishara', b'0', b'1', b'1', 'Perera', '199110113456V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 13, 1, b'0'),
-	(1014, '2026-11-02 18:36:42.137013', 'seed', '1997-02-27', 'hr.assistant@qa.deliveryya.test', b'1', 'Chamodi', b'0', b'1', b'1', 'Silva', '199702274567V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 14, 1, b'0'),
-	(1015, '2026-11-02 18:36:42.137013', 'seed', '1986-06-19', 'markets.manager@qa.deliveryya.test', b'1', 'Anura', b'0', b'1', b'1', 'Jayawardena', '198606195678V', '$2a$10$Qt7z3zhgTWd.LsmWQxYnw.TK2IM3gEMdcM68DvPFlKA.aUYmvYRQK', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 15, 1, b'0');
+	(1, '2026-05-01 12:21:12.924736', 'anonymousUser', '2026-05-01', 'hansarasasanka@gmail.com', b'1', 'Hansara', b'1', b'1', b'1', 'Hettiarachchi', '200320011252', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', '2026-09-25 19:55:42.359644', '1', 1, 2, 4, b'0'),
+	(2, '2026-05-04 13:57:36.090206', 'anonymousUser', '2026-04-29', 'dsdsa@gmail.com', b'0', 'Sashaware', b'0', b'1', b'0', 'sadaasdas', '000000000000', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', '', '2026-05-11 18:04:47.871523', '1', NULL, 6, 1, b'1'),
+	(3, '2026-05-04 14:29:33.404240', 'anonymousUser', '2026-04-29', 'dsdsad@gmail.com', b'0', 'Sashaware', b'0', b'1', b'0', 'sadaasdas', NULL, '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', '', '2026-05-13 19:47:16.304734', '1', NULL, 7, 4, b'0'),
+	(4, '2026-05-05 16:26:17.522315', 'anonymousUser', '2026-04-26', 'hansarasasankaasasdasdsa@gmail.com', b'0', 'fdsfdsdsfs', b'1', b'1', b'0', 'dsfdsfdsfdsfds', '200320011784', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', '', '2026-05-05 21:24:31.409418', '1', NULL, 3, 4, b'0'),
+	(5, '2026-05-11 13:08:46.191849', 'anonymousUser', '2006-02-21', 'nuwanthaban@gmail.com', b'0', 'Nuwantha', b'1', b'1', b'1', 'Heshan', '200605201596', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', '', '2026-05-13 20:32:15.459880', '1', NULL, 2, 4, b'0'),
+	(6, '2026-09-26 16:05:12.731298', 'anonymousUser', '2006-02-21', 'nuwantha.bandara@kaleox.com', b'1', 'Nuwantha', b'1', b'1', b'0', 'Heshan', '200605201595', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', 'users/791b8d1d-b96a-4697-b884-3655d1158862.jpg', '2026-10-30 23:10:21.335597', '6', 1, 1, 4, b'0'),
+	(1001, '2026-11-02 18:36:42.137013', 'seed', '1988-04-12', 'superadmin@qa.deliveryya.test', b'1', 'Super', b'0', b'1', b'1', 'Admin', '198804123456V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 1, 1, b'0'),
+	(1002, '2026-11-02 18:36:42.137013', 'seed', '1990-07-01', 'admin@qa.deliveryya.test', b'1', 'Admin', b'0', b'1', b'1', 'Perera', '199007012345V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 2, 1, b'0'),
+	(1003, '2026-11-02 18:36:42.137013', 'seed', '1985-02-20', 'owner@qa.deliveryya.test', b'1', 'Office', b'0', b'1', b'1', 'Owner', '198502203456V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 3, 1, b'0'),
+	(1004, '2026-11-02 18:36:42.137013', 'seed', '1989-11-05', 'manager@qa.deliveryya.test', b'1', 'Nimal', b'0', b'1', b'1', 'Manager', '198911054567V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 4, 1, b'0'),
+	(1005, '2026-11-02 18:36:42.137013', 'seed', '1991-03-18', 'client@qa.deliveryya.test', b'1', 'Kumara', b'1', b'1', b'0', 'Client', '199103185678V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 5, 1, b'0'),
+	(1006, '2026-11-02 18:36:42.137013', 'seed', '1996-09-25', 'customer@qa.deliveryya.test', b'1', 'Nuwan', b'0', b'1', b'0', 'Customer', '199609256789V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 6, 4, b'0'),
+	(1007, '2026-11-02 18:36:42.137013', 'seed', '1993-06-14', 'agent@qa.deliveryya.test', b'1', 'Sunil', b'0', b'1', b'1', 'Agent', '199306147890V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 7, 1, b'0'),
+	(1008, '2026-11-02 18:36:42.137013', 'seed', '1987-12-02', 'marketowner@qa.deliveryya.test', b'1', 'Ruwan', b'1', b'1', b'0', 'Silva', '198712028901V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 8, 1, b'0'),
+	(1009, '2026-11-02 18:36:42.137013', 'seed', '1980-01-30', 'ceo@qa.deliveryya.test', b'1', 'Dilani', b'0', b'1', b'1', 'Fernando', '198001309012V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 9, 1, b'0'),
+	(1010, '2026-11-02 18:36:42.137013', 'seed', '1992-05-21', 'secretory@qa.deliveryya.test', b'1', 'Kamala', b'0', b'1', b'1', 'Nandini', '199205210123V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 10, 1, b'0'),
+	(1011, '2026-11-02 18:36:42.137013', 'seed', '1990-08-08', 'accounts.manager@qa.deliveryya.test', b'1', 'Priya', b'0', b'1', b'1', 'Jayasuriya', '199008081234V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 11, 1, b'0'),
+	(1012, '2026-11-02 18:36:42.137013', 'seed', '1995-04-16', 'accounts.assistant@qa.deliveryya.test', b'1', 'Ravi', b'0', b'1', b'1', 'Bandara', '199504162345V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 12, 1, b'0'),
+	(1013, '2026-11-02 18:36:42.137013', 'seed', '1991-10-11', 'hr.manager@qa.deliveryya.test', b'1', 'Ishara', b'0', b'1', b'1', 'Perera', '199110113456V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 13, 1, b'0'),
+	(1014, '2026-11-02 18:36:42.137013', 'seed', '1997-02-27', 'hr.assistant@qa.deliveryya.test', b'1', 'Chamodi', b'0', b'1', b'1', 'Silva', '199702274567V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 2, 14, 1, b'0'),
+	(1015, '2026-11-02 18:36:42.137013', 'seed', '1986-06-19', 'markets.manager@qa.deliveryya.test', b'1', 'Anura', b'0', b'1', b'1', 'Jayawardena', '198606195678V', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', NULL, '2026-11-02 18:36:42.137013', 'seed', 1, 15, 1, b'0'),
+	(1016, '2026-11-08 13:14:45.866407', 'anonymousUser', '2026-11-05', 'hansarasadasdasdasdasdassanka@gmail.comdas', b'0', 'dasdass', b'0', b'1', b'0', 'adasasdasd', '200320011258', '$2a$10$6YxEAlAhS04Ta37k7ydfr.H2Yx5LUGZoBHrEByBn6IXvIzS8Na0Gy', '', '2026-11-13 19:40:33.147791', '1016', 1, 7, 4, b'0');
 
--- Dumping structure for table deliveryya.vehicle
+-- Dumping structure for table deliveryya1.vehicle
 DROP TABLE IF EXISTS `vehicle`;
 CREATE TABLE IF NOT EXISTS `vehicle` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2792,13 +2932,13 @@ CREATE TABLE IF NOT EXISTS `vehicle` (
   CONSTRAINT `fk_vehicle_vehicle_type1` FOREIGN KEY (`vehicle_type_id`) REFERENCES `vehicle_type` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.vehicle: ~2 rows (approximately)
+-- Dumping data for table deliveryya1.vehicle: ~3 rows (approximately)
 INSERT INTO `vehicle` (`id`, `name`, `number`, `license_exp`, `vehicle_type_id`) VALUES
 	(1, 'Toyota Corolla', 'ABC-1234', '2026-12-31 23:59:59', 2),
 	(2, 'dsgfdfds Corolla', 'ABE-1234', '2026-12-31 23:59:59', 2),
 	(1001, 'Honda Dio 110', 'HR-4521', '2027-12-31 00:00:00', 1);
 
--- Dumping structure for table deliveryya.vehicle_type
+-- Dumping structure for table deliveryya1.vehicle_type
 DROP TABLE IF EXISTS `vehicle_type`;
 CREATE TABLE IF NOT EXISTS `vehicle_type` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2806,13 +2946,13 @@ CREATE TABLE IF NOT EXISTS `vehicle_type` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.vehicle_type: ~3 rows (approximately)
+-- Dumping data for table deliveryya1.vehicle_type: ~3 rows (approximately)
 INSERT INTO `vehicle_type` (`id`, `name`) VALUES
 	(1, 'Bike'),
 	(2, 'Threeweel'),
 	(3, 'Van');
 
--- Dumping structure for table deliveryya.verification_data
+-- Dumping structure for table deliveryya1.verification_data
 DROP TABLE IF EXISTS `verification_data`;
 CREATE TABLE IF NOT EXISTS `verification_data` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2830,15 +2970,15 @@ CREATE TABLE IF NOT EXISTS `verification_data` (
   CONSTRAINT `FKqsqy5tkk9p5bemypo0582b6u6` FOREIGN KEY (`verification_status_id`) REFERENCES `verification_status` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.verification_data: ~5 rows (approximately)
+-- Dumping data for table deliveryya1.verification_data: ~5 rows (approximately)
 INSERT INTO `verification_data` (`id`, `url`, `desc`, `users_id`, `verification_status_id`, `doc_type_id`) VALUES
 	(1, 'users-documents/3a07e651-0a52-404a-8488-ab0dbe570564.jpeg', 'Nic Front', 1, 4, 1),
-	(1001, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 'NIC front — agent', 1007, 1, 1),
-	(1002, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 'NIC back — agent', 1007, 1, 2),
-	(1003, 'users/791b8d1d-b96a-4697-b884-3655d1158862.jpg', 'NIC front — market owner', 1008, 2, 1),
-	(1004, 'users/791b8d1d-b96a-4697-b884-3655d1158862.jpg', 'NIC back — market owner', 1008, 4, 2);
+	(1001, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 'NIC front â€” agent', 1007, 1, 1),
+	(1002, 'users/73f3f211-d469-4547-ad3a-aaa03bdc2671.jpg', 'NIC back â€” agent', 1007, 1, 2),
+	(1003, 'users/791b8d1d-b96a-4697-b884-3655d1158862.jpg', 'NIC front â€” market owner', 1008, 2, 1),
+	(1004, 'users/791b8d1d-b96a-4697-b884-3655d1158862.jpg', 'NIC back â€” market owner', 1008, 4, 2);
 
--- Dumping structure for table deliveryya.verification_status
+-- Dumping structure for table deliveryya1.verification_status
 DROP TABLE IF EXISTS `verification_status`;
 CREATE TABLE IF NOT EXISTS `verification_status` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -2846,7 +2986,7 @@ CREATE TABLE IF NOT EXISTS `verification_status` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table deliveryya.verification_status: ~4 rows (approximately)
+-- Dumping data for table deliveryya1.verification_status: ~4 rows (approximately)
 INSERT INTO `verification_status` (`id`, `name`) VALUES
 	(1, 'Verified'),
 	(2, 'Verification in progress'),
