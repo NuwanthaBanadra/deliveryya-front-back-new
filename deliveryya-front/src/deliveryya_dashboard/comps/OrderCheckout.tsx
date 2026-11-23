@@ -15,7 +15,8 @@ import { useEffect, useRef, useState } from 'react';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import axiosInstance from '../../util/AxiosUtil';
-import { ensureAccessDetails } from '../../util/AccessController';
+import { ensureAccessDetails, hasAccess } from '../../util/AccessController';
+import { DELIVERY_STATUS_ACCESS_IDS } from '../../util/FrontendAccess';
 import { getDeliveryStatusVisual } from '../../util/DeliveryStatusCatalog';
 import { swalButtonClasses, swalColors } from './addOrders/swalColors';
 
@@ -309,20 +310,6 @@ type SelectOption<T extends string | number> = {
   label: string;
 };
 
-const DELIVERY_STATUS_ACCESS_MAP: Record<number, number> = {
-  1: 83,
-  2: 84,
-  3: 85,
-  4: 86,
-  5: 87,
-  6: 88,
-  7: 89,
-  8: 90,
-  9: 91,
-  10: 92,
-  11: 93,
-  12: 94,
-};
 
 const DELIVERY_STATUS_NOTE_TEMPLATES: Record<number, string[]> = {
   1: ['Order is being processed at the branch.'],
@@ -610,12 +597,8 @@ const OrderCheckout = () => {
               return false;
             }
 
-            // Temporarily disable access filtering to allow all statuses
-            // const requiredAccessId = DELIVERY_STATUS_ACCESS_MAP[status.id];
-            // const hasAccess = requiredAccessId ? allowedAccessIds.has(requiredAccessId) : false;
-            // console.log(`Status ${status.id} (${status.name}): requiredAccessId=${requiredAccessId}, hasAccess=${hasAccess}`);
-            // return hasAccess;
-            return true;
+            const requiredAccessId = DELIVERY_STATUS_ACCESS_IDS[status.id];
+            return requiredAccessId ? hasAccess(requiredAccessId) : false;
           });
 
         setDeliveryStatusOptions(parsedStatuses);

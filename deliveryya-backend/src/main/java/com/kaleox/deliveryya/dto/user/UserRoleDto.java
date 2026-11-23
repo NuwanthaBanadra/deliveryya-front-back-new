@@ -23,4 +23,6 @@ public class UserRoleDto implements Serializable {
 
     @NotNull
     Integer level;
+
+    Boolean isEmployee;
 }

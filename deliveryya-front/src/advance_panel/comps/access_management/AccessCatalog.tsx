@@ -20,6 +20,12 @@ import {
   setApiFeaturesForApi,
 } from '../../../util/AccessApi';
 import { swalAlert } from '../../../util/SwalUtil';
+import { hasAccess } from '../../../util/AccessController';
+import {
+  ACCESS_LEVEL_IDS,
+  FRONTEND_ACCESS_IDS,
+  FRONTEND_ACCESS_LEVELS,
+} from '../../../util/FrontendAccess';
 import CreateAccessModal from './modals/CreateAccessModal';
 import SetAccessModal from './modals/SetAccessModal';
 import {
@@ -285,6 +291,7 @@ const FeaturePickerModal: React.FC<FeaturePickerModalProps> = ({
 };
 
 const AccessCatalog: React.FC = () => {
+  const canManageCatalog = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.ACCESS_CATALOG_MANAGE), []);
   const [accesses, setAccesses] = useState<AccessRecord[]>([]);
   const [selectedAccess, setSelectedAccess] = useState<AccessRecord | null>(null);
   const [accessSearch, setAccessSearch] = useState('');
@@ -516,14 +523,14 @@ const AccessCatalog: React.FC = () => {
               <p className="text-sm text-gray-500">Create access records, link APIs, and set feature-level grants.</p>
             </div>
           </div>
-          <button
+          {canManageCatalog && <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:shadow-md"
           >
             <PlusIcon className="h-4 w-4" />
             Create Access
-          </button>
+          </button>}
         </div>
 
         <div className="px-6 py-5">
@@ -616,7 +623,19 @@ const AccessCatalog: React.FC = () => {
                         </button>
                       </td>
                       <td className="px-5 py-4 text-sm text-gray-700">{access.accessType?.name ?? '-'}</td>
-                      <td className="px-5 py-4 text-sm text-gray-700">{access.accessLevel?.name ?? '-'}</td>
+                      <td className="px-5 py-4 text-sm text-gray-700">
+                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          Number(access.accessLevel?.id) === ACCESS_LEVEL_IDS.TOP
+                            ? 'bg-red-50 text-red-700 ring-1 ring-red-200'
+                            : Number(access.accessLevel?.id) === ACCESS_LEVEL_IDS.MID
+                              ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                              : 'bg-slate-50 text-slate-700 ring-1 ring-slate-200'
+                        }`}>
+                          {Number(access.id) in FRONTEND_ACCESS_LEVELS
+                            ? `Level ${FRONTEND_ACCESS_LEVELS[Number(access.id) as keyof typeof FRONTEND_ACCESS_LEVELS]}`
+                            : access.accessLevel?.name ?? '-'}
+                        </span>
+                      </td>
                       <td className="px-5 py-4 text-center">
                         <span className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
                           {access.apis.length}

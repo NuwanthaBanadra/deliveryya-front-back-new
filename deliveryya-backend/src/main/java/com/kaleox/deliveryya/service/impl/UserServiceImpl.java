@@ -734,9 +734,8 @@ public class UserServiceImpl implements UserService {
                 && dto.getVerificationStatusId() == null
                 && dto.getIsActive() == null
                 && dto.getIsDeleted() == null
-                && dto.getIsEmployee() == null
                 && dto.getHasMarket() == null) {
-            throw new BusinessException("At least one field is required for update", Map.of("request", "Provide at least one of userRoleId, verificationStatusId, isActive, isDeleted, isEmployee, or hasMarket"));
+            throw new BusinessException("At least one field is required for update", Map.of("request", "Provide at least one of userRoleId, verificationStatusId, isActive, isDeleted, or hasMarket"));
         }
 
         User actor = userRepo.findById(actorUserId)
@@ -774,6 +773,7 @@ public class UserServiceImpl implements UserService {
             }
 
             user.setUserRole(userRole);
+            user.setIsEmployee(Boolean.TRUE.equals(userRole.getIsEmployee()));
         }
 
         if (dto.getVerificationStatusId() != null) {
@@ -790,9 +790,6 @@ public class UserServiceImpl implements UserService {
             user.setIsDeleted(dto.getIsDeleted());
         }
 
-        if (dto.getIsEmployee() != null) {
-            user.setIsEmployee(dto.getIsEmployee());
-        }
         if (dto.getHasMarket() != null) {
             user.setHasMarket(dto.getHasMarket());
         }

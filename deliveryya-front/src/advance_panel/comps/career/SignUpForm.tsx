@@ -4,7 +4,7 @@ import axiosInstance from '../../../util/AxiosUtil';
 import type { SignUpFormData } from './types';
 
 interface SignUpFormProps {
-  onSignUpSuccess: (userId: number, firstName: string, lastName: string) => void;
+  onSignUpSuccess: (userId: number, firstName: string, lastName: string, email: string) => void;
   isLoading: boolean;
 }
 
@@ -97,7 +97,7 @@ export const SignUpForm = ({ onSignUpSuccess, isLoading }: SignUpFormProps) => {
             text: 'User account created. Now proceed with employee registration.',
           });
 
-          onSignUpSuccess(userId, formData.firstName, formData.lastName);
+          onSignUpSuccess(userId, formData.firstName, formData.lastName, formData.email);
         } else {
           Swal.fire({
             icon: 'error',

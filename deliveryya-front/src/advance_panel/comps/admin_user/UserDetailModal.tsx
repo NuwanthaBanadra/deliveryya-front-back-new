@@ -16,6 +16,7 @@
 } from '@heroicons/react/24/outline';
 import { useEffect, useState, useMemo } from 'react';
 import Select from 'react-select';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance, { baseURL } from '../../../util/AxiosUtil';
 import { swalAlert, swalConfirm, swalErrorModal } from '../../../util/SwalUtil';
 import { hasAccess } from '../../../util/AccessController';
@@ -105,8 +106,6 @@ interface UpdateUserRoleOrDeletePayload {
   userRoleId?: number;
   verificationStatusId?: number;
   isActive?: boolean;
-  isEmployee?: boolean;
-  hasMarket?: boolean;
   isDeleted?: boolean;
 }
 
@@ -157,8 +156,6 @@ const getUserDisplayName = (user?: UserData | null) => {
   return fullName || user.name?.trim() || user.email?.trim() || `User #${user.id}`;
 };
 
-type UserFlagKey = 'isEmployee' | 'hasMarket';
-
 export function UserDetailModal({
   isOpen,
   userId,
@@ -167,6 +164,7 @@ export function UserDetailModal({
   onSendNotificationClick,
   onViewNotificationsClick,
 }: UserDetailModalProps) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [roles, setRoles] = useState<SelectOption[]>([]);
@@ -186,6 +184,10 @@ export function UserDetailModal({
   );
   const canUpdateOrDeleteUsers = useMemo(
     () => hasAccess(FRONTEND_ACCESS_IDS.USER_ROLE_UPDATE_OR_DELETE),
+    []
+  );
+  const canVerifyDocuments = useMemo(
+    () => hasAccess(FRONTEND_ACCESS_IDS.VERIFY_DOCUMENTS),
     []
   );
   const canUseNotifications = useMemo(
@@ -323,6 +325,12 @@ export function UserDetailModal({
     !isViewingOwnUser &&
     canManageRoleLevel(currentUserRoleAccess, viewedUserRoleLevel)
   );
+  const canUpdateVerification = Boolean(
+    user &&
+    canVerifyDocuments &&
+    !isViewingOwnUser &&
+    canManageRoleLevel(currentUserRoleAccess, viewedUserRoleLevel)
+  );
   const roleOrVerificationBlockReason = isViewingOwnUser
     ? 'You cannot update your own role or verification status.'
     : !canUpdateOrDeleteUsers
@@ -366,9 +374,9 @@ export function UserDetailModal({
         userId: Number(userId),
         userRoleId: selectedRole.value,
       });
-      swalAlert('Success', 'Role updated successfully', 'success');
       onRefreshTable();
-      loadUserData();
+      await loadUserData();
+      void swalAlert('Success', 'Role updated successfully', 'success');
     } catch (err: any) {
       console.error('Error updating role:', err);
       swalErrorModal('Error', err?.response?.data?.desc || 'Failed to update role');
@@ -379,7 +387,10 @@ export function UserDetailModal({
 
   const handleUpdateVerificationStatus = async () => {
     if (!selectedVerificationStatus || !userId) return;
-    if (!ensureCanUpdateRoleOrVerification()) return;
+    if (!canUpdateVerification) {
+      void swalAlert('Action Not Allowed', 'You do not have permission to verify documents.', 'warning');
+      return;
+    }
 
     try {
       setIsUpdating(true);
@@ -387,9 +398,9 @@ export function UserDetailModal({
         userId: Number(userId),
         verificationStatusId: selectedVerificationStatus.value,
       });
-      swalAlert('Success', 'Verification status updated successfully', 'success');
       onRefreshTable();
-      loadUserData();
+      await loadUserData();
+      void swalAlert('Success', 'Verification status updated successfully', 'success');
     } catch (err: any) {
       console.error('Error updating verification status:', err);
       swalErrorModal('Error', err?.response?.data?.desc || 'Failed to update verification status');
@@ -416,9 +427,9 @@ export function UserDetailModal({
           userId: Number(userId),
           isDeleted: true,
         });
-        swalAlert('Success', 'User deleted successfully', 'success');
         onRefreshTable();
         onClose();
+        void swalAlert('Success', 'User deleted successfully', 'success');
       } catch (err: any) {
         console.error('Error deleting user:', err);
         swalErrorModal('Error', err?.response?.data?.desc || 'Failed to delete user');
@@ -450,39 +461,15 @@ export function UserDetailModal({
           userId: Number(userId),
           isActive: !isCurrentlyActive,
         });
-        swalAlert('Success', `User ${actionText}d successfully`, 'success');
         onRefreshTable();
-        loadUserData();
+        await loadUserData();
+        void swalAlert('Success', `User ${actionText}d successfully`, 'success');
       } catch (err: any) {
         console.error(`Error ${actionText}ing user:`, err);
         swalErrorModal('Error', err?.response?.data?.desc || `Failed to ${actionText} user`);
       } finally {
         setIsUpdating(false);
       }
-    }
-  };
-
-  const handleToggleUserFlag = async (flag: UserFlagKey) => {
-    if (!userId || !user) return;
-    if (!ensureCanUpdateRoleOrVerification()) return;
-
-    const nextValue = !Boolean(user[flag]);
-    const label = flag === 'isEmployee' ? 'employee access' : 'market access';
-
-    try {
-      setIsUpdating(true);
-      await updateUserRoleOrDelete({
-        userId: Number(userId),
-        [flag]: nextValue,
-      });
-      await swalAlert('Updated', `${label} ${nextValue ? 'enabled' : 'disabled'} successfully.`, 'success');
-      onRefreshTable();
-      loadUserData();
-    } catch (err: any) {
-      console.error(`Error updating ${flag}:`, err);
-      swalErrorModal('Error', err?.response?.data?.desc || `Failed to update ${label}`);
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -820,55 +807,28 @@ export function UserDetailModal({
                   </div>
                 )}
 
-                <div className="rounded-2xl border border-gray-100 bg-gray-50 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-xs font-black uppercase tracking-wide text-gray-500">Quick Flags</p>
-                    {isUpdating && <span className="text-[11px] font-bold text-[#F59B0F]">Saving...</span>}
-                  </div>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleUserFlag('isEmployee')}
-                      disabled={isUpdating || !canUpdateRoleOrVerification}
-                      aria-pressed={Boolean(user.isEmployee)}
-                      className={`group flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                        user.isEmployee
-                          ? 'border-teal-200 bg-teal-50 text-teal-800'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-teal-200 hover:bg-teal-50/60'
-                      }`}
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <BriefcaseIcon className="h-4 w-4 shrink-0" />
-                        <span className="text-sm font-bold">Employee</span>
-                      </span>
-                      <span className={`relative h-5 w-9 shrink-0 rounded-full transition ${user.isEmployee ? 'bg-teal-500' : 'bg-gray-300'}`}>
-                        <span className={`absolute top-1 h-3 w-3 rounded-full bg-white transition ${user.isEmployee ? 'left-5' : 'left-1'}`} />
-                      </span>
-                    </button>
+                {/* Has market quick toggle intentionally disabled. */}
 
-                    <button
-                      type="button"
-                      onClick={() => handleToggleUserFlag('hasMarket')}
-                      disabled={isUpdating || !canUpdateRoleOrVerification}
-                      aria-pressed={Boolean(user.hasMarket)}
-                      className={`group flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                        user.hasMarket
-                          ? 'border-violet-200 bg-violet-50 text-violet-800'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-violet-200 hover:bg-violet-50/60'
-                      }`}
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <BuildingStorefrontIcon className="h-4 w-4 shrink-0" />
-                        <span className="text-sm font-bold">Market</span>
-                      </span>
-                      <span className={`relative h-5 w-9 shrink-0 rounded-full transition ${user.hasMarket ? 'bg-violet-500' : 'bg-gray-300'}`}>
-                        <span className={`absolute top-1 h-3 w-3 rounded-full bg-white transition ${user.hasMarket ? 'left-5' : 'left-1'}`} />
-                      </span>
-                    </button>
+                {user.isEmployee && (
+                  <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <BriefcaseIcon className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-teal-900">Employee role assigned</p>
+                        <p className="mt-1 text-sm text-teal-800">Complete the employee profile with contact details, branch, verification status, and live location.</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/deliverYya-cloud-console/career', { state: { preSelectedUser: { id: user.id, firstName: user.firstName ?? user.name?.split(' ')[0] ?? '', lastName: user.lastName ?? user.name?.split(' ').slice(1).join(' ') ?? '', email: user.email ?? '', nic: user.nic ?? '' }, preSelectedUserId: user.id } })}
+                          className="mt-3 rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-teal-800"
+                        >
+                          Continue employee registration
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div>
+                {canUpdateOrDeleteUsers && <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Update User Role</label>
                   <div className="flex gap-2">
                     <div className="flex-1">
@@ -889,9 +849,9 @@ export function UserDetailModal({
                       {isUpdating ? 'Wait...' : 'Update'}
                     </button>
                   </div>
-                </div>
+                </div>}
 
-                <div>
+                {canVerifyDocuments && <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Update Verification Status</label>
                   <div className="flex gap-2">
                     <div className="flex-1">
@@ -899,20 +859,20 @@ export function UserDetailModal({
                         options={verificationStatuses}
                         value={selectedVerificationStatus}
                         onChange={setSelectedVerificationStatus}
-                        placeholder={canUpdateRoleOrVerification ? 'Select new status...' : 'Verification update unavailable'}
-                        isDisabled={!canUpdateRoleOrVerification || isUpdating}
+                        placeholder={canUpdateVerification ? 'Select new status...' : 'Verification update unavailable'}
+                        isDisabled={!canUpdateVerification || isUpdating}
                         styles={{ control: (base, state) => ({ ...base, borderRadius: '0.75rem', borderColor: state.isFocused ? '#F59B0F' : '#e5e7eb', boxShadow: 'none' }) }}
                       />
                     </div>
                     <button
                       onClick={handleUpdateVerificationStatus}
-                      disabled={!selectedVerificationStatus || isUpdating || !canUpdateRoleOrVerification}
+                      disabled={!selectedVerificationStatus || isUpdating || !canUpdateVerification}
                       className="px-4 py-2 bg-[#F59B0F] hover:bg-[#d98505] text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 min-w-20"
                     >
                       {isUpdating ? 'Wait...' : 'Update'}
                     </button>
                   </div>
-                </div>
+                </div>}
 
                 <div className="h-px bg-gray-100 w-full" />
 

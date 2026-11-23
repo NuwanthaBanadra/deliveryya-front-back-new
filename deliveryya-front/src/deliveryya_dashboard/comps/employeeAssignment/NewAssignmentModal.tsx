@@ -13,6 +13,8 @@ import MapLocationModal from '../addOrders/MapLocationModal';
 import axiosInstance from '../../../util/AxiosUtil';
 import { debounce } from '../../../util/DebounceUtil';
 import JwtUtil from '../../../util/JwtUtil';
+import { getCurrentUserId, hasAccess } from '../../../util/AccessController';
+import { FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
 import type { EmployeeSelectOption } from './types';
 
 interface NewAssignmentModalProps {
@@ -98,10 +100,11 @@ const getAgentJobsScope = (): { roleId: number | null; userId: number | null } =
     ? localUserId
     : (Number.isFinite(jwtUserId) && jwtUserId > 0 ? jwtUserId : null);
 
-  const isLimitedRole = roleId === 5 || roleId === 6 || roleId === 7;
+  const isAgent = hasAccess(FRONTEND_ACCESS_IDS.EMPLOYEE_ASSIGNMENTS)
+    && !hasAccess(FRONTEND_ACCESS_IDS.PICKUP_REQUEST_ASSIGNMENTS);
   return {
     roleId: Number.isFinite(roleId) ? roleId : null,
-    userId: isLimitedRole ? effectiveUserId : null,
+    userId: isAgent ? (getCurrentUserId() ?? effectiveUserId) : null,
   };
 };
 

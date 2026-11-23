@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -93,7 +94,7 @@ public class OrderController {
                 .build());
     }
 
-    //    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','OWNER','MANAGER','MARKET_OWNER','SECRETORY','ACCOUNTS_MANAGER','ACCOUNT_ASSISTANT','MARKETS_MANAGER')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','OWNER','MANAGER','MARKET_OWNER','SECRETORY','ACCOUNTS_MANAGER','ACCOUNT_ASSISTANT','MARKETS_MANAGER')")
     @PostMapping("/request-codes")
     public ResponseEntity<ResponseDto> requestCodes(@AuthenticationPrincipal UserDetails userDetails, @RequestBody @Valid RequestOrderCode requestOrderCode) {
 
@@ -289,7 +290,7 @@ public class OrderController {
                 .collect(Collectors.toSet());
 
         Set<String> allowedRoles = Set.of(
-                "ROLE_SUPER ADMIN", "ROLE_ADMIN", "ROLE_OWNER", "ROLE_MANAGER",
+                "ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_OWNER", "ROLE_MANAGER",
                 "ROLE_CLIENT", "ROLE_MARKET_OWNER", "ROLE_SECRETORY",
                 "ROLE_ACCOUNTS_MANAGER", "ROLE_ACCOUNT_ASSISTANT", "ROLE_MARKETS_MANAGER"
         );
@@ -301,12 +302,7 @@ public class OrderController {
                 throw new BusinessException("User ID is required for this role", Map.of("userId", "User ID is required"));
             }
         }
-        System.out.println("================================================");
-        System.out.println("================================================");
-        System.out.println("================================================");
-        System.out.println("================================================");
-        System.out.println("================================================");
-        System.out.println(roles);
+
 
         return ResponseEntity.ok(ResponseDto.<OnHandSummaryDto>builder()
                 .message("Success")

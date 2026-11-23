@@ -186,6 +186,8 @@ function CategoryBrandsManager({ marketIdOverride }: CategoryBrandsManagerProps)
   const canDeleteProducts = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.PRODUCT_DELETE), []);
   const canDeleteCategories = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.PRODUCT_CATEGORY_DELETE), []);
   const canDeleteBrands = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.PRODUCT_BRAND_DELETE), []);
+  const canForceDeleteCatalog = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.CATALOG_FORCE_DELETE), []);
+  const canModerateFeedback = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.FEEDBACK_MODERATION), []);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewProduct, setViewProduct] = useState<Product | null>(null);
   const [viewProductDetails, setViewProductDetails] = useState<ProductDetailsData | null>(null);
@@ -1589,7 +1591,7 @@ function CategoryBrandsManager({ marketIdOverride }: CategoryBrandsManagerProps)
   };
 
   const handleDeleteFeedback = async (feedbackId: number) => {
-    if (!canDeleteProducts) return;
+    if (!canModerateFeedback) return;
 
     const result = await Swal.fire({
       title: 'Delete feedback?',
@@ -1704,8 +1706,8 @@ function CategoryBrandsManager({ marketIdOverride }: CategoryBrandsManagerProps)
               <div className="grid gap-3 md:grid-cols-2">
                 {categories.map((category) => (
                   <CategoryCard key={category.id} category={category} isExpanded={false}
-                    onExpand={handleExpandCategory} onStatusChange={handleStatusChange}
-                    onDelete={handleDeleteCategory} canDelete={canDeleteCategories} onRefresh={() => { if (marketId) { loadCategories(marketId); loadBrands(marketId); } }} />
+                  onExpand={handleExpandCategory} onStatusChange={handleStatusChange}
+                  onDelete={handleDeleteCategory} canDelete={canDeleteCategories} canForceDelete={canForceDeleteCatalog} onRefresh={() => { if (marketId) { loadCategories(marketId); loadBrands(marketId); } }} />
                 ))}
               </div>}
           </div>
@@ -1736,7 +1738,7 @@ function CategoryBrandsManager({ marketIdOverride }: CategoryBrandsManagerProps)
                     onViewFeedback={handleOpenFeedback}
                     onToggleStatus={(productId, isActive) => handleToggleStatus(0, brand.id, productId, isActive)}
                     onDeleteBrand={() => handleInitiateBrandDelete(brand)}
-                    canDeleteProducts={canDeleteProducts} canDeleteBrand={canDeleteBrands} onRefresh={() => { if (marketId) { loadCategories(marketId); loadBrands(marketId); } }} />
+                    canDeleteProducts={canDeleteProducts} canDeleteBrand={canDeleteBrands} canForceDelete={canForceDeleteCatalog} onRefresh={() => { if (marketId) { loadCategories(marketId); loadBrands(marketId); } }} />
                 ))}
               </div>}
           </div>

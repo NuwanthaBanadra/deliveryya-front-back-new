@@ -1,6 +1,5 @@
 export const FRONTEND_ACCESS_IDS = {
-  // Sidebar route and sub-route access IDs. These IDs are seeded by
-  // docs/api/seed_access_management.sql and are intentionally deterministic.
+  // ------------------------------------------------------------------ routes
   DASHBOARD: 25,
   VIEW_PLACED_ORDERS: 26,
   ADD_ORDERS: 27,
@@ -27,7 +26,7 @@ export const FRONTEND_ACCESS_IDS = {
   ACCESS_MANAGEMENT: 48,
   BANK_DETAILS: 49,
 
-  // Mode-specific access IDs used by shared pages to choose scoped behavior.
+  // ---------------------------------- mode-specific IDs used by shared pages
   DASHBOARD_DELIVERY_COMPANY: 50,
   DASHBOARD_CLIENT_MARKET_OWNER: 51,
   ORDER_ANALYTICS_DELIVERY_COMPANY: 52,
@@ -35,13 +34,13 @@ export const FRONTEND_ACCESS_IDS = {
   ACCOUNTS_DELIVERY_COMPANY: 54,
   ACCOUNTS_CLIENT_MARKET_OWNER: 55,
 
-  // Additional sidebar sub-route access IDs.
+  // ------------------------------------------------- additional sub-routes
   MARKET_REQUESTS: 56,
   PICKUP_REQUEST_ASSIGNMENTS: 57,
   ON_HAND_ORDERS: 58,
   DELIVERY_FEES_VIEW: 59,
 
-  // Action-level access IDs used inside pages.
+  // ---------------------------------------- action-level IDs inside pages
   USER_ROLE_UPDATE_OR_DELETE: 60,
   PRODUCT_DELETE: 61,
   PRODUCT_CATEGORY_DELETE: 62,
@@ -66,7 +65,7 @@ export const FRONTEND_ACCESS_IDS = {
   AUTH_ACCOUNT_ENTRY_ACCESS: 81,
   NAVBAR_ACCESS: 82,
 
-  // Delivery status access IDs.
+  // ------------------------------------------- delivery status permissions
   DELIVERY_STATUS_PROCESSING: 83,
   DELIVERY_STATUS_READY_TO_PICKUP: 84,
   DELIVERY_STATUS_BORROW_FROM_CLIENTS: 85,
@@ -81,16 +80,58 @@ export const FRONTEND_ACCESS_IDS = {
   DELIVERY_STATUS_HOLDING_AT_BRANCH: 94,
 
   PAYMENT_RECORD_DIRECTION: 95,
-  PLACED_ORDERS_SENDING_USER_FILTER: 100,
-  ORDER_ANALYTICS_SENDING_USER_FILTER: 101,
-  PROMOTE_USER: 102,
 
-  // Wallet Access IDs
+  // ---------------------------------------------------------------- wallets
   AGENT_WALLET: 96,
   CLIENT_MARKET_OWNER_WALLET: 97,
   COMPANY_WALLET: 98,
   WALLET_MANAGEMENT: 99,
 
+  PLACED_ORDERS_SENDING_USER_FILTER: 100,
+  ORDER_ANALYTICS_SENDING_USER_FILTER: 101,
+  PROMOTE_USER: 102,
+
+  // ------------------------------------------- new IDs (full configuration)
+  /** Top – soft/hard delete of a market record (Market Requests / Markets). */
+  MARKET_DELETE: 103,
+  /** Top – irreversible force delete of products / categories / brands. Super Admin only. */
+  CATALOG_FORCE_DELETE: 104,
+  /** Top – update / delete customer feedback on products. */
+  FEEDBACK_MODERATION: 105,
+  /** Top – irreversible force delete of a user. Super Admin only. */
+  USER_FORCE_DELETE: 106,
+  /** Low – delete own complaint records. */
+  OWN_COMPLAINT_DELETE: 107,
+  /** Low – cancel own pending orders. */
+  OWN_ORDER_CANCEL: 108,
+  /** Top – create / edit accesses, link APIs, API features. Super Admin only. */
+  ACCESS_CATALOG_MANAGE: 109,
+  /** Top – grant / revoke accesses for a user role. */
+  ROLE_PERMISSION_GRANT: 110,
+  /** Top – grant / revoke accesses for an individual user. */
+  USER_ACCESS_GRANT: 111,
+  /** Top – delete an order code request. */
+  ORDERCODE_REQUEST_DELETE: 112,
+  /** Low – placed orders page in client / market owner mode. */
+  PLACED_ORDERS_CLIENT_MARKET_OWNER: 113,
+  /** Top – delete an urgent job. */
+  URGENT_JOB_DELETE: 114,
+  /** Mid – create payment records / validate references. */
+  PAYMENT_RECORD_CREATE: 115,
+  /** Mid – view branch wallet balance and ledger. */
+  BRANCH_WALLET: 116,
+  /** Mid – create / update branches and manage branch employees. */
+  BRANCH_MANAGEMENT: 117,
+  /** Mid – create and manage per-user delivery discounts. */
+  DISCOUNTS_MANAGEMENT: 118,
+  /** Mid – settlement report page. */
+  SETTLEMENT_REPORT: 119,
+  /** Mid – user monthly orders page. */
+  USER_MONTHLY_ORDERS: 120,
+  /** Mid – send push notifications, e-mails and SMS to users. */
+  SEND_NOTIFICATIONS: 121,
+
+  // ------------------------------------------------------------- aliases
   // Canonical aliases matching the seeded access names. Keep the names above
   // for existing imports; use these for new code where they read better.
   DASHBOARD_ROUTE_ACCESS: 25,
@@ -110,6 +151,10 @@ export const FRONTEND_ACCESS_IDS = {
   DELETE_USER_REQUESTS: 74,
   CHECKOUT_ACCESS: 77,
   URGENT_JOB_ACCESS: 78,
+  PRODUCT_FORCE_DELETE: 104,
+  USER_DELETE: 106,
+  BRANCHES: 117,
+  DISCOUNTS: 118,
 } as const;
 
 export type FrontendAccessId = typeof FRONTEND_ACCESS_IDS[keyof typeof FRONTEND_ACCESS_IDS];
@@ -186,11 +231,136 @@ export const FRONTEND_ACCESS_LABELS: Record<FrontendAccessId, string> = {
   [FRONTEND_ACCESS_IDS.DELIVERY_STATUS_RESCHEDULING]: 'Delivery Status: Recheduling',
   [FRONTEND_ACCESS_IDS.DELIVERY_STATUS_HOLDING_AT_BRANCH]: 'Delivery Status: Holding At Branch',
   [FRONTEND_ACCESS_IDS.PAYMENT_RECORD_DIRECTION]: 'Payment Record Direction',
-  [FRONTEND_ACCESS_IDS.PLACED_ORDERS_SENDING_USER_FILTER]: 'Placed Orders - Sending User Filter',
-  [FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_SENDING_USER_FILTER]: 'Order Analytics - Sending User Filter',
-  [FRONTEND_ACCESS_IDS.PROMOTE_USER]: 'Promote User',
-  [FRONTEND_ACCESS_IDS.AGENT_WALLET]: 'Agent Wallet Access',
-  [FRONTEND_ACCESS_IDS.CLIENT_MARKET_OWNER_WALLET]: 'Client Market Owner Wallet Access',
-  [FRONTEND_ACCESS_IDS.COMPANY_WALLET]: 'Company Wallet Access',
+  [FRONTEND_ACCESS_IDS.AGENT_WALLET]: 'Agent Wallet',
+  [FRONTEND_ACCESS_IDS.CLIENT_MARKET_OWNER_WALLET]: 'Client Market Owner Wallet',
+  [FRONTEND_ACCESS_IDS.COMPANY_WALLET]: 'Company Wallet',
   [FRONTEND_ACCESS_IDS.WALLET_MANAGEMENT]: 'Wallet Management',
+  [FRONTEND_ACCESS_IDS.PLACED_ORDERS_SENDING_USER_FILTER]: 'Placed Orders Sending User Filter',
+  [FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_SENDING_USER_FILTER]: 'Order Analytics Sending User Filter',
+  [FRONTEND_ACCESS_IDS.PROMOTE_USER]: 'Promote User',
+  [FRONTEND_ACCESS_IDS.MARKET_DELETE]: 'Market Delete',
+  [FRONTEND_ACCESS_IDS.CATALOG_FORCE_DELETE]: 'Catalog Force Delete',
+  [FRONTEND_ACCESS_IDS.FEEDBACK_MODERATION]: 'Feedback Moderation',
+  [FRONTEND_ACCESS_IDS.USER_FORCE_DELETE]: 'User Force Delete',
+  [FRONTEND_ACCESS_IDS.OWN_COMPLAINT_DELETE]: 'Own Complaint Delete',
+  [FRONTEND_ACCESS_IDS.OWN_ORDER_CANCEL]: 'Own Order Cancel',
+  [FRONTEND_ACCESS_IDS.ACCESS_CATALOG_MANAGE]: 'Access Catalog Manage',
+  [FRONTEND_ACCESS_IDS.ROLE_PERMISSION_GRANT]: 'Role Permission Grant',
+  [FRONTEND_ACCESS_IDS.USER_ACCESS_GRANT]: 'User Access Grant',
+  [FRONTEND_ACCESS_IDS.ORDERCODE_REQUEST_DELETE]: 'Ordercode Request Delete',
+  [FRONTEND_ACCESS_IDS.PLACED_ORDERS_CLIENT_MARKET_OWNER]: 'Placed Orders - Client Market Owner Side',
+  [FRONTEND_ACCESS_IDS.URGENT_JOB_DELETE]: 'Urgent Job Delete',
+  [FRONTEND_ACCESS_IDS.PAYMENT_RECORD_CREATE]: 'Payment Record Create',
+  [FRONTEND_ACCESS_IDS.BRANCH_WALLET]: 'Branch Wallet',
+  [FRONTEND_ACCESS_IDS.BRANCH_MANAGEMENT]: 'Branch Management',
+  [FRONTEND_ACCESS_IDS.DISCOUNTS_MANAGEMENT]: 'Discounts Management',
+  [FRONTEND_ACCESS_IDS.SETTLEMENT_REPORT]: 'Settlement Report',
+  [FRONTEND_ACCESS_IDS.USER_MONTHLY_ORDERS]: 'User Monthly Orders',
+  [FRONTEND_ACCESS_IDS.SEND_NOTIFICATIONS]: 'Send Notifications',
+} as const;
+
+/** Access level ids (access_level table). */
+export const ACCESS_LEVEL_IDS = {
+  TOP: 1,
+  MID: 2,
+  LOW: 3,
+} as const;
+
+export type AccessLevelId = typeof ACCESS_LEVEL_IDS[keyof typeof ACCESS_LEVEL_IDS];
+
+/**
+ * Access level of every access id (mirrors `access.access_level_id`). Useful
+ * for UI hints, e.g. rendering Top-level actions with a confirmation dialog.
+ */
+export const FRONTEND_ACCESS_LEVELS: Record<FrontendAccessId, AccessLevelId> = {
+  25: 2, 26: 2, 27: 2, 28: 2, 29: 2, 30: 2, 31: 2, 32: 2, 33: 2, 34: 2, 35: 2, 36: 2,
+  37: 2, 38: 2, 39: 2, 40: 2, 41: 3, 42: 3, 43: 3, 44: 3, 45: 2, 46: 3, 47: 3, 48: 1,
+  49: 2, 50: 2, 51: 3, 52: 2, 53: 3, 54: 2, 55: 3, 56: 2, 57: 2, 58: 2, 59: 3, 60: 1,
+  61: 1, 62: 1, 63: 1, 64: 1, 65: 1, 66: 1, 67: 1, 68: 1, 69: 1, 70: 3, 71: 3, 72: 3,
+  73: 2, 74: 1, 75: 3, 76: 3, 77: 3, 78: 3, 79: 3, 80: 3, 81: 3, 82: 3, 83: 3, 84: 3,
+  85: 3, 86: 3, 87: 3, 88: 3, 89: 3, 90: 3, 91: 3, 92: 3, 93: 3, 94: 3, 95: 2, 96: 2,
+  97: 2, 98: 1, 99: 1, 100: 2, 101: 2, 102: 1, 103: 1, 104: 1, 105: 1, 106: 1, 107: 3,
+  108: 3, 109: 1, 110: 1, 111: 1, 112: 1, 113: 3, 114: 1, 115: 2, 116: 2, 117: 2, 118: 2,
+  119: 2, 120: 2, 121: 2,
+};
+
+/**
+ * Maps `delivery_status.id` -> access id that allows setting that status.
+ * Used by Order Checkout / Placed Orders to filter the status dropdown.
+ */
+export const DELIVERY_STATUS_ACCESS_IDS: Record<number, FrontendAccessId> = {
+  1: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_PROCESSING,
+  2: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_READY_TO_PICKUP,
+  3: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_BORROW_FROM_CLIENTS,
+  4: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_VERIFYING_IN_COMPANY,
+  5: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_ON_THE_WAY,
+  6: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_AT_YOUR_DOORSTEP,
+  7: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_DELIVERED_BY_AGENT,
+  8: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_RETURNING,
+  9: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_RETURNED,
+  10: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_RESCHEDULING,
+  11: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_HOLDING_AT_BRANCH,
+  12: FRONTEND_ACCESS_IDS.DELIVERY_STATUS_ACCEPTED_BY_CUSTOMER,
+};
+
+/**
+ * Convenience groups for `hasAnyAccess(...)` in route guards and sidebars.
+ */
+export const FRONTEND_ACCESS_GROUPS = {
+  /** Any access that opens the Dashboard route. */
+  DASHBOARD_ANY: [
+    FRONTEND_ACCESS_IDS.DASHBOARD,
+    FRONTEND_ACCESS_IDS.DASHBOARD_DELIVERY_COMPANY,
+    FRONTEND_ACCESS_IDS.DASHBOARD_CLIENT_MARKET_OWNER,
+  ],
+  /** Any access that opens the Placed Orders route. */
+  PLACED_ORDERS_ANY: [
+    FRONTEND_ACCESS_IDS.VIEW_PLACED_ORDERS,
+    FRONTEND_ACCESS_IDS.PLACED_ORDERS_CLIENT_MARKET_OWNER,
+  ],
+  /** Any access that opens the Order Analytics route. */
+  ORDER_ANALYTICS_ANY: [
+    FRONTEND_ACCESS_IDS.ORDER_ANALYTICS,
+    FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_DELIVERY_COMPANY,
+    FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_CLIENT_MARKET_OWNER,
+  ],
+  /** Any access that opens the Accounts route. */
+  ACCOUNTS_ANY: [
+    FRONTEND_ACCESS_IDS.ACCOUNTS_PANEL,
+    FRONTEND_ACCESS_IDS.ACCOUNTS_DELIVERY_COMPANY,
+    FRONTEND_ACCESS_IDS.ACCOUNTS_CLIENT_MARKET_OWNER,
+  ],
+  /** Any access that opens the Agent Jobs group. */
+  AGENT_JOBS_ANY: [
+    FRONTEND_ACCESS_IDS.EMPLOYEE_ASSIGNMENTS,
+    FRONTEND_ACCESS_IDS.PICKUP_REQUEST_ASSIGNMENTS,
+    FRONTEND_ACCESS_IDS.ON_HAND_ORDERS,
+  ],
+  /** Any access that opens the Wallets group. */
+  WALLETS_ANY: [
+    FRONTEND_ACCESS_IDS.AGENT_WALLET,
+    FRONTEND_ACCESS_IDS.CLIENT_MARKET_OWNER_WALLET,
+    FRONTEND_ACCESS_IDS.COMPANY_WALLET,
+    FRONTEND_ACCESS_IDS.BRANCH_WALLET,
+    FRONTEND_ACCESS_IDS.WALLET_MANAGEMENT,
+  ],
+  /** Any access that opens the Access Management group. */
+  ACCESS_MANAGEMENT_ANY: [
+    FRONTEND_ACCESS_IDS.ACCESS_MANAGEMENT,
+    FRONTEND_ACCESS_IDS.ACCESS_CATALOG_MANAGE,
+    FRONTEND_ACCESS_IDS.ROLE_PERMISSION_GRANT,
+    FRONTEND_ACCESS_IDS.USER_ACCESS_GRANT,
+  ],
+  /** Any access that opens the Branches group. */
+  BRANCHES_ANY: [
+    FRONTEND_ACCESS_IDS.BRANCH_MANAGEMENT,
+    FRONTEND_ACCESS_IDS.BRANCH_WALLET,
+  ],
+  /** Any access that opens the Reports pages. */
+  REPORTS_ANY: [
+    FRONTEND_ACCESS_IDS.SETTLEMENT_REPORT,
+    FRONTEND_ACCESS_IDS.USER_MONTHLY_ORDERS,
+  ],
+  /** All delivery-status permissions. */
+  DELIVERY_STATUS_ALL: Object.values(DELIVERY_STATUS_ACCESS_IDS),
 } as const;

@@ -8,6 +8,8 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import Select from 'react-select';
 import axiosInstance, { baseURL } from '../../../util/AxiosUtil';
+import { hasAccess } from '../../../util/AccessController';
+import { FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
 
 type MarketCategoryOption = {
   id: number;
@@ -315,6 +317,7 @@ function MarketRequestsManager() {
   const [editError, setEditError] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [statusUpdatingIds, setStatusUpdatingIds] = useState<number[]>([]);
+  const canDeleteMarket = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.MARKET_DELETE), []);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / countPerPage));
 
@@ -355,6 +358,7 @@ function MarketRequestsManager() {
   };
 
   const handleDeleteMarket = (marketId: number) => {
+    if (!canDeleteMarket) return;
     const confirmed = window.confirm(`Delete market #${marketId} from this list?`);
     if (!confirmed) {
       return;
@@ -614,13 +618,13 @@ function MarketRequestsManager() {
             </div>
 
             <div className="lg:col-span-2 xl:col-span-1 flex justify-stretch xl:justify-end">
-              <button
+              {canDeleteMarket && <button
                 type="button"
                 onClick={handleResetFilters}
                 className="h-12 w-full xl:w-auto px-5 rounded-lg border border-gray-300 bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] font-bold text-white shadow-lg transition-all duration-300 hover:shadow-xl text-center flex items-center justify-center gap-2"
               >
                 <ArrowPathIcon className="h-5 w-5" />
-              </button>
+              </button>}
             </div>
 
           </div>

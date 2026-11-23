@@ -19,6 +19,9 @@ import {
   grantAccessToUser,
 } from '../../../util/AccessApi';
 import { swalAlert } from '../../../util/SwalUtil';
+import { hasAccess } from '../../../util/AccessController';
+import { FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
+import { ACCESS_LEVEL_IDS, FRONTEND_ACCESS_LEVELS } from '../../../util/FrontendAccess';
 import { UserSearch } from '../career/UserSearch';
 import type { UserSearchResult } from '../career/types';
 import type { AccessRecord } from '../../../types/AccessModels';
@@ -274,6 +277,12 @@ const GrantAccessModal: React.FC<GrantAccessModalProps> = ({
   if (!isOpen) return null;
 
   const handleSave = async () => {
+    if (
+      FRONTEND_ACCESS_LEVELS[Number(access.id) as keyof typeof FRONTEND_ACCESS_LEVELS] === ACCESS_LEVEL_IDS.TOP
+      && !window.confirm('Granting a Top-level access changes this user significantly. Continue?')
+    ) {
+      return;
+    }
     const parsedUserId = Number(user.id);
     if (!Number.isFinite(parsedUserId) || parsedUserId <= 0) {
       swalAlert('Invalid User ID', 'Unable to save changes due to invalid user id.', 'error');
@@ -586,6 +595,7 @@ const UserAccessList: React.FC = () => {
 const UserAccessRoute: React.FC = () => {
   const navigate = useNavigate();
   const { userId = '' } = useParams();
+  const canGrantUserAccess = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.USER_ACCESS_GRANT), []);
   const numericUserId = Number(userId);
 
   const [user, setUser] = useState<User | null>(null);
@@ -730,6 +740,7 @@ const UserAccessRoute: React.FC = () => {
   }, [grantedAccesses]);
 
   const handleExpireNow = async (access: AccessRecord) => {
+    if (!canGrantUserAccess) return;
     if (!Number.isFinite(numericUserId) || numericUserId <= 0) {
       swalAlert('Invalid User ID', 'Unable to expire access due to invalid user id.', 'error');
       return;
@@ -891,14 +902,16 @@ const UserAccessRoute: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedAccess(granted ?? access)}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-3 py-1.5 text-xs font-semibold text-white"
-                        >
-                          {granted ? <CalendarDaysIcon className="h-4 w-4" /> : <PlusIcon className="h-4 w-4" />}
-                          {granted ? 'Edit Expiry' : 'Grant'}
-                        </button>
+                        {canGrantUserAccess && (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedAccess(granted ?? access)}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-[#F59B0F] to-[#AC6C2A] px-3 py-1.5 text-xs font-semibold text-white"
+                          >
+                            {granted ? <CalendarDaysIcon className="h-4 w-4" /> : <PlusIcon className="h-4 w-4" />}
+                            {granted ? 'Edit Expiry' : 'Grant'}
+                          </button>
+                        )}
                         {granted && !expired && (
                           <button
                             type="button"

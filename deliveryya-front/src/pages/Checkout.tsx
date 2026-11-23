@@ -101,7 +101,9 @@ function Checkout() {
         return uniqueMarketIds.length === 1 ? uniqueMarketIds[0] : null;
     }, [checkoutItems]);
 
+    const COD_PAYMENT_TYPE_ID = 1;
     const BANK_TRANSFER_PAYMENT_TYPE_ID = 2;
+    const CHECKOUT_PAYMENT_TYPE_IDS = [COD_PAYMENT_TYPE_ID, BANK_TRANSFER_PAYMENT_TYPE_ID];
     const isBankTransferSelected = selectedPaymentTypeId === BANK_TRANSFER_PAYMENT_TYPE_ID;
 
     const extractOrderId = (data: any): number | null => {
@@ -552,7 +554,9 @@ function Checkout() {
             try {
                 setIsLoadingPaymentTypes(true);
                 const response = await axiosInstance.get('/payment/get-payment-types');
-                const types = extractPaymentTypes(response.data).filter((type) => type.id !== 3);
+                const types = extractPaymentTypes(response.data).filter((type) =>
+                    CHECKOUT_PAYMENT_TYPE_IDS.includes(type.id)
+                );
 
                 if (!isMounted) return;
 
@@ -784,16 +788,18 @@ function Checkout() {
         return <FaCreditCard/>;
     };
 
-    // Only show Cash/COD and Bank Transfer payment options in the UI
+    // Only show COD and Bank Transfer payment options in the checkout UI
     const filteredPaymentTypes = useMemo(() => {
-        return paymentTypes.filter((p) => {
-            const n = (p.name || '').toLowerCase();
-            return n.includes('cash') || n.includes('cod') || n.includes('bank');
-        });
+        return paymentTypes.filter((paymentType) =>
+            CHECKOUT_PAYMENT_TYPE_IDS.includes(paymentType.id)
+        );
     }, [paymentTypes]);
 
     useEffect(() => {
-        if ((selectedPaymentTypeId === null || selectedPaymentTypeId === undefined) && filteredPaymentTypes.length > 0) {
+        const selectedOptionIsVisible = filteredPaymentTypes.some(
+            (paymentType) => paymentType.id === selectedPaymentTypeId
+        );
+        if (!selectedOptionIsVisible && filteredPaymentTypes.length > 0) {
             setSelectedPaymentTypeId(filteredPaymentTypes[0].id);
         }
     }, [filteredPaymentTypes]);

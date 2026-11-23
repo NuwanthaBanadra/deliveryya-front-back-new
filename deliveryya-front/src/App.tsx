@@ -51,6 +51,7 @@ interface FirebaseMessagePayload {
     }
 }
 import AdminUserStatusTable from './advance_panel/comps/admin_user/AdminUserStatusTable'
+import Career from './advance_panel/comps/career/Career'
 import ComplaintsManager from './advance_panel/comps/complaints/ComplaintsManager'
 import MyComplaints from './advance_panel/comps/complaints/MyComplaints'
 import CategoryBrandsManager from './advance_panel/comps/my_market/category_brands'
@@ -61,6 +62,7 @@ import OrderCheckout from './deliveryya_dashboard/comps/OrderCheckout'
 import UrgentJobs from './deliveryya_dashboard/comps/UrgentJobs'
 import AgentPaymentHandover from './deliveryya_dashboard/comps/employeeAssignment/AgentPaymentHandover'
 import OnHandOrders from './deliveryya_dashboard/comps/employeeAssignment/OnHandOrders'
+import DeliveryHistory from './deliveryya_dashboard/comps/employeeAssignment/DeliveryHistory'
 import PickupRequestAssignments from './deliveryya_dashboard/comps/employeeAssignment/PickupRequestAssignments'
 import PdfGenerator from './deliveryya_dashboard/comps/pdfGenaretor/PdfGenerator'
 import RoleGuard from './page_comps/auth/RoleGuard'
@@ -73,7 +75,7 @@ import SetupJob from './pages/SetupJob'
 import TrackYourOrder from './pages/TrackYourOrder'
 import axiosInstance from './util/AxiosUtil'
 import {messaging} from './util/FireBase'
-import {FRONTEND_ACCESS_IDS} from './util/FrontendAccess'
+import {FRONTEND_ACCESS_GROUPS, FRONTEND_ACCESS_IDS} from './util/FrontendAccess'
 import JwtUtil from './util/JwtUtil'
 import {swalAlert} from './util/SwalUtil'
 import {initializeAccessDetails} from './util/AccessController'
@@ -393,6 +395,14 @@ function App() {
                             }
                             path='manage-users'
                         />
+                        <Route
+                            element={
+                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT]}>
+                                    <Career/>
+                                </RoleGuard>
+                            }
+                            path='career'
+                        />
 
                         <Route
                             element={
@@ -405,7 +415,7 @@ function App() {
                         <Route path='branches'>
                             <Route
                                 element={
-                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT]}>
+                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.BRANCH_MANAGEMENT]}>
                                         <BranchManagement mode='list'/>
                                     </RoleGuard>
                                 }
@@ -419,7 +429,7 @@ function App() {
                             />
                             <Route
                                 element={
-                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT]}>
+                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.BRANCH_WALLET]}>
                                         <BranchManagement mode='wallet'/>
                                     </RoleGuard>
                                 }
@@ -427,7 +437,7 @@ function App() {
                             />
                             <Route
                                 element={
-                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT]}>
+                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.BRANCH_MANAGEMENT]}>
                                         <BranchManagement mode='employees'/>
                                     </RoleGuard>
                                 }
@@ -571,13 +581,7 @@ function App() {
 
                         <Route
                             element={
-                                <RoleGuard
-                                    allowedAccessIds={[
-                                        FRONTEND_ACCESS_IDS.DASHBOARD,
-                                        FRONTEND_ACCESS_IDS.DASHBOARD_DELIVERY_COMPANY,
-                                        FRONTEND_ACCESS_IDS.DASHBOARD_CLIENT_MARKET_OWNER,
-                                    ]}
-                                >
+                                <RoleGuard allowedAccessIds={FRONTEND_ACCESS_GROUPS.DASHBOARD_ANY}>
                                     <Dashboard/>
                                 </RoleGuard>
                             }
@@ -585,13 +589,7 @@ function App() {
                         />
                         <Route
                             element={
-                                <RoleGuard
-                                    allowedAccessIds={[
-                                        FRONTEND_ACCESS_IDS.DASHBOARD,
-                                        FRONTEND_ACCESS_IDS.DASHBOARD_DELIVERY_COMPANY,
-                                        FRONTEND_ACCESS_IDS.DASHBOARD_CLIENT_MARKET_OWNER,
-                                    ]}
-                                >
+                                <RoleGuard allowedAccessIds={FRONTEND_ACCESS_GROUPS.DASHBOARD_ANY}>
                                     <Dashboard/>
                                 </RoleGuard>
                             }
@@ -607,7 +605,7 @@ function App() {
                         />
                         <Route
                             element={
-                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.VIEW_PLACED_ORDERS]}>
+                                <RoleGuard allowedAccessIds={FRONTEND_ACCESS_GROUPS.PLACED_ORDERS_ANY}>
                                     <PlacedOrders/>
                                 </RoleGuard>
                             }
@@ -616,11 +614,7 @@ function App() {
                         <Route
                             element={
                                 <RoleGuard
-                                    allowedAccessIds={[
-                                        FRONTEND_ACCESS_IDS.ORDER_ANALYTICS,
-                                        FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_DELIVERY_COMPANY,
-                                        FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_CLIENT_MARKET_OWNER,
-                                    ]}
+                                    allowedAccessIds={FRONTEND_ACCESS_GROUPS.ORDER_ANALYTICS_ANY}
                                     unauthorizedMessage='You do not have permission to view Order Analytics.'
                                 >
                                     <OrderAnalytics/>
@@ -630,13 +624,7 @@ function App() {
                         />
                         <Route
                             element={
-                                <RoleGuard
-                                    allowedAccessIds={[
-                                        FRONTEND_ACCESS_IDS.ACCOUNTS_PANEL,
-                                        FRONTEND_ACCESS_IDS.ACCOUNTS_DELIVERY_COMPANY,
-                                        FRONTEND_ACCESS_IDS.ACCOUNTS_CLIENT_MARKET_OWNER,
-                                    ]}
-                                >
+                                <RoleGuard allowedAccessIds={FRONTEND_ACCESS_GROUPS.ACCOUNTS_ANY}>
                                     <Accounts/>
                                 </RoleGuard>
                             }
@@ -644,13 +632,7 @@ function App() {
                         />
                         <Route
                             element={
-                                <RoleGuard
-                                    allowedAccessIds={[
-                                        FRONTEND_ACCESS_IDS.ACCOUNTS_PANEL,
-                                        FRONTEND_ACCESS_IDS.ACCOUNTS_DELIVERY_COMPANY,
-                                        FRONTEND_ACCESS_IDS.ACCOUNTS_CLIENT_MARKET_OWNER,
-                                    ]}
-                                >
+                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.PAYMENT_RECORD_CREATE]}>
                                     <PaymentRecordCreatePage/>
                                 </RoleGuard>
                             }
@@ -683,7 +665,7 @@ function App() {
 
                         <Route
                             element={
-                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.DASHBOARD]}>
+                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.DISCOUNTS_MANAGEMENT]}>
                                     <Discounts/>
                                 </RoleGuard>
                             }
@@ -731,6 +713,14 @@ function App() {
                                 }
                                 path='on-hand-orders'
                             />
+                            <Route
+                                element={
+                                    <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.ON_HAND_ORDERS]}>
+                                        <DeliveryHistory/>
+                                    </RoleGuard>
+                                }
+                                path='delivery-history'
+                            />
                         </Route>
 
                         <Route
@@ -770,7 +760,7 @@ function App() {
                         />
                         <Route
                             element={
-                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.MANAGE_USERS]}>
+                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.USER_MONTHLY_ORDERS]}>
                                     <UserMonthlyOrders/>
                                 </RoleGuard>
                             }
@@ -778,11 +768,19 @@ function App() {
                         />
                         <Route
                             element={
-                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.MANAGE_USERS]}>
+                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.SETTLEMENT_REPORT]}>
                                     <SettlementReport/>
                                 </RoleGuard>
                             }
                             path='settlement-report'
+                        />
+                        <Route
+                            element={
+                                <RoleGuard allowedAccessIds={[FRONTEND_ACCESS_IDS.MANAGE_USERS]}>
+                                    <DeliveryHistory/>
+                                </RoleGuard>
+                            }
+                            path='agent-delivery-history'
                         />
                     </Route>
 

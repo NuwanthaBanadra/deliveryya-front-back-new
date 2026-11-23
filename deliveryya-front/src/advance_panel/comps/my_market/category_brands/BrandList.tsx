@@ -20,6 +20,7 @@ interface BrandListProps {
   onDeleteBrand: () => void;
   canDeleteProducts: boolean;
   canDeleteBrand: boolean;
+  canForceDelete: boolean;
   onRefresh: () => void;
 }
 
@@ -39,6 +40,7 @@ function BrandList({
   onDeleteBrand,
   canDeleteProducts,
   canDeleteBrand,
+  canForceDelete,
   onRefresh,
 }: BrandListProps) {
   const navigate = useNavigate();
@@ -95,7 +97,7 @@ function BrandList({
           >
             {isActive ? 'Active' : 'Inactive'}
           </span>
-          {canDeleteBrand && (
+          {canForceDelete && (
             <ForceDeleteDialog
               entityType="Brand"
               entityId={brand.id}
@@ -125,6 +127,7 @@ function BrandList({
                 onManageVariants={onManageVariants}
                 onViewFeedback={onViewFeedback}
                 onToggleStatus={onToggleStatus}
+                canForceDelete={canForceDelete}
                 canDelete={canDeleteProducts}
                 onRefresh={onRefresh}
               />

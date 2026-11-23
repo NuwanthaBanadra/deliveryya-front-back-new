@@ -12,22 +12,22 @@ function ProductImageGallery({ images, title }: ProductImageGalleryProps) {
 
     if (!images || images.length === 0) {
         return (
-            <div className="aspect-square bg-linear-to-br from-[#FFF8E7] to-[#FEF3C7] rounded-2xl sm:rounded-3xl flex items-center justify-center border-2 border-dashed border-[#FBBF24]/40">
+            <div className="aspect-[4/3] lg:aspect-square bg-[#FFF8F2] rounded-2xl sm:rounded-3xl flex items-center justify-center border border-dashed border-orange-200">
                 <span className="text-gray-400 text-sm">No images available</span>
             </div>
         );
     }
 
     return (
-        <div className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col-reverse gap-3 sm:gap-4 lg:flex-row">
             {/* Main Image */}
-            <div className="relative bg-white rounded-3xl shadow-xl overflow-hidden group border border-[#FBBF24]/20">
-                <div className="aspect-square relative">
+            <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl border border-orange-100 bg-[#FFFBF7] shadow-sm group sm:rounded-3xl">
+                <div className="aspect-[4/3] lg:aspect-square relative">
                     <img
                         src={images[selectedImage]}
                         alt={title}
-                        className={`w-full h-full object-cover transition-transform duration-500 ${
-                            zoomed ? "scale-150 cursor-zoom-out" : "group-hover:scale-105 cursor-zoom-in"
+                        className={`w-full h-full object-contain p-2 transition-transform duration-500 ${
+                            zoomed ? "scale-150 cursor-zoom-out" : "group-hover:scale-[1.03] cursor-zoom-in"
                         }`}
                         onClick={() => setZoomed(!zoomed)}
                     />
@@ -69,15 +69,15 @@ function ProductImageGallery({ images, title }: ProductImageGalleryProps) {
             </div>
 
             {/* Thumbnail strip */}
-            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide lg:w-20 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-0">
                 {images.map((img, idx) => (
                     <button
                         key={idx}
                         onClick={() => { setSelectedImage(idx); setZoomed(false); }}
-                        className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
+                        className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 sm:w-18 sm:h-18 lg:h-20 lg:w-20 ${
                             selectedImage === idx
-                                ? "border-[#F59B0F] shadow-[0_0_16px_rgba(245,155,15,0.5)] scale-105 ring-2 ring-[#FBBF24]/50"
-                                : "border-gray-200 hover:border-[#FCD34D] opacity-60 hover:opacity-100 hover:scale-105"
+                                ? "border-[#F59B0F] shadow-[0_6px_18px_rgba(245,155,15,0.20)] ring-2 ring-orange-100"
+                                : "border-gray-100 opacity-70 hover:border-orange-300 hover:opacity-100"
                         }`}
                     >
                         <img

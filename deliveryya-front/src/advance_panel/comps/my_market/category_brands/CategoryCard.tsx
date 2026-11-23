@@ -9,6 +9,7 @@ interface CategoryCardProps {
   onStatusChange: (categoryId: number, isActive: boolean) => void;
   onDelete: (categoryId: number) => void;
   canDelete: boolean;
+  canForceDelete: boolean;
   onRefresh: () => void;
 }
 
@@ -19,6 +20,7 @@ export default function CategoryCard({
   onStatusChange,
   onDelete,
   canDelete,
+  canForceDelete,
   onRefresh,
 }: CategoryCardProps) {
   const isActive = category.status === 'active';
@@ -63,7 +65,7 @@ export default function CategoryCard({
               />
             </button>
 
-            {canDelete && (
+            {canForceDelete && (
               <ForceDeleteDialog
                 entityType="Category"
                 entityId={category.id}

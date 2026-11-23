@@ -38,6 +38,19 @@ public interface DeliveryRepo extends JpaRepository<Delivery, Integer> {
             JOIN d.orders o
             JOIN d.deliveryStatus ds
             WHERE d.employees.id = :employeeId
+              AND o.paymentStatus.id = 2
+              AND o.deliveryStatus.id IN (7, 9)
+              AND ds.id IN (7, 9)
+            ORDER BY d.createdAt DESC, d.id DESC
+            """)
+    List<Delivery> findCompletedDeliveryHistory(@Param("employeeId") Integer employeeId);
+
+    @Query("""
+            SELECT d
+            FROM Delivery d
+            JOIN d.orders o
+            JOIN d.deliveryStatus ds
+            WHERE d.employees.id = :employeeId
               AND ds.id = 7
               AND o.paymentType.id = 1
             """)

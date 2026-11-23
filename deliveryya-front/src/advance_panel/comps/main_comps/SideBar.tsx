@@ -1,11 +1,11 @@
-import { ArrowLeftOnRectangleIcon, BuildingOffice2Icon, BuildingStorefrontIcon, ChevronDownIcon, ClipboardDocumentListIcon, DocumentTextIcon, ShoppingBagIcon, TruckIcon, UserCircleIcon, UsersIcon, BoltIcon, ChartBarIcon, CurrencyDollarIcon, UserGroupIcon, WalletIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftOnRectangleIcon, BuildingOffice2Icon, BuildingStorefrontIcon, ChevronDownIcon, ClipboardDocumentListIcon, DocumentTextIcon, ShoppingBagIcon, TruckIcon, UserCircleIcon, UsersIcon, BoltIcon, ChartBarIcon, CurrencyDollarIcon, UserGroupIcon, WalletIcon, TagIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logoImage from '../../../assets/images/logo.jpeg';
 import { RiBankLine } from 'react-icons/ri';
 import { BanknotesIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { ACCESS_DETAILS_UPDATED_EVENT, clearAccessDetails, ensureAccessDetails, hasAnyAccess } from '../../../util/AccessController';
-import { FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
+import { FRONTEND_ACCESS_GROUPS, FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
 import { MdOutlineDeliveryDining } from 'react-icons/md';
 
 interface SidebarProps {
@@ -123,7 +123,7 @@ const menuGroups: MenuGroup[] = [
         label: 'Placed Orders',
         icon: <TruckIcon className="w-5 h-5" />,
         href: 'placed-orders',
-        allowedAccessIds: [FRONTEND_ACCESS_IDS.VIEW_PLACED_ORDERS],
+        allowedAccessIds: FRONTEND_ACCESS_GROUPS.PLACED_ORDERS_ANY,
       },
       {
         id: 'order-checkout',
@@ -137,11 +137,7 @@ const menuGroups: MenuGroup[] = [
         label: 'Order Analytics',
         icon: <ChartBarIcon className="w-5 h-5" />,
         href: 'order-analytics',
-        allowedAccessIds: [
-          FRONTEND_ACCESS_IDS.ORDER_ANALYTICS,
-          FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_DELIVERY_COMPANY,
-          FRONTEND_ACCESS_IDS.ORDER_ANALYTICS_CLIENT_MARKET_OWNER,
-        ],
+        allowedAccessIds: FRONTEND_ACCESS_GROUPS.ORDER_ANALYTICS_ANY,
       },
       {
         id: 'urgent-jobs',
@@ -163,6 +159,7 @@ const menuGroups: MenuGroup[] = [
           { id: 'argent-jobs', label: 'Argent Jobs', href: 'employee-assignments', icon: <UserGroupIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.EMPLOYEE_ASSIGNMENTS] },
           { id: 'pickup-request-assignments', label: 'Pickup requests', href: 'employee-assignments/pickup-requests', icon: <TruckIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.PICKUP_REQUEST_ASSIGNMENTS] },
           { id: 'on-hand-orders', label: 'On hand orders', href: 'employee-assignments/on-hand-orders', icon: <ClipboardDocumentListIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.ON_HAND_ORDERS] },
+          { id: 'delivery-history', label: 'Delivery History', href: 'employee-assignments/delivery-history', icon: <TruckIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.ON_HAND_ORDERS] },
         ],
       },
       {
@@ -189,11 +186,7 @@ const menuGroups: MenuGroup[] = [
         label: 'Dashboard',
         icon: <ChartBarIcon className="w-5 h-5" />,
         href: 'dashboard',
-        allowedAccessIds: [
-          FRONTEND_ACCESS_IDS.DASHBOARD,
-          FRONTEND_ACCESS_IDS.DASHBOARD_DELIVERY_COMPANY,
-          FRONTEND_ACCESS_IDS.DASHBOARD_CLIENT_MARKET_OWNER,
-        ],
+        allowedAccessIds: FRONTEND_ACCESS_GROUPS.DASHBOARD_ANY,
       },
       {
         id: 'manage-users',
@@ -228,7 +221,7 @@ const menuGroups: MenuGroup[] = [
         label: 'Manage Branches',
         icon: <BuildingOffice2Icon className="w-5 h-5" />,
         href: 'branches',
-        allowedAccessIds: [FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT],
+        allowedAccessIds: FRONTEND_ACCESS_GROUPS.BRANCHES_ANY,
       },
       {
         id: 'access-management',
@@ -248,14 +241,24 @@ const menuGroups: MenuGroup[] = [
             allowedAccessIds: [FRONTEND_ACCESS_IDS.ACCESS_MANAGEMENT],
           },
         ],
-        allowedAccessIds: [FRONTEND_ACCESS_IDS.ACCESS_MANAGEMENT],
+        allowedAccessIds: FRONTEND_ACCESS_GROUPS.ACCESS_MANAGEMENT_ANY,
+      },
+      {
+        id: 'discounts',
+        label: 'Discounts',
+        icon: <TagIcon className="w-5 h-5" />,
+        href: 'discounts',
+        allowedAccessIds: [FRONTEND_ACCESS_IDS.DISCOUNTS_MANAGEMENT],
       },
       // {
-      //   id: 'discounts',
-      //   label: 'Discounts',
-      //   icon: <TagIcon className="w-5 h-5" />,
-      //   href: 'discounts',
-      //   allowedAccessIds: [FRONTEND_ACCESS_IDS.DASHBOARD],
+      //   id: 'reports',
+      //   label: 'Reports',
+      //   icon: <DocumentTextIcon className="w-5 h-5" />,
+      //   subItems: [
+      //     { id: 'settlement-report', label: 'Settlement Report', href: 'settlement-report', icon: <DocumentTextIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.SETTLEMENT_REPORT] },
+      //     { id: 'user-monthly-orders', label: 'User Monthly Orders', href: 'user-monthly-orders', icon: <DocumentTextIcon className="w-4 h-4" />, allowedAccessIds: [FRONTEND_ACCESS_IDS.USER_MONTHLY_ORDERS] },
+      //   ],
+      //   allowedAccessIds: FRONTEND_ACCESS_GROUPS.REPORTS_ANY,
       // },
     ],
   },
@@ -267,11 +270,7 @@ const menuGroups: MenuGroup[] = [
         label: 'Accounts',
         icon: <RiBankLine className="w-5 h-5" />,
         href: 'accounts',
-        allowedAccessIds: [
-          FRONTEND_ACCESS_IDS.ACCOUNTS_PANEL,
-          FRONTEND_ACCESS_IDS.ACCOUNTS_DELIVERY_COMPANY,
-          FRONTEND_ACCESS_IDS.ACCOUNTS_CLIENT_MARKET_OWNER,
-        ],
+        allowedAccessIds: FRONTEND_ACCESS_GROUPS.ACCOUNTS_ANY,
       },
       {
         id: 'bank-details',
@@ -347,6 +346,7 @@ const getActiveItemFromPath = (pathname: string): string => {
   if (normalized.startsWith('order-analytics')) return 'order-analytics';
   if (normalized.startsWith('employee-assignments/pickup-requests')) return 'pickup-request-assignments';
   if (normalized.startsWith('employee-assignments/on-hand-orders')) return 'on-hand-orders';
+  if (normalized.startsWith('employee-assignments/delivery-history')) return 'delivery-history';
   if (normalized.startsWith('employee-assignments/argent-jobs')) return 'argent-jobs';
   if (normalized.startsWith('employee-assignments')) return 'argent-jobs';
   if (normalized.startsWith('urgent-jobs')) return 'urgent-jobs';
@@ -356,6 +356,8 @@ const getActiveItemFromPath = (pathname: string): string => {
   if (normalized.startsWith('agent-wallet')) return 'agent-wallet';
   if (normalized.startsWith('delivery-fees')) return 'deliery-fees';
   if (normalized.startsWith('discounts')) return 'discounts';
+  if (normalized.startsWith('settlement-report')) return 'settlement-report';
+  if (normalized.startsWith('user-monthly-orders')) return 'user-monthly-orders';
 
   return 'profile-panel';
 };

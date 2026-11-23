@@ -11,7 +11,7 @@ import type { OrderDataForPdf } from '../../util/PdfUtil';
 import { MdOutlineClear } from 'react-icons/md';
 import axiosInstance, { baseURL } from '../../util/AxiosUtil';
 import { hasAccess, hasDeliveryCompanyPlacedOrdersAccess } from '../../util/AccessController';
-import { FRONTEND_ACCESS_IDS } from '../../util/FrontendAccess';
+import { DELIVERY_STATUS_ACCESS_IDS, FRONTEND_ACCESS_IDS } from '../../util/FrontendAccess';
 import JwtUtil from '../../util/JwtUtil';
 import { getDeliveryStatusVisual } from '../../util/DeliveryStatusCatalog';
 import { generateMultipleOrderSlipsPdfMake, generateOrderSlipPdfMake, type OrderSlipGenerationProgress } from './pdfGenaretor/PdfGenerator';
@@ -957,6 +957,10 @@ function ExpandedOrderDetails({ order, formatCurrency }: { order: ApiOrder, form
 function PlacedOrders() {
   const [searchParams] = useSearchParams();
   const isDeliveryCompanySide = useMemo(() => hasDeliveryCompanyPlacedOrdersAccess(), []);
+  const ownMode = useMemo(
+    () => !isDeliveryCompanySide && hasAccess(FRONTEND_ACCESS_IDS.PLACED_ORDERS_CLIENT_MARKET_OWNER),
+    [isDeliveryCompanySide]
+  );
   const canFilterSendingUsers = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.PLACED_ORDERS_SENDING_USER_FILTER), []);
   const initialOrderCodeFilter = useMemo(() => searchParams.get('orderCode')?.trim() || '', [searchParams]);
 
@@ -1098,7 +1102,9 @@ function PlacedOrders() {
     const storedUserId = Number(localStorage.getItem('userId') || 0);
     return Number.isFinite(tokenUserId) && tokenUserId > 0 ? tokenUserId : (Number.isFinite(storedUserId) ? storedUserId : 0);
   }, []);
-  const effectiveSendingUserId = canFilterSendingUsers ? (selectedSendingUser?.value ?? 0) : loggedInUserId;
+  const effectiveSendingUserId = ownMode
+    ? (loggedInUserId || 0)
+    : (canFilterSendingUsers ? (selectedSendingUser?.value ?? 0) : loggedInUserId);
 
   const pageSizeSelectOptions: SelectOption<number>[] = useMemo(
     () => [5, 10, 20, 50].map((size) => ({ value: size, label: String(size) })),
@@ -1223,7 +1229,13 @@ function PlacedOrders() {
           })
           .filter((status): status is { id: number; name: string; label: string } => status !== null);
 
-        const nextOptions = [{ id: 0, name: 'All', label: 'All' }, ...parsedStatuses];
+        const nextOptions = [
+          { id: 0, name: 'All', label: 'All' },
+          ...parsedStatuses.filter((status) =>
+            status.id === 0 ||
+            Boolean(DELIVERY_STATUS_ACCESS_IDS[status.id] && hasAccess(DELIVERY_STATUS_ACCESS_IDS[status.id]))
+          ),
+        ];
         setDeliveryStatusOptions(nextOptions);
 
         if (!nextOptions.some((status) => status.id === initialDeliveryStatusFilter)) {

@@ -871,6 +871,41 @@ orderCodes=ORD-00005-00001,ORD-00005-00002
 
 ---
 
+## 19a) Get Delivery History for the Authenticated Employee
+
+- Method: `GET`
+- Path: `/api/v1/orders/get-delivery-history`
+- Auth: `Yes`
+- Query Params: `userId` (optional; honored only for super admin, admin, owner, or manager roles; other callers are scoped to themselves)
+- Filters: delivery event employee matches the authenticated user's employee record, order payment status is `2`, the order delivery status is `7` or `9`, and the matching employee delivery event is status `7` or `9`.
+
+### Response Body Sample
+```json
+{
+  "message": "Success",
+  "desc": "Delivery history fetched successfully",
+  "object": [
+    {
+      "deliveryId": 812,
+      "orderId": 5002,
+      "orderCode": "DLV-00052",
+      "recipientName": "Sample Recipient",
+      "recipientMobile": "0770000000",
+      "address": "Sample address",
+      "totalPrice": 3250,
+      "collectivePrice": 3400,
+      "paymentStatus": "Completed",
+      "deliveryStatusId": 7,
+      "deliveryStatus": "Delivered",
+      "note": null,
+      "eventAt": "2026-11-21T10:30:00"
+    }
+  ]
+}
+```
+
+---
+
 ## 20a) Get Delivering Users History
 
 - Method: `POST`

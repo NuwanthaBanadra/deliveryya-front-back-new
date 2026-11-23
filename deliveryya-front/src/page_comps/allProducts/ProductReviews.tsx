@@ -90,7 +90,7 @@ function ProductReviews({
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-12 lg:mb-16">
+        <div className="rounded-[24px] border border-orange-100/80 bg-white p-5 shadow-[0_12px_35px_rgba(194,65,12,0.06)] sm:p-7">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
                     <span className="w-1 h-8 bg-linear-to-b from-[#EA580C] via-[#F59B0F] to-[#FBBF24] rounded-full shadow-lg shadow-[#F59B0F]/50"></span>
@@ -170,7 +170,7 @@ function ProductReviews({
             {/* Overall Rating */}
             <div className="flex flex-col md:flex-row gap-8 mb-8 pb-8 border-b border-gray-200">
                 <div className="text-center md:text-left">
-                    <div className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-[#C2410C] via-[#F59B0F] to-[#FBBF24] mb-2">{Number(rating || 0).toFixed(1)}</div>
+                    <div className="mb-2 text-4xl sm:text-5xl font-black text-[#C2410C]">{Number(rating || 0).toFixed(1)}</div>
                     <div className="flex gap-1 mb-2 justify-center md:justify-start">
                         {renderStars(rating)}
                     </div>

@@ -6,7 +6,6 @@ import ProductInfo, { type ProductStockOption } from "./ProductInfo";
 import ProductFeatures from "./ProductFeatures";
 import ProductDescription from "./ProductDescription";
 import ProductReviews from "./ProductReviews";
-import RelatedProducts from "./RelatedProducts";
 import NavBar from "../home/NavBar";
 import axiosInstance, { baseURL } from "../../util/AxiosUtil";
 import { addToCart, getCartItems } from "../../util/CartUtil";
@@ -56,16 +55,6 @@ type PagedStocksResponse = {
         items?: ApiStock[];
     };
 };
-
-interface RelatedProduct {
-    id: number;
-    title: string;
-    price: string;
-    oldPrice: string;
-    rating: number;
-    img: string;
-    discount: string;
-}
 
 function SingleProductView() {
     const { id } = useParams<{ id: string }>();
@@ -146,11 +135,11 @@ function SingleProductView() {
 
         const loadProduct = async () => {
             try {
-                let response = await axiosInstance.post<PagedProductsResponse>( "/products/get-products",
+                const response = await axiosInstance.post<PagedProductsResponse>( "/products/get-products",
                     payload
                 );
 
-                let items = response.data.exData?.items || response.data.object?.items || [];
+                const items = response.data.exData?.items || response.data.object?.items || [];
               
                 const selectedProduct = items.find((item) => item.id === productId) || items[0] || null;
 
@@ -207,8 +196,8 @@ function SingleProductView() {
             };
 
             try {
-                let response = await axiosInstance.post<PagedStocksResponse>("/stocks/get-stocks", payload);
-                let items = response.data.exData?.items || response.data.object?.items || [];
+                const response = await axiosInstance.post<PagedStocksResponse>("/stocks/get-stocks", payload);
+                const items = response.data.exData?.items || response.data.object?.items || [];
 
                 const relevantStocks = items.filter((stock) => {
                     const stockProductId = stock.products?.id ?? stock.productId;
@@ -301,7 +290,7 @@ function SingleProductView() {
         return (
             <>
                 <NavBar />
-                <div className="min-h-screen bg-linear-to-b from-amber-100 via-orange-50 to-white flex flex-col items-center justify-center gap-5 mt-20">
+                <div className="min-h-screen bg-[#FFF9F4] flex flex-col items-center justify-center gap-5 pt-24">
                     <div className="relative">
                         <div className="w-20 h-20 rounded-full border-4 border-[#FBBF24]/30 border-t-[#F59B0F] animate-spin"></div>
                         <FaSpinner className="absolute inset-0 m-auto text-[#C2410C] text-3xl animate-pulse" />
@@ -317,7 +306,7 @@ function SingleProductView() {
         return (
             <>
                 <NavBar />
-                <div className="min-h-screen bg-linear-to-b from-amber-100 via-orange-50 to-white flex flex-col items-center justify-center gap-6 mt-20 px-4">
+                <div className="min-h-screen bg-[#FFF9F4] flex flex-col items-center justify-center gap-6 pt-24 px-4">
                     <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center border-2 border-red-100">
                         <FaExclamationTriangle className="text-red-400 text-3xl" />
                     </div>
@@ -501,29 +490,26 @@ function SingleProductView() {
         <>
             <NavBar />
 
-            <div className="relative min-h-screen overflow-x-hidden bg-linear-to-b from-amber-100 via-orange-50 to-white">
-                <div className="pointer-events-none absolute -top-20 -left-24 h-72 w-72 rounded-full bg-[#F59B0F]/20 blur-3xl" />
-                <div className="pointer-events-none absolute top-40 -right-24 h-80 w-80 rounded-full bg-[#FB923C]/20 blur-3xl" />
-                {/* Breadcrumb */}
-                <div className="bg-white/85 backdrop-blur-sm border-b border-[#FBBF24]/30 sticky top-0 z-10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <div className="relative min-h-screen overflow-x-hidden bg-[#FFF9F4]">
+                <div className="border-b border-orange-100 bg-white">
+                    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
                         <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                            <Link to="/" className="hover:text-[#F59B0F] transition-colors font-medium">Home</Link>
-                            <span className="text-gray-300">/</span>
-                            <Link to="/store" className="hover:text-[#F59B0F] transition-colors font-medium">Store</Link>
-                            <span className="text-gray-300">/</span>
-                            <Link to="/all-products" className="hover:text-[#F59B0F] transition-colors font-medium">All Products</Link>
-                            <span className="text-gray-300">/</span>
-                            <span className="min-w-0 max-w-48 truncate text-[#C2410C] font-semibold sm:max-w-xs">
+                            <Link to="/" className="font-medium transition-colors hover:text-[#EA580C]">Home</Link>
+                            <span className="text-orange-200">/</span>
+                            <Link to="/store" className="font-medium transition-colors hover:text-[#EA580C]">Store</Link>
+                            <span className="text-orange-200">/</span>
+                            <Link to="/all-products" className="font-medium transition-colors hover:text-[#EA580C]">All Products</Link>
+                            <span className="text-orange-200">/</span>
+                            <span className="min-w-0 max-w-48 truncate font-semibold text-[#9A3412] sm:max-w-xs">
                                 {product.name || `Product #${product.id}`}
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+                <div className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-5 sm:px-6 lg:px-8 lg:pb-20 lg:pt-8">
                     {/* ── Main Product Section ── */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 mb-16">
+                    <div className="mb-8 grid grid-cols-1 gap-8 rounded-[28px] border border-orange-100/80 bg-white p-4 shadow-[0_18px_50px_rgba(194,65,12,0.08)] sm:p-6 lg:mb-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(380px,0.98fr)] lg:gap-10 lg:p-8 xl:p-10">
                         {/* Left — Image Gallery */}
                         <ProductImageGallery
                             images={productImages}
@@ -553,20 +539,22 @@ function SingleProductView() {
                         </div>
                     </div>
 
-                    {/* ── Description & Delivery ── */}
-                    <ProductDescription description={product.desc} />
-
-                    {/* ── Customer Reviews ── */}
-                    <ProductReviews
-                        rating={feedbackRating}
-                        reviews={reviews}
-                        totalReviews={totalFeedbacks}
-
-                        isLoading={isLoadingFeedbacks}
-                        isSubmitting={isSubmittingFeedback}
-                        canSubmitFeedback={isAuthenticated}
-                        onSubmitFeedback={handleSubmitFeedback}
-                    />
+                    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+                        <div className="lg:col-span-7">
+                            <ProductDescription description={product.desc} />
+                        </div>
+                        <div className="lg:col-span-5">
+                            <ProductReviews
+                                rating={feedbackRating}
+                                reviews={reviews}
+                                totalReviews={totalFeedbacks}
+                                isLoading={isLoadingFeedbacks}
+                                isSubmitting={isSubmittingFeedback}
+                                canSubmitFeedback={isAuthenticated}
+                                onSubmitFeedback={handleSubmitFeedback}
+                            />
+                        </div>
+                    </div>
 
                     {/* ── You May Also Like ── */}
                     {/* <RelatedProducts products={relatedProducts} /> */}

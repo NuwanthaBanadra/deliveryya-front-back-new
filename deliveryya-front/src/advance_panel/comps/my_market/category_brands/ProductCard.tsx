@@ -14,6 +14,7 @@ interface ProductCardProps {
   onViewFeedback: (product: Product) => void;
   onToggleStatus: (productId: number, isActive: boolean) => void;
   canDelete: boolean;
+  canForceDelete: boolean;
   onRefresh: () => void;
 }
 
@@ -58,6 +59,7 @@ function ProductCard({
   onViewFeedback,
   onToggleStatus,
   canDelete,
+  canForceDelete,
   onRefresh,
 }: ProductCardProps) {
   const swatchColor = resolveSwatchColor(product.color);
@@ -244,7 +246,7 @@ function ProductCard({
           >
             <ChatBubbleLeftRightIcon className="w-5 h-5" />
           </button>
-          {canDelete && (
+          {canForceDelete && (
             <ForceDeleteDialog
               entityType="Product"
               entityId={product.id}

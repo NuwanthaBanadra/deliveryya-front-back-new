@@ -2110,6 +2110,7 @@ function ProductCard({
     canDelete: boolean;
     onRefresh: () => void;
 }) {
+    const canForceDeleteCatalog = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.CATALOG_FORCE_DELETE), []);
     const swatchColors = Array.from(
         new Set((product.colors && product.colors.length > 0 ? product.colors : product.color ? [product.color] : []))
     );
@@ -2315,7 +2316,7 @@ function ProductCard({
                     >
                         <ChartBarIcon className="w-5 h-5" />
                     </button>
-                    {canDelete && (
+                    {canForceDeleteCatalog && (
                         <ForceDeleteDialog
                             entityType="Product"
                             entityId={product.id}

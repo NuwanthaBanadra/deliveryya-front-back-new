@@ -9,6 +9,7 @@ import {
 import { UserSearch } from './UserSearch';
 import { SignUpForm } from './SignUpForm';
 import { EmployeeRegistrationForm } from './EmployeeRegistrationForm';
+import UserCommunicationModal, { type CommunicationRecipient } from './UserCommunicationModal';
 import type { UserSearchResult } from './types';
 import axiosInstance from '../../../util/AxiosUtil';
 
@@ -21,7 +22,9 @@ function Career() {
     userId: number;
     firstName: string;
     lastName: string;
+    email: string;
   } | null>(null);
+  const [welcomeRecipient, setWelcomeRecipient] = useState<CommunicationRecipient | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(false);
 
   const activeUserId = selectedUser?.id ?? newUserData?.userId ?? null;
@@ -41,9 +44,9 @@ function Career() {
     setNewUserData(null);
   };
 
-  const handleSignUpSuccess = (userId: number, firstName: string, lastName: string) => {
+  const handleSignUpSuccess = (userId: number, firstName: string, lastName: string, email: string) => {
     setMode('new');
-    setNewUserData({ userId, firstName, lastName });
+    setNewUserData({ userId, firstName, lastName, email });
     setSelectedUser(null);
   };
 
@@ -53,8 +56,14 @@ function Career() {
     setNewUserData(null);
   };
 
-  const handleRegistrationSuccess = () => {
-    handleClearSelection();
+  const handleRegistrationSuccess = (contact: { email: string; mobile: string; whatsapp: string }) => {
+    setWelcomeRecipient({
+      id: activeUserId!,
+      name: `${activeFirstName} ${activeLastName}`.trim(),
+      email: contact.email || selectedUser?.email || newUserData?.email || '',
+      mobile: contact.mobile,
+      whatsapp: contact.whatsapp,
+    });
   };
 
   // Handle pre-selected user from navigation
@@ -184,12 +193,23 @@ function Career() {
               userId={activeUserId}
               firstName={activeFirstName}
               lastName={activeLastName}
+              email={selectedUser?.email ?? newUserData?.email ?? ''}
               onSuccess={handleRegistrationSuccess}
               isLoading={false}
             />
           </div>
         )}
       </div>
+      <UserCommunicationModal
+        isOpen={Boolean(welcomeRecipient)}
+        recipient={welcomeRecipient}
+        heading="Notify employee"
+        description="Employee registration complete"
+        onClose={() => {
+          setWelcomeRecipient(null);
+          handleClearSelection();
+        }}
+      />
     </div>
   );
 }

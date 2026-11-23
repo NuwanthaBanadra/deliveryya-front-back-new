@@ -31,6 +31,7 @@ export interface EmployeeFormData {
 export interface UserRole {
   id: number;
   name: string;
+  isEmployee?: boolean;
 }
 
 export interface Branch {

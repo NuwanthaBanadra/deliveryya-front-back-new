@@ -1,13 +1,10 @@
-import { FaTruck, FaShieldAlt } from "react-icons/fa";
-import { MdLocalShipping } from "react-icons/md";
-
 interface ProductDescriptionProps {
     description: string | null;
 }
 
 function ProductDescription({ description }: ProductDescriptionProps) {
     return (
-        <div className="bg-white rounded-3xl shadow-lg p-4 sm:p-6 lg:p-8 mb-12 lg:mb-16 border border-[#FBBF24]/15 overflow-hidden">
+        <div className="overflow-hidden rounded-[24px] border border-orange-100/80 bg-white p-5 shadow-[0_12px_35px_rgba(194,65,12,0.06)] sm:p-7">
             <div className="space-y-8">
                 {/* Description */}
                 {description && (

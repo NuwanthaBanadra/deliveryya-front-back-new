@@ -14,7 +14,8 @@ interface EmployeeRegistrationFormProps {
   userId: number;
   firstName: string;
   lastName: string;
-  onSuccess: () => void;
+  onSuccess: (contactDetails: { email: string; mobile: string; whatsapp: string }) => void;
+  email?: string;
   isLoading: boolean;
   branchId?: number;
   branchName?: string;
@@ -25,6 +26,7 @@ export const EmployeeRegistrationForm = ({
   firstName,
   lastName,
   onSuccess,
+  email = '',
   isLoading,
   branchId,
   branchName,
@@ -202,7 +204,7 @@ export const EmployeeRegistrationForm = ({
         text: `${fullName} has been registered as an employee.`,
       });
 
-      onSuccess();
+      onSuccess({ email, mobile: formData.mobile.trim(), whatsapp: formData.whatsapp.trim() });
     } catch (error: any) {
 
       if (error.response?.status === 409 && error.response?.data.message == "Error") {
@@ -283,7 +285,7 @@ export const EmployeeRegistrationForm = ({
               User Role *
             </label>
             <Select
-              options={userRoles.map(r => ({ value: r.id, label: r.name }))}
+              options={userRoles.filter(role => role.isEmployee === true).map(r => ({ value: r.id, label: r.name }))}
               value={formData.userRoleId ? { value: formData.userRoleId, label: userRoles.find(r => r.id === formData.userRoleId)?.name ?? '' } : null}
               onChange={selected => {
                 setFormData(prev => ({ ...prev, userRoleId: selected?.value ?? 0 }));

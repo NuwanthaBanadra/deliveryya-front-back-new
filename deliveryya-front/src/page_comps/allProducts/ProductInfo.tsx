@@ -211,15 +211,15 @@ function ProductInfo({
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight break-words">
+            <h1 className="text-2xl sm:text-3xl xl:text-[40px] font-black text-[#1A1F3A] leading-[1.12] break-words">
                 {title || "Unnamed Product"}
             </h1>
 
             {/* Price block */}
-            <div className="bg-linear-to-br from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A] p-5 rounded-2xl border border-[#F59B0F]/40 shadow-md">
+            <div className="rounded-2xl border border-orange-100 bg-gradient-to-r from-[#FFF8E7] to-[#FFF4ED] p-5">
                 {sellingPriceValue !== null ? (
                     <div className="flex items-end gap-4 flex-wrap">
-                        <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-[#92400E] via-[#C2410C] to-[#EA580C] break-all">
+                        <span className="text-3xl sm:text-4xl font-black text-[#C2410C] break-all">
                             {formatPrice(sellingPriceValue)}
                         </span>
                         {hasDiscount && (
@@ -227,7 +227,7 @@ function ProductInfo({
                                 <span className="text-base sm:text-xl text-gray-400 line-through font-medium">
                                     {formatPrice(showingPriceValue)}
                                 </span>
-                                <span className="bg-linear-to-r from-[#DC2626] to-[#EA580C] text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
+                                <span className="bg-[#EA580C] text-white text-xs font-bold px-3 py-1.5 rounded-full">
                                     -{discountPercent}% OFF
                                 </span>
                             </>
@@ -235,7 +235,7 @@ function ProductInfo({
                     </div>
                 ) : showingPriceValue !== null ? (
                     <div className="flex items-end gap-3">
-                        <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-[#92400E] via-[#C2410C] to-[#EA580C] break-all">
+                        <span className="text-3xl sm:text-4xl font-black text-[#C2410C] break-all">
                             {formatPrice(showingPriceValue)}
                         </span>
                     </div>
@@ -245,8 +245,8 @@ function ProductInfo({
             </div>
 
             {/* Availability */}
-            <div className="flex items-center gap-3 p-4 bg-[#F0FDF4] border border-green-200 rounded-2xl">
-                <FaCheckCircle className={`text-xl flex-shrink-0 ${isSelectedStockInStock ? "text-green-500" : "text-red-500"}`} />
+            <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${isSelectedStockInStock ? "border-green-100 bg-green-50/70" : "border-red-100 bg-red-50"}`}>
+                <FaCheckCircle className={`text-lg flex-shrink-0 ${isSelectedStockInStock ? "text-green-600" : "text-red-500"}`} />
                 <div>
                     <span className={`font-semibold text-sm ${isSelectedStockInStock ? "text-green-800" : "text-red-800"}`}>
                         {isSelectedStockInStock ? "In Stock" : "Out of Stock"}
@@ -419,12 +419,12 @@ function ProductInfo({
             </div>
 
             {/* Action buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_52px] gap-3 pt-1">
                 <button
                     type="button"
                     onClick={() => onAddToCart?.(quantity)}
                     disabled={areActionsDisabled}
-                    className="w-full bg-linear-to-r from-[#C2410C] via-[#EA580C] to-[#F59B0F] text-white py-4 px-6 rounded-2xl font-bold text-base shadow-lg shadow-[#F59B0F]/40 hover:shadow-2xl hover:shadow-[#F59B0F]/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full bg-linear-to-r from-[#FF6347] to-[#FF4500] text-white py-4 px-6 rounded-2xl font-bold text-base shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <FaShoppingCart />
                     {isAddingToCart ? "Adding..." : "Add to Cart"}
@@ -474,7 +474,7 @@ function ProductInfo({
                         title="Share product"
                         onClick={() => setIsShareMenuOpen((prev) => !prev)}
                         aria-label="Open share options"
-                        className="w-full sm:w-auto p-4 rounded-2xl border-2 border-[#FBBF24]/40 bg-white hover:border-[#F59B0F] hover:shadow-md hover:shadow-[#F59B0F]/20 transition-all hover:scale-105 active:scale-95"
+                        className="w-full h-[52px] rounded-2xl border border-orange-200 bg-white flex items-center justify-center hover:border-[#F59B0F] hover:bg-orange-50 transition-all"
                     >
                         <FaShare className="text-gray-500 text-xl" />
                     </button>
@@ -486,7 +486,7 @@ function ProductInfo({
                 type="button"
                 onClick={() => onBuyNow?.(quantity)}
                 disabled={areActionsDisabled}
-                className="w-full bg-linear-to-r from-[#15803D] via-[#16A34A] to-[#22C55E] hover:from-[#166534] hover:via-[#15803D] hover:to-[#16A34A] text-white py-4 px-6 rounded-2xl font-bold text-base shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="w-full rounded-2xl border-2 border-[#C2410C] bg-white py-4 px-6 text-base font-bold text-[#C2410C] shadow-sm hover:bg-[#C2410C] hover:text-white active:scale-[0.98] transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
                 Buy Now
             </button>

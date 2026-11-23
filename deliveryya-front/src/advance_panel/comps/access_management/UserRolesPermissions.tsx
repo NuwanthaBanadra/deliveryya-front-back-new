@@ -17,6 +17,9 @@ import {
 } from '../../../util/AccessApi';
 import { swalAlert } from '../../../util/SwalUtil';
 import type { AccessRecord } from '../../../types/AccessModels';
+import { hasAccess } from '../../../util/AccessController';
+import { FRONTEND_ACCESS_IDS } from '../../../util/FrontendAccess';
+import { ACCESS_LEVEL_IDS, FRONTEND_ACCESS_LEVELS } from '../../../util/FrontendAccess';
 import {
   allAccessLevelOption,
   allAccessTypeOption,
@@ -254,6 +257,7 @@ const RoleAccessRoute: React.FC = () => {
   const navigate = useNavigate();
   const { roleId = '' } = useParams();
   const numericRoleId = Number(roleId);
+  const canGrantRoleAccess = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.ROLE_PERMISSION_GRANT), []);
 
   const [roleName, setRoleName] = useState(`Role ${roleId}`);
   const [accesses, setAccesses] = useState<AccessRecord[]>([]);
@@ -405,6 +409,7 @@ const RoleAccessRoute: React.FC = () => {
   ), [selectedAccessIds.length, totalCount]);
 
   const handleAccessToggle = (accessId: string) => {
+    if (!canGrantRoleAccess) return;
     setSelectedAccessIds((prev) => (
       prev.includes(accessId)
         ? prev.filter((id) => id !== accessId)
@@ -436,6 +441,7 @@ const RoleAccessRoute: React.FC = () => {
   };
 
   const handleSelectAllToggle = async () => {
+    if (!canGrantRoleAccess) return;
     if (isAllSelected) {
       setSelectedAccessIds([]);
       return;
@@ -454,6 +460,7 @@ const RoleAccessRoute: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
+    if (!canGrantRoleAccess) return;
     if (!Number.isFinite(numericRoleId) || numericRoleId <= 0) {
       swalAlert('Invalid role id', 'Please go back and open the role again.', 'error');
       return;
@@ -471,6 +478,14 @@ const RoleAccessRoute: React.FC = () => {
         .filter((id) => !selected.has(id))
         .map((id) => Number(id))
         .filter((id) => Number.isFinite(id) && id > 0);
+
+      const addingTopAccess = accesses.some((access) =>
+        addedAccessIds.includes(Number(access.id))
+        && FRONTEND_ACCESS_LEVELS[Number(access.id) as keyof typeof FRONTEND_ACCESS_LEVELS] === ACCESS_LEVEL_IDS.TOP
+      );
+      if (addingTopAccess && !window.confirm('Granting a Top-level access changes this role significantly. Continue?')) {
+        return;
+      }
 
       if (addedAccessIds.length > 0) {
         await grantAccessToUserRole({
@@ -510,14 +525,14 @@ const RoleAccessRoute: React.FC = () => {
     <div className="rounded-2xl border border-gray-200 bg-white shadow-md">
       <div className="flex flex-col gap-4 border-b border-gray-200 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-3">
-          <button
+          {canGrantRoleAccess && <button
             type="button"
             onClick={() => navigate('/deliverYya-cloud-console/access-management/roles')}
             className="rounded-lg border border-gray-300 p-2 text-gray-700 hover:bg-gray-50"
             aria-label="Back to roles"
           >
             <ArrowLeftIcon className="h-5 w-5" />
-          </button>
+          </button>}
           <div className="rounded-xl bg-amber-50 p-2 text-[#AC6C2A] ring-1 ring-amber-200">
             <ShieldCheckIcon className="h-6 w-6" />
           </div>
@@ -575,7 +590,7 @@ const RoleAccessRoute: React.FC = () => {
               <input
                 type="checkbox"
                 checked={isAllSelected}
-                disabled={isHydratingSelection || isSelectingAll || isSavingChanges}
+                disabled={!canGrantRoleAccess || isHydratingSelection || isSelectingAll || isSavingChanges}
                 onChange={() => void handleSelectAllToggle()}
                 className="h-4 w-4 rounded text-[#F59B0F] focus:ring-[#F59B0F] disabled:opacity-50"
               />
@@ -638,7 +653,7 @@ const RoleAccessRoute: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={isGranted}
-                        disabled={isSavingChanges}
+                        disabled={!canGrantRoleAccess || isSavingChanges}
                         onChange={() => handleAccessToggle(String(access.id))}
                         className="h-5 w-5 cursor-pointer rounded text-[#F59B0F] focus:ring-[#F59B0F] disabled:cursor-not-allowed disabled:opacity-50"
                       />

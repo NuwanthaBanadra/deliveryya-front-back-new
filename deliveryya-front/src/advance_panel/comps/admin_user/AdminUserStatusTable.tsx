@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { ArrowPathIcon, BanknotesIcon, BellIcon, BriefcaseIcon, CheckCircleIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, ClockIcon, DocumentArrowDownIcon, DocumentCheckIcon, EllipsisVerticalIcon, EnvelopeIcon, EyeIcon, FunnelIcon, MagnifyingGlassIcon, NoSymbolIcon, TagIcon, TrashIcon, UserGroupIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, BanknotesIcon, BellIcon, BriefcaseIcon, CheckCircleIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, ClockIcon, DocumentArrowDownIcon, DocumentCheckIcon, EllipsisVerticalIcon, EnvelopeIcon, EyeIcon, FunnelIcon, MagnifyingGlassIcon, NoSymbolIcon, TagIcon, TrashIcon, TruckIcon, UserGroupIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select, { type SingleValue } from 'react-select';
@@ -48,7 +48,9 @@ interface BackendUserDto {
   emailVerified?: boolean;
   isEmailVerified?: boolean;
   verificationStatus?: { id?: number; name?: string } | string;
-  userRole?: { id?: number; name?: string; level?: number | null; roleLevel?: number | null };
+  userRole?: { id?: number | string; roleId?: number | string; name?: string; level?: number | null; roleLevel?: number | null };
+  userRoleId?: number | string;
+  roleId?: number | string;
   createdAt?: string;
   joinedAt?: string;
   createdDate?: string;
@@ -202,6 +204,7 @@ const mapBackendUserToTableUser = (user: BackendUserDto): UserData => {
       ? user.verificationStatus
       : user.verificationStatus?.name ?? 'Pending';
   const roleString = formatRoleUpper(user.userRole?.name);
+  const parsedRoleId = Number(user.userRole?.id ?? user.userRole?.roleId ?? user.userRoleId ?? user.roleId);
 
   return {
     id: String(user.id),
@@ -211,13 +214,16 @@ const mapBackendUserToTableUser = (user: BackendUserDto): UserData => {
     email: user.email || '—',
     nic: user.nic,
     role: roleString,
-    userRoleId: user.userRole?.id,
+    userRoleId: Number.isInteger(parsedRoleId) && parsedRoleId > 0 ? parsedRoleId : undefined,
     verification: normalizeVerification(verificationText),
     account: user.isActive ? 'Active' : 'Inactive',
     emailStatus: user.emailVerified || user.isEmailVerified ? 'Verified' : 'Unverified',
     flags: Array.isArray(user.flags) ? user.flags : []
   };
 };
+
+const isAgentUser = (user: UserData): boolean =>
+  user.userRoleId === 7 || user.role.trim().toUpperCase().includes('AGENT');
 
 const getParsedDate = (value: string): Date | null => {
   if (!value || value === 'Ã¢â‚¬"') return null;
@@ -280,10 +286,28 @@ function AdminUserStatusTable() {
     () => hasAccess(FRONTEND_ACCESS_IDS.USER_ROLE_UPDATE_OR_DELETE),
     []
   );
+  const canForceDeleteUsers = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.USER_FORCE_DELETE), []);
+  const canVerifyDocuments = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.VERIFY_DOCUMENTS), []);
+  const canViewBankDetails = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.BANK_DETAILS), []);
+  const canManageDiscounts = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.DISCOUNTS_MANAGEMENT), []);
+  const canViewSettlementReportAccess = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.SETTLEMENT_REPORT), []);
+  const canViewMonthlyOrders = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.USER_MONTHLY_ORDERS), []);
+  const canRegisterAsEmployee = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.CAREER_MANAGEMENT), []);
+  const canViewDeliveryHistory = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.ON_HAND_ORDERS), []);
+  const canPromoteUser = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.PROMOTE_USER), []);
   const canUseNotifications = useMemo(
-    () => hasAccess(FRONTEND_ACCESS_IDS.NOTIFICATION_ACCESS),
+    () => hasAccess(FRONTEND_ACCESS_IDS.SEND_NOTIFICATIONS),
     []
   );
+  const canShowUserActions = canUseNotifications
+    || canVerifyDocuments
+    || canViewBankDetails
+    || canManageDiscounts
+    || canViewSettlementReportAccess
+    || canViewDeliveryHistory
+    || canPromoteUser
+    || canUpdateOrDeleteUsers
+    || canForceDeleteUsers;
 
   const [selectedMonth, setSelectedMonth] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -712,7 +736,11 @@ function AdminUserStatusTable() {
     navigate('/deliverYya-cloud-console/user-monthly-orders', { state: { userId: user.id, userName: user.name } });
   };
 
-  const handleRegisterAsEmployee = (user: UserData) => {
+  const handleDeliveryHistory = (user: UserData) => {
+    navigate('/deliverYya-cloud-console/agent-delivery-history', { state: { userId: user.id, userName: user.name } });
+  };
+
+  const handlePromoteUser = (user: UserData) => {
     navigate('/deliverYya-cloud-console/career', {
       state: {
         preSelectedUser: {
@@ -725,13 +753,6 @@ function AdminUserStatusTable() {
         preSelectedUserId: user.id,
       },
     });
-  };
-
-  const isCompanySideRole = (roleId?: number): boolean => {
-    if (!roleId) return false;
-    // Company side roles: 1,2,3,4,7,9,10,11,12,13,14,15
-    const companySideRoles = [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15];
-    return companySideRoles.includes(roleId);
   };
 
   const handleViewVerifyDocuments = (user: UserData) => {
@@ -813,8 +834,8 @@ function AdminUserStatusTable() {
   };
 
   const handleForceDeleteUser = async (userId: string, userName: string, userEmail: string) => {
-    if (!canUpdateOrDeleteUsers) {
-      Swal.fire('Action Not Allowed', 'You do not have access to update or delete users.', 'warning');
+    if (!canForceDeleteUsers) {
+      Swal.fire('Action Not Allowed', 'You do not have access to force delete users.', 'warning');
       return;
     }
 
@@ -1417,13 +1438,15 @@ function AdminUserStatusTable() {
                             <EnvelopeIcon className="w-5 h-5 text-gray-700" />
                           </button>
                         )}
-                        <button
-                          onClick={() => handleViewBankDetails(user.id)}
-                          className="p-2 rounded-lg border-2 border-gray-200 bg-white hover:bg-emerald-50 hover:border-emerald-500 transition-all"
-                          title="View Bank Details"
-                        >
-                          <BanknotesIcon className="w-5 h-5 text-gray-700" />
-                        </button>
+                        {canViewBankDetails && (
+                          <button
+                            onClick={() => handleViewBankDetails(user.id)}
+                            className="p-2 rounded-lg border-2 border-gray-200 bg-white hover:bg-emerald-50 hover:border-emerald-500 transition-all"
+                            title="View Bank Details"
+                          >
+                            <BanknotesIcon className="w-5 h-5 text-gray-700" />
+                          </button>
+                        )}
                         {/* <button
                           onClick={() => handleViewNotifications(user.id)}
                           className="p-2 rounded-lg border-2 border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-500 transition-all"
@@ -1431,20 +1454,26 @@ function AdminUserStatusTable() {
                         >
                           <BellIcon className="w-5 h-5 text-gray-700" />
                         </button> */}
-                        <Menu as="div" className="relative">
-                          <button
-                            type="button"
-                            onClick={() => handleSettlementReport(user)}
-                            className="mr-2 rounded-lg border-2 border-gray-200 bg-white p-2 transition-all hover:border-[#F59B0F] hover:bg-orange-50"
-                            title="View Settlement Report"
-                            aria-label={`View settlement report for ${user.name}`}
-                          >
-                            <EyeIcon className="h-5 w-5 text-gray-700" />
-                          </button>
+                        {canShowUserActions && <Menu as="div" className="relative">
+                          {canViewSettlementReportAccess && (
+                            <button
+                              type="button"
+                              onClick={() => handleSettlementReport(user)}
+                              className="mr-2 rounded-lg border-2 border-gray-200 bg-white p-2 transition-all hover:border-[#F59B0F] hover:bg-orange-50"
+                              title="View Settlement Report"
+                              aria-label={`View settlement report for ${user.name}`}
+                            >
+                              <EyeIcon className="h-5 w-5 text-gray-700" />
+                            </button>
+                          )}
                           <MenuButton className="p-2 rounded-lg border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-[#F59B0F] transition-all">
                             <EllipsisVerticalIcon className="w-5 h-5 text-gray-700" />
                           </MenuButton>
-                          <MenuItems className="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition data-closed:scale-95 data-closed:opacity-0 overflow-hidden">
+                          <MenuItems
+                            anchor="bottom end"
+                            portal
+                            className="z-[9999] w-56 origin-top-right rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition data-closed:scale-95 data-closed:opacity-0 overflow-hidden [--anchor-gap:0.5rem]"
+                          >
                             <div className="p-1">
                               {canUseNotifications && (
                                 <MenuItem>
@@ -1457,7 +1486,7 @@ function AdminUserStatusTable() {
                                   </button>
                                 </MenuItem>
                               )}
-                              <MenuItem>
+                              {canVerifyDocuments && <MenuItem>
                                 <button
                                   onClick={() => handleViewVerifyDocuments(user)}
                                   className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
@@ -1465,8 +1494,8 @@ function AdminUserStatusTable() {
                                   <DocumentCheckIcon className="w-4 h-4" />
                                   Verify Documents
                                 </button>
-                              </MenuItem>
-                              <MenuItem>
+                              </MenuItem>}
+                              {canViewBankDetails && <MenuItem>
                                 <button
                                   onClick={() => handleViewBankDetails(user.id)}
                                   className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
@@ -1474,8 +1503,8 @@ function AdminUserStatusTable() {
                                   <BanknotesIcon className="w-4 h-4" />
                                   View Bank Details
                                 </button>
-                              </MenuItem>
-                              <MenuItem>
+                              </MenuItem>}
+                              {canManageDiscounts && <MenuItem>
                                 <button
                                   onClick={() => handleViewDiscounts(user)}
                                   className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 rounded-lg transition"
@@ -1483,24 +1512,37 @@ function AdminUserStatusTable() {
                                   <TagIcon className="w-4 h-4" />
                                   View Discounts
                                 </button>
-                              </MenuItem>
-                              <MenuItem>
-                                <button
-                                  onClick={() => handleSettlementReport(user)}
-                                  className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 rounded-lg transition"
-                                >
-                                  <DocumentArrowDownIcon className="w-4 h-4" />
-                                  Settlement Report
-                                </button>
-                              </MenuItem>
-                              {!isCompanySideRole(user.userRoleId) && (
+                              </MenuItem>}
+                              {canViewSettlementReportAccess && (
                                 <MenuItem>
                                   <button
-                                    onClick={() => handleRegisterAsEmployee(user)}
+                                    onClick={() => handleSettlementReport(user)}
+                                    className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 rounded-lg transition"
+                                  >
+                                    <DocumentArrowDownIcon className="w-4 h-4" />
+                                    Settlement Report
+                                  </button>
+                                </MenuItem>
+                              )}
+                              {canViewDeliveryHistory && isAgentUser(user) && (
+                                <MenuItem>
+                                  <button
+                                    onClick={() => handleDeliveryHistory(user)}
+                                    className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                  >
+                                    <TruckIcon className="w-4 h-4" />
+                                    Delivery History
+                                  </button>
+                                </MenuItem>
+                              )}
+                              {canPromoteUser && (
+                                <MenuItem>
+                                  <button
+                                    onClick={() => handlePromoteUser(user)}
                                     className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 rounded-lg transition"
                                   >
                                     <BriefcaseIcon className="w-4 h-4" />
-                                    Register as Employee
+                                    Promote User
                                   </button>
                                 </MenuItem>
                               )}
@@ -1517,21 +1559,23 @@ function AdminUserStatusTable() {
                                       Disable User
                                     </button>
                                   </MenuItem>
-                                  <MenuItem>
-                                    <button
-                                      onClick={() => handleForceDeleteUser(user.id, user.name, user.email)}
-                                      className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition"
-                                    >
-                                      <TrashIcon className="w-4 h-4" />
-                                      Delete User
-                                    </button>
-                                  </MenuItem>
                                 </>
+                              )}
+                              {canForceDeleteUsers && (
+                                <MenuItem>
+                                  <button
+                                    onClick={() => handleForceDeleteUser(user.id, user.name, user.email)}
+                                    className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition"
+                                  >
+                                    <TrashIcon className="w-4 h-4" />
+                                    Delete User
+                                  </button>
+                                </MenuItem>
                               )}
 
                             </div>
                           </MenuItems>
-                        </Menu>
+                        </Menu>}
                       </div>
                     </td>
                   </tr>

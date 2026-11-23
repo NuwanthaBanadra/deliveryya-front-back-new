@@ -60,6 +60,8 @@ public interface OrderService {
 
     OnHandSummaryDto getOnHandOrders(Integer userId);
 
+    List<DeliveryHistoryItemDto> getDeliveryHistory(Integer userId);
+
     OrderDashboardSummaryDto getOrderDashboardStatuses(Integer userId);
 
     OrderRevenueTrendResponseDto getRevenueOrdersTrend(OrderRevenueTrendRequestDto dto);

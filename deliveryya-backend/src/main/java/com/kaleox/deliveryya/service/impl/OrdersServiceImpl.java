@@ -1172,6 +1172,34 @@ public class OrdersServiceImpl implements OrderService {
     }
 
     @Override
+    public List<DeliveryHistoryItemDto> getDeliveryHistory(Integer userId) {
+        Employee employee = employeeRepo.findByUsers_Id(userId)
+                .orElseThrow(() -> new BusinessException("Employee not found", null));
+
+        return deliveryRepo.findCompletedDeliveryHistory(employee.getId()).stream()
+                .map(delivery -> {
+                    Order order = delivery.getOrders();
+                    DeliveryTo recipient = order.getDeliveryTo();
+                    return DeliveryHistoryItemDto.builder()
+                            .deliveryId(delivery.getId())
+                            .orderId(order.getId())
+                            .orderCode(order.getOrderCode() != null ? order.getOrderCode().getCode() : null)
+                            .recipientName(recipient != null ? recipient.getFullName() : null)
+                            .recipientMobile(recipient != null ? recipient.getPrimaryMobile() : null)
+                            .address(recipient != null ? recipient.getAddress() : null)
+                            .totalPrice(order.getTotalPrice())
+                            .collectivePrice(order.getCollectivePrice())
+                            .paymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().getName() : null)
+                            .deliveryStatusId(delivery.getDeliveryStatus().getId())
+                            .deliveryStatus(delivery.getDeliveryStatus().getName())
+                            .note(delivery.getNote())
+                            .eventAt(delivery.getCreatedAt())
+                            .build();
+                })
+                .toList();
+    }
+
+    @Override
     public OrderDashboardSummaryDto getOrderDashboardStatuses(Integer userId) {
         User user = userRepo.findById(userId).orElseThrow(() -> new BusinessException("User not found", null));
 

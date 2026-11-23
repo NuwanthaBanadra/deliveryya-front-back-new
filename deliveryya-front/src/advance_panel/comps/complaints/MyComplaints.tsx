@@ -181,7 +181,7 @@ function MyComplaints() {
   const [expandedComplaintId, setExpandedComplaintId] = useState<number | null>(null);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const canDeleteComplaints = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.COMPLAINT_DELETE), []);
+  const canDeleteComplaints = useMemo(() => hasAccess(FRONTEND_ACCESS_IDS.OWN_COMPLAINT_DELETE), []);
 
   const pageSizeOptions = [5, 10, 20, 50];
   const [pageNumber, setPageNumber] = useState(1);

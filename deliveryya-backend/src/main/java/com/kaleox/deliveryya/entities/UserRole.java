@@ -25,4 +25,6 @@ public class UserRole {
     @Column(name = "level", nullable = false)
     private Integer level;
 
+    @Column(name = "is_employee", nullable = false, columnDefinition = "BIT(1) DEFAULT 0")
+    private Boolean isEmployee = false;
 }

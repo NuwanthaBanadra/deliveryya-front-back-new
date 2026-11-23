@@ -27,7 +27,6 @@ public class UpdateUserRoleOrDeleteDto {
     Integer verificationStatusId;
 
     Boolean isActive;
-    Boolean isEmployee;
     Boolean hasMarket;
 
     Boolean isDeleted;

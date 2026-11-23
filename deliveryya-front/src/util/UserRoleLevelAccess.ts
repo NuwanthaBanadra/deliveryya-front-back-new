@@ -6,6 +6,7 @@ export type UserRoleDetail = {
   id: number;
   name: string;
   level: number | null;
+  isEmployee: boolean;
 };
 
 export type CurrentUserRoleAccess = {
@@ -80,7 +81,7 @@ const normalizeRole = (role: unknown): UserRoleDetail | null => {
   const name = asString(role.name ?? role.roleName) ?? `Role ${id}`;
   const level = toPositiveInteger(role.level ?? role.roleLevel ?? role.userRoleLevel);
 
-  return { id, name, level };
+  return { id, name, level, isEmployee: role.isEmployee === true };
 };
 
 export const fetchUserRoles = async (): Promise<UserRoleDetail[]> => {
